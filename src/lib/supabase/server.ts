@@ -3,8 +3,11 @@
 // ============================================
 
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
+import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
 import type { Database } from '@/types/database';
+
+export type SupabaseClient = ReturnType<typeof createSupabaseClient<Database>>;
 
 export async function createServerSupabaseClient() {
   const cookieStore = await cookies();
@@ -37,18 +40,12 @@ export async function createServerSupabaseClient() {
 }
 
 // Admin client with service role key (bypasses RLS)
+// Using direct Supabase client for better type inference
 export function createAdminClient() {
-  return createServerClient<Database>(
+  return createSupabaseClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
     {
-      cookies: {
-        get() {
-          return undefined;
-        },
-        set() {},
-        remove() {},
-      },
       auth: {
         autoRefreshToken: false,
         persistSession: false,

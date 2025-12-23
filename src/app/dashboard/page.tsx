@@ -3,22 +3,31 @@
 import { useState, useEffect } from 'react';
 import { useUser } from '@clerk/nextjs';
 import Link from 'next/link';
+import type { CallType } from '@/types/database';
 
 interface Stats {
   totalCalls: number;
-  avgScore: number;
+  avgScore: number | null;
   currentStreak: number;
   callsThisWeek: number;
 }
 
+interface SkillScores {
+  opening: number | null;
+  discovery: number | null;
+  objection_handling: number | null;
+  call_control: number | null;
+  closing: number | null;
+}
+
 interface RecentCall {
   id: string;
-  prospectName: string;
-  prospectTitle: string;
-  type: 'cold_call' | 'discovery' | 'objection';
-  score: number;
-  duration: string;
-  createdAt: string;
+  type: CallType;
+  persona_name: string;
+  persona_title: string;
+  overall_score: number | null;
+  duration_seconds: number | null;
+  created_at: string;
 }
 
 const practiceTypes = [
@@ -27,91 +36,116 @@ const practiceTypes = [
     label: 'Cold Call',
     icon: 'ph-phone-outgoing',
     description: 'Practice opening calls and booking meetings',
-    color: 'var(--primary-500)',
+    color: '#6366f1',
   },
   {
     id: 'discovery',
     label: 'Discovery',
     icon: 'ph-magnifying-glass',
     description: 'Practice uncovering pain points',
-    color: 'var(--success-500)',
+    color: '#10b981',
   },
   {
-    id: 'objection',
+    id: 'objection_gauntlet',
     label: 'Objections',
     icon: 'ph-shield',
     description: 'Handle common pushback scenarios',
-    color: 'var(--warning-500)',
+    color: '#f59e0b',
   },
 ];
+
+const skillLabels: Record<string, string> = {
+  opening: 'Opening',
+  discovery: 'Discovery',
+  objection_handling: 'Objection Handling',
+  call_control: 'Call Control',
+  closing: 'Closing',
+};
 
 export default function DashboardPage() {
   const { user } = useUser();
   const [isLoading, setIsLoading] = useState(true);
-
   const [stats, setStats] = useState<Stats>({
     totalCalls: 0,
-    avgScore: 0,
+    avgScore: null,
     currentStreak: 0,
     callsThisWeek: 0,
   });
-
+  const [skillScores, setSkillScores] = useState<SkillScores>({
+    opening: null,
+    discovery: null,
+    objection_handling: null,
+    call_control: null,
+    closing: null,
+  });
   const [recentCalls, setRecentCalls] = useState<RecentCall[]>([]);
+  const [focusArea, setFocusArea] = useState<{ skill: string; label: string } | null>(null);
 
-  // Simulated data - replace with actual API call
   useEffect(() => {
-    // Simulate loading
-    setTimeout(() => {
-      setStats({
-        totalCalls: 23,
-        avgScore: 7.4,
-        currentStreak: 4,
-        callsThisWeek: 6,
-      });
-      setRecentCalls([
-        {
-          id: '1',
-          prospectName: 'Sarah Chen',
-          prospectTitle: 'VP of Operations',
-          type: 'cold_call',
-          score: 7.8,
-          duration: '3:24',
-          createdAt: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
-        },
-        {
-          id: '2',
-          prospectName: 'Mike Torres',
-          prospectTitle: 'CTO',
-          type: 'discovery',
-          score: 6.2,
-          duration: '8:15',
-          createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
-        },
-        {
-          id: '3',
-          prospectName: 'Lisa Park',
-          prospectTitle: 'Director of Sales',
-          type: 'objection',
-          score: 8.5,
-          duration: '5:42',
-          createdAt: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString(),
-        },
-      ]);
-      setIsLoading(false);
-    }, 500);
+    fetchDashboardData();
   }, []);
 
-  const getTypeLabel = (type: string) => {
+  const fetchDashboardData = async () => {
+    setIsLoading(true);
+    try {
+      // Fetch progress data
+      const progressRes = await fetch('/api/user/progress?range=7d');
+      if (progressRes.ok) {
+        const progressData = await progressRes.json();
+        if (progressData.progress) {
+          const p = progressData.progress;
+          setStats({
+            totalCalls: p.total_calls,
+            avgScore: p.avg_overall_score,
+            currentStreak: p.current_streak,
+            callsThisWeek: p.total_calls, // For 7d range, this is the week's calls
+          });
+          setSkillScores(p.skill_scores || skillScores);
+
+          // Find weakest skill for focus area
+          const skills = Object.entries(p.skill_scores || {})
+            .filter(([_, v]) => v !== null) as [string, number][];
+          if (skills.length > 0) {
+            const weakest = skills.sort(([_, a], [__, b]) => a - b)[0];
+            setFocusArea({
+              skill: weakest[0],
+              label: skillLabels[weakest[0]] || weakest[0],
+            });
+          }
+        }
+      }
+
+      // Fetch recent calls
+      const callsRes = await fetch('/api/calls');
+      if (callsRes.ok) {
+        const callsData = await callsRes.json();
+        setRecentCalls((callsData.calls || []).slice(0, 3));
+      }
+    } catch (err) {
+      console.error('Failed to fetch dashboard data:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const getTypeLabel = (type: CallType) => {
     switch (type) {
       case 'cold_call':
         return 'Cold Call';
       case 'discovery':
         return 'Discovery';
-      case 'objection':
+      case 'objection_gauntlet':
         return 'Objections';
       default:
         return type;
     }
+  };
+
+  const formatDuration = (seconds: number | null) => {
+    if (!seconds) return '--:--';
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
   const formatTimeAgo = (dateString: string) => {
@@ -128,10 +162,25 @@ export default function DashboardPage() {
     return `${diffDays}d ago`;
   };
 
-  const getScoreColor = (score: number) => {
-    if (score >= 8) return 'var(--success-500)';
-    if (score >= 6) return 'var(--primary-500)';
-    return 'var(--warning-500)';
+  const getScoreColor = (score: number | null) => {
+    if (!score) return '#6b7280';
+    if (score >= 8) return '#10b981';
+    if (score >= 6) return '#f59e0b';
+    return '#ef4444';
+  };
+
+  const getFocusMessage = () => {
+    if (!focusArea) {
+      return 'Complete some practice calls to identify areas for improvement.';
+    }
+    const messages: Record<string, string> = {
+      opening: 'Your openers could be stronger. Focus on earning attention in the first 10 seconds.',
+      discovery: 'You\'re not digging deep enough into pain points. Ask more "why" and "how" questions.',
+      objection_handling: 'Work on reframing objections as opportunities to learn more about their needs.',
+      call_control: 'Practice guiding conversations back on track when prospects go off-topic.',
+      closing: 'Don\'t forget to ask for a specific next step at the end of each call.',
+    };
+    return messages[focusArea.skill] || `Focus on improving your ${focusArea.label} skills.`;
   };
 
   return (
@@ -146,10 +195,12 @@ export default function DashboardPage() {
             Ready to sharpen your sales skills today?
           </p>
         </div>
-        <div className="streak-badge">
-          <i className="ph-fill ph-fire"></i>
-          <span>{stats.currentStreak} day streak</span>
-        </div>
+        {stats.currentStreak > 0 && (
+          <div className="streak-badge">
+            <i className="ph-fill ph-fire"></i>
+            <span>{stats.currentStreak} day streak</span>
+          </div>
+        )}
       </div>
 
       {/* Quick Start */}
@@ -191,19 +242,21 @@ export default function DashboardPage() {
           <div className="stat-card-label">Total Calls</div>
         </div>
         <div className="stat-card">
-          <div className="stat-card-icon">
+          <div className="stat-card-icon" style={{ color: getScoreColor(stats.avgScore) }}>
             <i className="ph ph-chart-line-up"></i>
           </div>
-          <div className="stat-card-value">
-            {isLoading ? '-' : `${stats.avgScore.toFixed(1)}/10`}
+          <div className="stat-card-value" style={{ color: getScoreColor(stats.avgScore) }}>
+            {isLoading ? '-' : stats.avgScore ? `${stats.avgScore.toFixed(1)}/10` : '--'}
           </div>
           <div className="stat-card-label">Avg Score</div>
         </div>
         <div className="stat-card">
-          <div className="stat-card-icon">
+          <div className="stat-card-icon" style={{ color: stats.currentStreak > 0 ? '#f59e0b' : undefined }}>
             <i className="ph ph-fire"></i>
           </div>
-          <div className="stat-card-value">{isLoading ? '-' : stats.currentStreak}</div>
+          <div className="stat-card-value" style={{ color: stats.currentStreak > 0 ? '#f59e0b' : undefined }}>
+            {isLoading ? '-' : stats.currentStreak}
+          </div>
           <div className="stat-card-label">Day Streak</div>
         </div>
         <div className="stat-card">
@@ -221,14 +274,14 @@ export default function DashboardPage() {
           <i className="ph ph-target"></i>
         </div>
         <div className="focus-area-content">
-          <h3>Focus Area: Discovery Questions</h3>
-          <p>
-            In 4 of your last 6 calls, you didn't dig deep enough into pain points.
-            Try asking "How is that impacting your team?" more often.
-          </p>
+          <h3>Focus Area{focusArea ? `: ${focusArea.label}` : ''}</h3>
+          <p>{getFocusMessage()}</p>
         </div>
-        <Link href="/dashboard/practice?type=discovery" className="focus-area-btn">
-          Practice Discovery
+        <Link
+          href={`/dashboard/practice${focusArea?.skill === 'discovery' ? '?type=discovery' : focusArea?.skill === 'objection_handling' ? '?type=objection_gauntlet' : ''}`}
+          className="focus-area-btn"
+        >
+          Practice Now
           <i className="ph ph-arrow-right"></i>
         </Link>
       </div>
@@ -254,32 +307,34 @@ export default function DashboardPage() {
             {recentCalls.map((call) => (
               <Link
                 key={call.id}
-                href={`/dashboard/history/${call.id}`}
+                href={`/dashboard/call/${call.id}/debrief`}
                 className="recent-call-item"
               >
                 <div className="recent-call-avatar">
-                  {call.prospectName
+                  {call.persona_name
                     .split(' ')
                     .map((n) => n[0])
                     .join('')}
                 </div>
                 <div className="recent-call-info">
-                  <div className="recent-call-name">{call.prospectName}</div>
-                  <div className="recent-call-title">{call.prospectTitle}</div>
+                  <div className="recent-call-name">{call.persona_name}</div>
+                  <div className="recent-call-title">{call.persona_title}</div>
                 </div>
                 <div className="recent-call-meta">
                   <span className="recent-call-type">{getTypeLabel(call.type)}</span>
-                  <span
-                    className="recent-call-score"
-                    style={{ color: getScoreColor(call.score) }}
-                  >
-                    {call.score.toFixed(1)}
-                  </span>
+                  {call.overall_score !== null && (
+                    <span
+                      className="recent-call-score"
+                      style={{ color: getScoreColor(call.overall_score) }}
+                    >
+                      {call.overall_score.toFixed(1)}
+                    </span>
+                  )}
                   <span className="recent-call-duration">
                     <i className="ph ph-timer"></i>
-                    {call.duration}
+                    {formatDuration(call.duration_seconds)}
                   </span>
-                  <span className="recent-call-time">{formatTimeAgo(call.createdAt)}</span>
+                  <span className="recent-call-time">{formatTimeAgo(call.created_at)}</span>
                 </div>
               </Link>
             ))}
@@ -306,48 +361,31 @@ export default function DashboardPage() {
           </Link>
         </div>
         <div className="skill-bars">
-          <div className="skill-bar">
-            <div className="skill-bar-label">
-              <span>Opening</span>
-              <span>8.1</span>
-            </div>
-            <div className="skill-bar-track">
-              <div className="skill-bar-fill" style={{ width: '81%' }}></div>
-            </div>
-          </div>
-          <div className="skill-bar">
-            <div className="skill-bar-label">
-              <span>Discovery</span>
-              <span>6.2</span>
-            </div>
-            <div className="skill-bar-track">
-              <div
-                className="skill-bar-fill needs-work"
-                style={{ width: '62%' }}
-              ></div>
-            </div>
-          </div>
-          <div className="skill-bar">
-            <div className="skill-bar-label">
-              <span>Objection Handling</span>
-              <span>7.1</span>
-            </div>
-            <div className="skill-bar-track">
-              <div className="skill-bar-fill" style={{ width: '71%' }}></div>
-            </div>
-          </div>
-          <div className="skill-bar">
-            <div className="skill-bar-label">
-              <span>Closing</span>
-              <span>5.4</span>
-            </div>
-            <div className="skill-bar-track">
-              <div
-                className="skill-bar-fill needs-work"
-                style={{ width: '54%' }}
-              ></div>
-            </div>
-          </div>
+          {Object.entries(skillScores).map(([key, value]) => {
+            const label = skillLabels[key] || key;
+            const score = value || 0;
+            const needsWork = score > 0 && score < 6;
+
+            return (
+              <div key={key} className="skill-bar">
+                <div className="skill-bar-label">
+                  <span>{label}</span>
+                  <span style={{ color: getScoreColor(value) }}>
+                    {value !== null ? value.toFixed(1) : '--'}
+                  </span>
+                </div>
+                <div className="skill-bar-track">
+                  <div
+                    className={`skill-bar-fill ${needsWork ? 'needs-work' : ''}`}
+                    style={{
+                      width: `${(score / 10) * 100}%`,
+                      backgroundColor: score > 0 ? getScoreColor(score) : undefined,
+                    }}
+                  ></div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>

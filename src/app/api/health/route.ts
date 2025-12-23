@@ -3,29 +3,32 @@
 // GET /api/health
 // ============================================
 
-import { NextRequest, NextResponse } from 'next/server';
-import { checkAIHealth } from '@/lib/ai/client';
+import { NextResponse } from 'next/server';
 
-export async function GET(request: NextRequest) {
-  const aiHealth = await checkAIHealth();
-
+export async function GET() {
   const health = {
     status: 'ok',
     timestamp: new Date().toISOString(),
     services: {
       ai: {
-        claude: {
-          configured: aiHealth.claude,
+        gemini: {
+          configured: !!process.env.GOOGLE_AI_API_KEY,
           role: 'primary',
         },
         groq: {
-          configured: aiHealth.groq,
-          role: 'fallback',
+          configured: !!process.env.GROQ_API_KEY,
+          role: 'fast-inference',
+        },
+      },
+      voice: {
+        elevenlabs: {
+          configured: !!process.env.ELEVENLABS_API_KEY && !!process.env.ELEVENLABS_AGENT_ID,
+          role: 'conversational-ai',
         },
       },
       database: {
         supabase: {
-          configured: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
+          configured: !!process.env.NEXT_PUBLIC_SUPABASE_URL && !!process.env.SUPABASE_SERVICE_ROLE_KEY,
         },
       },
       auth: {
@@ -33,19 +36,15 @@ export async function GET(request: NextRequest) {
           configured: !!process.env.CLERK_SECRET_KEY,
         },
       },
-      linkedin: {
-        rapidapi: {
-          configured: !!process.env.RAPIDAPI_KEY,
-        },
-      },
     },
   };
 
   // Check if critical services are configured
   const criticalServicesOk =
-    (aiHealth.claude || aiHealth.groq) && // At least one AI provider
-    !!process.env.NEXT_PUBLIC_SUPABASE_URL &&
-    !!process.env.CLERK_SECRET_KEY;
+    (!!process.env.GOOGLE_AI_API_KEY || !!process.env.GROQ_API_KEY) && // At least one AI provider
+    !!process.env.ELEVENLABS_API_KEY && // Voice AI
+    !!process.env.NEXT_PUBLIC_SUPABASE_URL && // Database
+    !!process.env.CLERK_SECRET_KEY; // Auth
 
   if (!criticalServicesOk) {
     return NextResponse.json(

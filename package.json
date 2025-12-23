@@ -13,6 +13,8 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.32.1",
     "@clerk/nextjs": "^6.9.1",
+    "@elevenlabs/react": "^0.12.3",
+    "@google/generative-ai": "^0.24.1",
     "@lottiefiles/dotlottie-react": "^0.17.10",
     "@rive-app/react-canvas": "^4.24.0",
     "@rive-app/react-webgl2": "^4.24.0",
@@ -21,6 +23,7 @@
     "next": "^15.2.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "recharts": "^3.6.0",
     "svix": "^1.44.0"
   },
   "devDependencies": {

@@ -1,17 +1,14 @@
 // ============================================
 // SPARROW AI - Groq API Client
-// Supports multiple models including GPT-OSS, Llama, Qwen
+// High-performance inference for real-time scoring and analysis
+// Supports: Llama, GPT-OSS, Qwen, Whisper, Compound models
 // ============================================
 
-import { ERROR_CODES } from '@/config/constants';
-import { getDefaultModel, getModelById } from '@/config/ai-models';
-import type { LinkedInProfileData, MeetingGoal } from '@/types';
+import { GROQ_MODELS, DEFAULT_MODELS, type GroqModel } from './config';
 
-const GROQ_BASE_URL = 'https://api.groq.com/openai/v1/chat/completions';
+const GROQ_BASE_URL = 'https://api.groq.com/openai/v1';
 
-// Default models
-const DEFAULT_GROQ_MODEL = 'openai/gpt-oss-120b';
-const FAST_GROQ_MODEL = 'llama-3.1-8b-instant';
+// -------------------- Types --------------------
 
 export class GroqError extends Error {
   code: string;
@@ -25,29 +22,13 @@ export class GroqError extends Error {
   }
 }
 
-interface GroqMessage {
+export interface ChatMessage {
   role: 'system' | 'user' | 'assistant';
   content: string;
 }
 
-interface GroqResponse {
-  id: string;
-  choices: Array<{
-    message: {
-      role: string;
-      content: string;
-    };
-    finish_reason: string;
-  }>;
-  usage: {
-    prompt_tokens: number;
-    completion_tokens: number;
-    total_tokens: number;
-  };
-}
-
-interface GroqRequestOptions {
-  model?: string;
+export interface ChatOptions {
+  model?: GroqModel;
   maxTokens?: number;
   temperature?: number;
   topP?: number;
@@ -56,26 +37,65 @@ interface GroqRequestOptions {
   reasoningEffort?: 'low' | 'medium' | 'high';
 }
 
+export interface ScoreResult {
+  overall: number;
+  categories: {
+    opening: number;
+    discovery: number;
+    objection_handling: number;
+    call_control: number;
+    closing: number;
+  };
+  outcome: 'meeting_booked' | 'callback' | 'rejected' | 'no_decision';
+  confidence: number;
+}
+
+export interface DeepAnalysisResult {
+  scores: ScoreResult;
+  feedback: Array<{
+    category: 'opening' | 'discovery' | 'objection_handling' | 'call_control' | 'closing';
+    timestamp_estimate: string;
+    type: 'positive' | 'negative' | 'missed_opportunity';
+    content: string;
+    suggestion?: string;
+    excerpt?: string;
+  }>;
+  summary: string;
+  key_strengths: string[];
+  areas_for_improvement: string[];
+}
+
+export interface SafetyResult {
+  safe: boolean;
+  categories: {
+    violence: boolean;
+    harassment: boolean;
+    hate_speech: boolean;
+    self_harm: boolean;
+    sexual_content: boolean;
+  };
+  flagged_content?: string;
+}
+
+// -------------------- Core API Functions --------------------
+
 /**
  * Makes a request to Groq API
  */
 async function groqRequest(
-  messages: GroqMessage[],
-  options: GroqRequestOptions = {}
+  messages: ChatMessage[],
+  options: ChatOptions = {}
 ): Promise<string> {
   const apiKey = process.env.GROQ_API_KEY;
 
   if (!apiKey) {
-    throw new GroqError(
-      'Groq API key not configured',
-      ERROR_CODES.INTERNAL_ERROR
-    );
+    throw new GroqError('Groq API key not configured', 'CONFIG_ERROR');
   }
 
   const {
-    model = DEFAULT_GROQ_MODEL,
+    model = DEFAULT_MODELS.ANALYSIS,
     maxTokens = 8192,
-    temperature = 1,
+    temperature = 0.7,
     topP = 1,
     stream = false,
     useTools = false,
@@ -92,7 +112,7 @@ async function groqRequest(
     stream,
   };
 
-  // Add reasoning effort for supported models
+  // Add reasoning effort for supported models (GPT-OSS, Compound)
   if (model.includes('gpt-oss') || model.includes('compound')) {
     requestBody.reasoning_effort = reasoningEffort;
   }
@@ -106,7 +126,7 @@ async function groqRequest(
   }
 
   try {
-    const response = await fetch(GROQ_BASE_URL, {
+    const response = await fetch(`${GROQ_BASE_URL}/chat/completions`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${apiKey}`,
@@ -119,35 +139,20 @@ async function groqRequest(
       const errorText = await response.text();
 
       if (response.status === 429) {
-        throw new GroqError(
-          'Groq rate limit exceeded',
-          ERROR_CODES.RATE_LIMIT_EXCEEDED,
-          429
-        );
+        throw new GroqError('Rate limit exceeded', 'RATE_LIMIT', 429);
       }
 
       if (response.status === 401 || response.status === 403) {
-        throw new GroqError(
-          'Groq authentication failed',
-          ERROR_CODES.INTERNAL_ERROR,
-          response.status
-        );
+        throw new GroqError('Authentication failed', 'AUTH_ERROR', response.status);
       }
 
-      throw new GroqError(
-        `Groq API error: ${errorText}`,
-        ERROR_CODES.INTERNAL_ERROR,
-        response.status
-      );
+      throw new GroqError(`API error: ${errorText}`, 'API_ERROR', response.status);
     }
 
-    const data: GroqResponse = await response.json();
+    const data = await response.json();
 
     if (!data.choices?.[0]?.message?.content) {
-      throw new GroqError(
-        'Invalid response from Groq',
-        ERROR_CODES.INTERNAL_ERROR
-      );
+      throw new GroqError('Invalid response from Groq', 'RESPONSE_ERROR');
     }
 
     return data.choices[0].message.content;
@@ -157,281 +162,465 @@ async function groqRequest(
     }
 
     throw new GroqError(
-      `Groq request failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
-      ERROR_CODES.INTERNAL_ERROR
+      `Request failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      'REQUEST_ERROR'
     );
   }
 }
 
 /**
- * Makes a request to Groq API with a specific model
+ * Standard chat completion
  */
-export async function groqChat(
-  messages: GroqMessage[],
-  modelId: string,
-  options: Omit<GroqRequestOptions, 'model'> = {}
+export async function chat(
+  messages: ChatMessage[],
+  options: ChatOptions = {}
 ): Promise<string> {
-  return groqRequest(messages, { ...options, model: modelId });
-}
-
-// -------------------- Brief Generation (Groq) --------------------
-
-export interface GeneratedBrief {
-  summary: string;
-  talking_points: string[];
-  common_ground: string[];
-  icebreaker: string;
-  questions: string[];
-  // Enhanced fields
-  personality_insights?: string;
-  communication_style?: string;
-  rapport_tips?: string[];
-  potential_challenges?: string[];
-  meeting_strategy?: string;
-  follow_up_hooks?: string[];
-  linkedin_dm_template?: string;
-  email_template?: string;
-}
-
-interface BriefGenerationContext {
-  targetProfile: LinkedInProfileData;
-  userProfile?: LinkedInProfileData | null;
-  meetingGoal: MeetingGoal;
-  userName?: string;
-  userCompany?: string;
-  userRole?: string;
+  return groqRequest(messages, options);
 }
 
 /**
- * Generates a meeting prep brief using Groq (fallback)
+ * Streaming chat completion
  */
-export async function generateBriefWithGroq(
-  context: BriefGenerationContext
-): Promise<GeneratedBrief> {
-  const { targetProfile, userProfile, meetingGoal, userName, userCompany, userRole } = context;
+export async function* chatStream(
+  messages: ChatMessage[],
+  options: ChatOptions = {}
+): AsyncGenerator<string, void, unknown> {
+  const apiKey = process.env.GROQ_API_KEY;
 
-  const systemPrompt = buildBriefSystemPrompt();
-  const userPrompt = buildBriefUserPrompt(
-    targetProfile,
-    userProfile,
-    meetingGoal,
-    userName,
-    userCompany,
-    userRole
-  );
-
-  try {
-    const response = await groqRequest(
-      [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt },
-      ],
-      { maxTokens: 4096, temperature: 0.7 }
-    );
-
-    return parseGeneratedBrief(response);
-  } catch (error) {
-    if (error instanceof GroqError) {
-      throw error;
-    }
-
-    throw new GroqError(
-      `Failed to generate brief with Groq: ${error instanceof Error ? error.message : 'Unknown error'}`,
-      ERROR_CODES.INTERNAL_ERROR
-    );
+  if (!apiKey) {
+    throw new GroqError('Groq API key not configured', 'CONFIG_ERROR');
   }
-}
 
-function buildBriefSystemPrompt(): string {
-  return `You are an elite meeting strategist and executive coach. Analyze LinkedIn profiles and generate comprehensive, highly actionable meeting briefs.
+  const {
+    model = DEFAULT_MODELS.ANALYSIS,
+    maxTokens = 8192,
+    temperature = 0.7,
+    topP = 1,
+  } = options;
 
-Respond ONLY with valid JSON:
-{
-  "summary": "2-3 sentence executive summary: WHO they are, their POWER/INFLUENCE, KEY achievements, what drives them",
-  "personality_insights": "Based on career trajectory and choices - what type of person? Analytical, creative, relationship-focused, results-driven?",
-  "communication_style": "How to communicate with them: data/facts, stories/vision, relationship-building, or straight to business?",
-  "talking_points": ["5-7 highly specific, researched points showing you've done your homework"],
-  "common_ground": ["3-5 genuine connection points - be creative with overlaps"],
-  "rapport_tips": ["3 specific techniques to build rapport with THIS person"],
-  "potential_challenges": ["2-3 potential objections or friction points to prepare for"],
-  "meeting_strategy": "2-3 sentence tactical strategy for maximum success",
-  "icebreaker": "Brilliant, personalized opener showing genuine research - NOT generic",
-  "questions": ["5 thoughtful questions showing deep research they'll WANT to answer"],
-  "follow_up_hooks": ["3 specific things to follow up on after the meeting"],
-  "linkedin_dm_template": "Warm LinkedIn DM under 300 chars that feels authentic",
-  "email_template": "Professional personalized email with clear CTA"
-}
+  const response = await fetch(`${GROQ_BASE_URL}/chat/completions`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model,
+      messages,
+      max_completion_tokens: maxTokens,
+      temperature,
+      top_p: topP,
+      stream: true,
+    }),
+  });
 
-CRITICAL: Be SPECIFIC - every point must reference their actual profile. Generic advice is useless.
-Think STRATEGICALLY - what angles give the user leverage?
-Be INSIGHTFUL - read between the lines of their career choices.
-Respond ONLY with JSON, no other text.`;
-}
+  if (!response.ok) {
+    throw new GroqError('Stream request failed', 'STREAM_ERROR', response.status);
+  }
 
-function buildBriefUserPrompt(
-  targetProfile: LinkedInProfileData,
-  userProfile: LinkedInProfileData | null | undefined,
-  meetingGoal: MeetingGoal,
-  userName?: string,
-  userCompany?: string,
-  userRole?: string
-): string {
-  const meetingContext = getMeetingContext(meetingGoal);
+  const reader = response.body?.getReader();
+  if (!reader) {
+    throw new GroqError('No response body', 'STREAM_ERROR');
+  }
 
-  let prompt = `Generate a meeting prep brief for the following LinkedIn profile.
+  const decoder = new TextDecoder();
+  let buffer = '';
 
-**Meeting Goal:** ${meetingContext}
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
 
-**Target Person's Profile:**
-- Name: ${targetProfile.full_name}
-- Headline: ${targetProfile.headline || 'N/A'}
-- Location: ${[targetProfile.city, targetProfile.state, targetProfile.country_full_name].filter(Boolean).join(', ') || 'N/A'}
-- Summary: ${targetProfile.summary || 'N/A'}
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split('\n');
+    buffer = lines.pop() || '';
 
-**Current Experience:**
-${formatExperiences(targetProfile.experiences?.slice(0, 3))}
+    for (const line of lines) {
+      if (line.startsWith('data: ')) {
+        const data = line.slice(6);
+        if (data === '[DONE]') return;
 
-**Education:**
-${formatEducation(targetProfile.education?.slice(0, 2))}
-
-**Skills:** ${targetProfile.skills?.slice(0, 10).join(', ') || 'N/A'}
-`;
-
-  if (userProfile || userName) {
-    prompt += `\n**About Me (the person preparing for the meeting):**`;
-
-    if (userName) prompt += `\n- Name: ${userName}`;
-    if (userCompany) prompt += `\n- Company: ${userCompany}`;
-    if (userRole) prompt += `\n- Role: ${userRole}`;
-
-    if (userProfile) {
-      prompt += `\n- Headline: ${userProfile.headline || 'N/A'}`;
-      prompt += `\n- Skills: ${userProfile.skills?.slice(0, 5).join(', ') || 'N/A'}`;
-
-      if (userProfile.experiences?.length) {
-        const currentJob = userProfile.experiences[0];
-        prompt += `\n- Current Role: ${currentJob.title} at ${currentJob.company}`;
+        try {
+          const parsed = JSON.parse(data);
+          const content = parsed.choices?.[0]?.delta?.content;
+          if (content) {
+            yield content;
+          }
+        } catch {
+          // Skip invalid JSON
+        }
       }
     }
   }
-
-  prompt += `\n\nGenerate the brief JSON now:`;
-
-  return prompt;
 }
 
-function getMeetingContext(goal: MeetingGoal): string {
-  // Preset goal descriptions
-  const presetContexts: Record<string, string> = {
-    networking: 'Professional networking - building a genuine connection',
-    sales: 'Sales meeting - understanding their needs and presenting solutions',
-    hiring: 'Hiring/recruiting - evaluating cultural fit and discussing opportunities',
-    investor: 'Investor meeting - discussing potential investment or partnership',
-    partner: 'Partnership discussion - exploring business collaboration',
-    general: 'General professional meeting',
-  };
+// -------------------- Sales Call Scoring --------------------
 
-  // Check if it's a preset goal
-  if (presetContexts[goal]) {
-    return presetContexts[goal];
-  }
+/**
+ * Quick scoring for real-time feedback (~200ms)
+ * Uses fast models for immediate feedback during/after calls
+ */
+export async function quickScore(
+  transcript: string,
+  callType: 'cold_call' | 'discovery' | 'objection_gauntlet',
+  personaContext: string
+): Promise<ScoreResult> {
+  const systemPrompt = `You are an expert sales coach analyzing a ${callType.replace(/_/g, ' ')} call.
+Evaluate the sales rep's performance and provide scores from 1-10 for each category.
+Be objective and fair. Consider the prospect context: ${personaContext}
 
-  // Custom goal - use the text directly with context
-  return `Custom goal: ${goal} - tailor the brief to help achieve this specific objective`;
-}
+Respond ONLY with valid JSON in this exact format:
+{
+  "overall": <number 1-10>,
+  "categories": {
+    "opening": <number 1-10>,
+    "discovery": <number 1-10>,
+    "objection_handling": <number 1-10>,
+    "call_control": <number 1-10>,
+    "closing": <number 1-10>
+  },
+  "outcome": "<meeting_booked|callback|rejected|no_decision>",
+  "confidence": <number 0-1>
+}`;
 
-function formatExperiences(experiences?: LinkedInProfileData['experiences']): string {
-  if (!experiences?.length) return 'N/A';
+  const response = await chat(
+    [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: `Analyze this call transcript:\n\n${transcript}` },
+    ],
+    {
+      model: GROQ_MODELS.LLAMA_3_1_8B_INSTANT,
+      temperature: 0.3,
+      maxTokens: 512,
+    }
+  );
 
-  return experiences
-    .map((exp) => {
-      const duration = exp.ends_at
-        ? `${exp.starts_at?.year || '?'} - ${exp.ends_at.year}`
-        : `${exp.starts_at?.year || '?'} - Present`;
-      return `- ${exp.title} at ${exp.company} (${duration})`;
-    })
-    .join('\n');
-}
-
-function formatEducation(education?: LinkedInProfileData['education']): string {
-  if (!education?.length) return 'N/A';
-
-  return education
-    .map((edu) => {
-      return `- ${edu.school}${edu.degree_name ? `, ${edu.degree_name}` : ''}${edu.field_of_study ? ` in ${edu.field_of_study}` : ''}`;
-    })
-    .join('\n');
-}
-
-function parseGeneratedBrief(text: string): GeneratedBrief {
   try {
-    // Try to extract JSON from the response
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    const jsonMatch = response.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
       throw new Error('No JSON found in response');
     }
-
-    const parsed = JSON.parse(jsonMatch[0]);
-
-    if (!parsed.summary || typeof parsed.summary !== 'string') {
-      throw new Error('Missing or invalid summary');
-    }
-
-    return {
-      summary: parsed.summary,
-      talking_points: Array.isArray(parsed.talking_points)
-        ? parsed.talking_points.filter((p: unknown) => typeof p === 'string')
-        : [],
-      common_ground: Array.isArray(parsed.common_ground)
-        ? parsed.common_ground.filter((p: unknown) => typeof p === 'string')
-        : [],
-      icebreaker:
-        typeof parsed.icebreaker === 'string'
-          ? parsed.icebreaker
-          : 'Great to connect with you!',
-      questions: Array.isArray(parsed.questions)
-        ? parsed.questions.filter((p: unknown) => typeof p === 'string')
-        : [],
-      // Enhanced fields
-      personality_insights: typeof parsed.personality_insights === 'string' ? parsed.personality_insights : undefined,
-      communication_style: typeof parsed.communication_style === 'string' ? parsed.communication_style : undefined,
-      rapport_tips: Array.isArray(parsed.rapport_tips)
-        ? parsed.rapport_tips.filter((p: unknown) => typeof p === 'string')
-        : undefined,
-      potential_challenges: Array.isArray(parsed.potential_challenges)
-        ? parsed.potential_challenges.filter((p: unknown) => typeof p === 'string')
-        : undefined,
-      meeting_strategy: typeof parsed.meeting_strategy === 'string' ? parsed.meeting_strategy : undefined,
-      follow_up_hooks: Array.isArray(parsed.follow_up_hooks)
-        ? parsed.follow_up_hooks.filter((p: unknown) => typeof p === 'string')
-        : undefined,
-      linkedin_dm_template: typeof parsed.linkedin_dm_template === 'string' ? parsed.linkedin_dm_template : undefined,
-      email_template: typeof parsed.email_template === 'string' ? parsed.email_template : undefined,
-    };
+    return JSON.parse(jsonMatch[0]) as ScoreResult;
   } catch (error) {
-    throw new GroqError(
-      `Failed to parse brief: ${error instanceof Error ? error.message : 'Invalid JSON'}`,
-      ERROR_CODES.INTERNAL_ERROR
-    );
+    console.error('Failed to parse quick score response:', error);
+    return {
+      overall: 5,
+      categories: {
+        opening: 5,
+        discovery: 5,
+        objection_handling: 5,
+        call_control: 5,
+        closing: 5,
+      },
+      outcome: 'no_decision',
+      confidence: 0,
+    };
   }
 }
 
-// -------------------- Chat (Groq Fallback) --------------------
+/**
+ * Deep analysis using more powerful models (~2-5 seconds)
+ * Provides detailed feedback with timestamps and suggestions
+ */
+export async function deepAnalysis(
+  transcript: string,
+  callType: 'cold_call' | 'discovery' | 'objection_gauntlet',
+  personaContext: string,
+  quickScoreResult?: ScoreResult
+): Promise<DeepAnalysisResult> {
+  const systemPrompt = `You are an expert sales coach providing detailed analysis of a ${callType.replace(/_/g, ' ')} call.
+Context about the prospect: ${personaContext}
+${quickScoreResult ? `Initial quick scores: ${JSON.stringify(quickScoreResult)}` : ''}
+
+Provide comprehensive feedback with specific timestamps and actionable suggestions.
+Respond ONLY with valid JSON in this exact format:
+{
+  "scores": {
+    "overall": <number 1-10>,
+    "categories": {
+      "opening": <number 1-10>,
+      "discovery": <number 1-10>,
+      "objection_handling": <number 1-10>,
+      "call_control": <number 1-10>,
+      "closing": <number 1-10>
+    },
+    "outcome": "<meeting_booked|callback|rejected|no_decision>",
+    "confidence": <number 0-1>
+  },
+  "feedback": [
+    {
+      "category": "<opening|discovery|objection_handling|call_control|closing>",
+      "timestamp_estimate": "<e.g., 0:30>",
+      "type": "<positive|negative|missed_opportunity>",
+      "content": "<what happened>",
+      "suggestion": "<what to do better>",
+      "excerpt": "<relevant quote from transcript>"
+    }
+  ],
+  "summary": "<2-3 sentence overall summary>",
+  "key_strengths": ["<strength 1>", "<strength 2>"],
+  "areas_for_improvement": ["<area 1>", "<area 2>"]
+}`;
+
+  const response = await chat(
+    [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: `Analyze this call transcript in detail:\n\n${transcript}` },
+    ],
+    {
+      model: GROQ_MODELS.LLAMA_3_3_70B_VERSATILE,
+      temperature: 0.4,
+      maxTokens: 4096,
+    }
+  );
+
+  try {
+    const jsonMatch = response.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      throw new Error('No JSON found in response');
+    }
+    return JSON.parse(jsonMatch[0]) as DeepAnalysisResult;
+  } catch (error) {
+    console.error('Failed to parse deep analysis response:', error);
+    throw new GroqError('Failed to analyze transcript', 'PARSE_ERROR');
+  }
+}
+
+// -------------------- Content Safety --------------------
+
+/**
+ * Content safety check using Llama Guard
+ */
+export async function checkSafety(content: string): Promise<SafetyResult> {
+  const systemPrompt = `You are a content safety classifier. Analyze the following content for safety issues.
+Respond ONLY with valid JSON:
+{
+  "safe": <boolean>,
+  "categories": {
+    "violence": <boolean - true if detected>,
+    "harassment": <boolean - true if detected>,
+    "hate_speech": <boolean - true if detected>,
+    "self_harm": <boolean - true if detected>,
+    "sexual_content": <boolean - true if detected>
+  },
+  "flagged_content": "<brief description if unsafe, null if safe>"
+}`;
+
+  const response = await chat(
+    [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: `Check this content for safety:\n\n${content}` },
+    ],
+    {
+      model: GROQ_MODELS.LLAMA_GUARD_4_12B,
+      temperature: 0.1,
+      maxTokens: 256,
+    }
+  );
+
+  try {
+    const jsonMatch = response.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      throw new Error('No JSON found in response');
+    }
+    return JSON.parse(jsonMatch[0]) as SafetyResult;
+  } catch (error) {
+    console.error('Failed to parse safety response:', error);
+    return {
+      safe: true,
+      categories: {
+        violence: false,
+        harassment: false,
+        hate_speech: false,
+        self_harm: false,
+        sexual_content: false,
+      },
+    };
+  }
+}
+
+// -------------------- Speech-to-Text --------------------
+
+/**
+ * Transcribe audio using Whisper models
+ */
+export async function transcribeAudio(
+  audioFile: File | Blob,
+  options: {
+    language?: string;
+    model?: typeof GROQ_MODELS.WHISPER_LARGE_V3 | typeof GROQ_MODELS.WHISPER_LARGE_V3_TURBO;
+  } = {}
+): Promise<{ text: string; segments?: Array<{ start: number; end: number; text: string }> }> {
+  const apiKey = process.env.GROQ_API_KEY;
+
+  if (!apiKey) {
+    throw new GroqError('Groq API key not configured', 'CONFIG_ERROR');
+  }
+
+  const { model = GROQ_MODELS.WHISPER_LARGE_V3_TURBO, language = 'en' } = options;
+
+  const formData = new FormData();
+  formData.append('file', audioFile, 'audio.wav');
+  formData.append('model', model);
+  formData.append('language', language);
+  formData.append('response_format', 'verbose_json');
+
+  const response = await fetch(`${GROQ_BASE_URL}/audio/transcriptions`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+    },
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new GroqError(`Transcription failed: ${errorText}`, 'TRANSCRIPTION_ERROR', response.status);
+  }
+
+  const data = await response.json();
+
+  return {
+    text: data.text,
+    segments: data.segments?.map((seg: { start: number; end: number; text: string }) => ({
+      start: seg.start,
+      end: seg.end,
+      text: seg.text,
+    })),
+  };
+}
+
+// -------------------- Compound Reasoning --------------------
+
+/**
+ * Multi-step reasoning using Compound models
+ * Supports tools like browser_search and code_interpreter
+ */
+export async function compoundReasoning(
+  query: string,
+  context: string,
+  options: {
+    useTools?: boolean;
+    reasoningEffort?: 'low' | 'medium' | 'high';
+  } = {}
+): Promise<string> {
+  const { useTools = true, reasoningEffort = 'medium' } = options;
+
+  return chat(
+    [
+      {
+        role: 'system',
+        content: `You are an intelligent assistant with access to tools for complex reasoning.
+Context: ${context}
+
+Think step-by-step and use available tools when needed to provide accurate answers.`,
+      },
+      { role: 'user', content: query },
+    ],
+    {
+      model: GROQ_MODELS.COMPOUND,
+      useTools,
+      reasoningEffort,
+      maxTokens: 8192,
+    }
+  );
+}
+
+// -------------------- Persona Generation (Fallback) --------------------
+
+export interface PersonaConfig {
+  name: string;
+  title: string;
+  company: string;
+  company_size: string;
+  industry: string;
+  background: string;
+  personality: 'skeptical' | 'busy' | 'friendly' | 'technical';
+  difficulty: 'easy' | 'medium' | 'hard' | 'brutal';
+  hidden_pain_points: string[];
+  objections: string[];
+  triggers: {
+    positive: string[];
+    negative: string[];
+  };
+  goal: string;
+  voice_style: string;
+}
+
+/**
+ * Generate a prospect persona (fallback if Gemini unavailable)
+ */
+export async function generatePersona(options: {
+  industry: string;
+  role: string;
+  personality: string;
+  difficulty: string;
+  callType: 'cold_call' | 'discovery' | 'objection_gauntlet';
+}): Promise<PersonaConfig> {
+  const systemPrompt = `You are an expert at creating realistic sales prospect personas for training.
+Generate a detailed, believable prospect persona based on the given parameters.
+
+Respond ONLY with valid JSON matching this structure:
+{
+  "name": "<realistic full name>",
+  "title": "<job title>",
+  "company": "<company name>",
+  "company_size": "<e.g., 50-200 employees>",
+  "industry": "<industry>",
+  "background": "<2-3 sentences about their career and current situation>",
+  "personality": "<skeptical|busy|friendly|technical>",
+  "difficulty": "<easy|medium|hard|brutal>",
+  "hidden_pain_points": ["<pain point 1>", "<pain point 2>", "<pain point 3>"],
+  "objections": ["<objection 1>", "<objection 2>", "<objection 3>"],
+  "triggers": {
+    "positive": ["<what makes them warm up>"],
+    "negative": ["<what turns them off>"]
+  },
+  "goal": "<what the sales rep needs to achieve>",
+  "voice_style": "<description for voice synthesis>"
+}`;
+
+  const response = await chat(
+    [
+      { role: 'system', content: systemPrompt },
+      {
+        role: 'user',
+        content: `Generate a ${options.difficulty} difficulty ${options.personality} prospect persona.
+Industry: ${options.industry}
+Role: ${options.role}
+Call Type: ${options.callType.replace(/_/g, ' ')}
+
+Make them realistic and challenging. Include specific objections for a ${options.callType.replace(/_/g, ' ')}.`,
+      },
+    ],
+    {
+      model: GROQ_MODELS.GPT_OSS_120B,
+      temperature: 0.8,
+      maxTokens: 2048,
+    }
+  );
+
+  try {
+    const jsonMatch = response.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      throw new Error('No JSON found in response');
+    }
+    return JSON.parse(jsonMatch[0]) as PersonaConfig;
+  } catch (error) {
+    console.error('Failed to parse persona response:', error);
+    throw new GroqError('Failed to generate persona', 'PARSE_ERROR');
+  }
+}
+
+// -------------------- Backwards Compatibility (Legacy Chat API) --------------------
+
+// These exports maintain compatibility with the old chat API
+// TODO: Remove when legacy chat is migrated
 
 export interface ChatContext {
   user: {
     name?: string;
     company?: string;
     role?: string;
-    linkedinData?: LinkedInProfileData | null;
-  };
-  brief?: {
-    targetName: string;
-    targetRole: string;
-    targetCompany: string;
-    meetingGoal: MeetingGoal;
-    summary: string;
-    talking_points: string[];
   };
   conversationHistory: Array<{
     role: 'user' | 'assistant';
@@ -439,19 +628,16 @@ export interface ChatContext {
   }>;
 }
 
-/**
- * Chat with Sage using Groq
- */
 export async function chatWithGroq(
   message: string,
   context: ChatContext,
   modelId?: string
 ): Promise<string> {
-  const systemPrompt = buildSageSystemPrompt(context);
-  const model = modelId || DEFAULT_GROQ_MODEL;
-
-  const messages: GroqMessage[] = [
-    { role: 'system', content: systemPrompt },
+  const messages: ChatMessage[] = [
+    {
+      role: 'system',
+      content: `You are a helpful AI assistant. User: ${context.user.name || 'User'}`,
+    },
     ...context.conversationHistory.map((msg) => ({
       role: msg.role as 'user' | 'assistant',
       content: msg.content,
@@ -459,56 +645,15 @@ export async function chatWithGroq(
     { role: 'user', content: message },
   ];
 
-  try {
-    return await groqRequest(messages, {
-      model,
-      maxTokens: 4096,
-      temperature: 0.8,
-      useTools: model.includes('gpt-oss') || model.includes('compound'),
-    });
-  } catch (error) {
-    if (error instanceof GroqError) {
-      throw error;
-    }
-
-    throw new GroqError(
-      `Chat failed with Groq: ${error instanceof Error ? error.message : 'Unknown error'}`,
-      ERROR_CODES.INTERNAL_ERROR
-    );
-  }
+  return chat(messages, {
+    model: (modelId as GroqModel) || DEFAULT_MODELS.ANALYSIS,
+  });
 }
 
-function buildSageSystemPrompt(context: ChatContext): string {
-  let prompt = `You are Sage, an AI meeting preparation assistant for Sparrow AI.
-
-Your role is to help users prepare for professional meetings by:
-1. Providing insights about the people they're meeting
-2. Suggesting conversation topics and questions
-3. Identifying common ground and connection points
-4. Recommending meeting strategies based on goals
-
-Guidelines:
-- Be concise and actionable
-- Focus on practical advice
-- Personalize based on context
-- Be encouraging but realistic
-- Never make up information about people
-- Keep responses under 200 words unless more detail is requested`;
-
-  if (context.user.name) {
-    prompt += `\n\nUser Information:`;
-    prompt += `\n- Name: ${context.user.name}`;
-    if (context.user.role) prompt += `\n- Role: ${context.user.role}`;
-    if (context.user.company) prompt += `\n- Company: ${context.user.company}`;
-  }
-
-  if (context.brief) {
-    prompt += `\n\nCurrent Meeting Context:`;
-    prompt += `\n- Meeting with: ${context.brief.targetName}`;
-    prompt += `\n- Their role: ${context.brief.targetRole} at ${context.brief.targetCompany}`;
-    prompt += `\n- Meeting goal: ${context.brief.meetingGoal}`;
-    prompt += `\n- Brief summary: ${context.brief.summary}`;
-  }
-
-  return prompt;
+export async function generateBriefWithGroq(): Promise<never> {
+  throw new Error('generateBriefWithGroq is deprecated. Use the new Gemini client instead.');
 }
+
+// -------------------- Exports --------------------
+
+export { GROQ_MODELS, DEFAULT_MODELS };
