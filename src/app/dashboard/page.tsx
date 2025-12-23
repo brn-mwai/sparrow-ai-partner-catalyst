@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useUser } from '@clerk/nextjs';
 import Link from 'next/link';
+import { DashboardTour } from '@/components/tour';
 import type { CallType } from '@/types/database';
 
 interface Stats {
@@ -185,6 +186,11 @@ export default function DashboardPage() {
 
   return (
     <div className="dashboard-page">
+      {/* Dashboard Tour */}
+      <Suspense fallback={null}>
+        <DashboardTour />
+      </Suspense>
+
       {/* Header */}
       <div className="dashboard-page-header">
         <div>

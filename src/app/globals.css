@@ -4219,6 +4219,56 @@ select {
   }
 }
 
+/* Help & Support Actions */
+.settings-help-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.settings-help-btn {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: 0.75rem;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s ease;
+  text-decoration: none;
+  color: inherit;
+}
+
+.settings-help-btn:hover {
+  border-color: var(--primary-300);
+  background: var(--primary-50);
+}
+
+.settings-help-btn > i {
+  font-size: 1.5rem;
+  color: var(--primary-500);
+  flex-shrink: 0;
+}
+
+.settings-help-btn > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.settings-help-btn-title {
+  font-weight: 600;
+  color: var(--gray-900);
+  font-size: 0.9375rem;
+}
+
+.settings-help-btn-desc {
+  font-size: 0.8125rem;
+  color: var(--gray-500);
+}
+
 /* ============================================
    BILLING PAGE
    ============================================ */

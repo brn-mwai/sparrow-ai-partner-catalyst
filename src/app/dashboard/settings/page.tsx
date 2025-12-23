@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useUser } from '@clerk/nextjs';
+import { useRouter } from 'next/navigation';
+import { useDashboardTour } from '@/components/tour';
 import type { UserRole, DifficultyLevel, CallType } from '@/types/database';
 
 interface UserPreferences {
@@ -22,6 +24,8 @@ interface UserProfile {
 
 export default function SettingsPage() {
   const { user } = useUser();
+  const router = useRouter();
+  const { startTour, resetTour } = useDashboardTour();
   const [profile, setProfile] = useState<UserProfile>({
     name: '',
     role: null,
@@ -261,6 +265,51 @@ export default function SettingsPage() {
               {user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'Not available'}
             </span>
           </div>
+        </div>
+      </div>
+
+      {/* Help & Support Section */}
+      <div className="settings-section">
+        <div className="settings-section-header">
+          <h2 className="settings-section-title">Help & Support</h2>
+          <p className="settings-section-desc">Get help with using Sparrow</p>
+        </div>
+        <div className="settings-help-actions">
+          <button
+            className="settings-help-btn"
+            onClick={() => {
+              resetTour();
+              router.push('/dashboard?tour=true');
+            }}
+          >
+            <i className="ph ph-play-circle"></i>
+            <div>
+              <span className="settings-help-btn-title">Replay Dashboard Tour</span>
+              <span className="settings-help-btn-desc">Take a guided tour of the dashboard features</span>
+            </div>
+          </button>
+          <button
+            className="settings-help-btn"
+            onClick={() => router.push('/onboarding')}
+          >
+            <i className="ph ph-arrows-clockwise"></i>
+            <div>
+              <span className="settings-help-btn-title">Redo Onboarding</span>
+              <span className="settings-help-btn-desc">Update your role, industry, and goals</span>
+            </div>
+          </button>
+          <a
+            href="https://github.com/hausorlabs/sparrow-ai/issues"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="settings-help-btn"
+          >
+            <i className="ph ph-question"></i>
+            <div>
+              <span className="settings-help-btn-title">Get Help</span>
+              <span className="settings-help-btn-desc">Report issues or request features</span>
+            </div>
+          </a>
         </div>
       </div>
 

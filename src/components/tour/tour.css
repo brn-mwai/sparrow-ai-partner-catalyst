@@ -1,0 +1,135 @@
+/* ============================================
+   SPARROW AI - Dashboard Tour Styles
+   Custom styling for driver.js tour
+   ============================================ */
+
+/* Override driver.js default styles */
+.driver-popover.sparrow-tour-popover {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px -12px rgba(27, 17, 58, 0.25);
+  padding: 0;
+  max-width: 340px;
+  border: 1px solid var(--gray-200);
+}
+
+.driver-popover.sparrow-tour-popover .driver-popover-title {
+  font-family: var(--font-display);
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--gray-900);
+  padding: 1.25rem 1.25rem 0.5rem;
+  letter-spacing: var(--letter-spacing-tight);
+}
+
+.driver-popover.sparrow-tour-popover .driver-popover-description {
+  font-family: var(--font-sans);
+  font-size: 0.9375rem;
+  color: var(--gray-600);
+  padding: 0 1.25rem;
+  line-height: 1.5;
+}
+
+.driver-popover.sparrow-tour-popover .driver-popover-progress-text {
+  font-size: 0.75rem;
+  color: var(--gray-400);
+  padding: 0 1.25rem;
+  margin-top: 0.75rem;
+}
+
+.driver-popover.sparrow-tour-popover .driver-popover-footer {
+  padding: 1rem 1.25rem 1.25rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  border-top: 1px solid var(--gray-100);
+  margin-top: 1rem;
+}
+
+.driver-popover.sparrow-tour-popover .driver-popover-navigation-btns {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.driver-popover.sparrow-tour-popover button {
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.driver-popover.sparrow-tour-popover .driver-popover-prev-btn {
+  background: var(--gray-100);
+  color: var(--gray-700);
+}
+
+.driver-popover.sparrow-tour-popover .driver-popover-prev-btn:hover {
+  background: var(--gray-200);
+}
+
+.driver-popover.sparrow-tour-popover .driver-popover-next-btn,
+.driver-popover.sparrow-tour-popover .driver-popover-done-btn {
+  background: var(--primary-500);
+  color: white;
+}
+
+.driver-popover.sparrow-tour-popover .driver-popover-next-btn:hover,
+.driver-popover.sparrow-tour-popover .driver-popover-done-btn:hover {
+  background: var(--primary-600);
+}
+
+.driver-popover.sparrow-tour-popover .driver-popover-close-btn {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  background: transparent;
+  border: none;
+  color: var(--gray-400);
+  padding: 0.25rem;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.driver-popover.sparrow-tour-popover .driver-popover-close-btn:hover {
+  background: var(--gray-100);
+  color: var(--gray-600);
+}
+
+/* Arrow styling */
+.driver-popover.sparrow-tour-popover .driver-popover-arrow {
+  border: 8px solid transparent;
+}
+
+.driver-popover.sparrow-tour-popover .driver-popover-arrow-side-left {
+  border-right-color: white;
+}
+
+.driver-popover.sparrow-tour-popover .driver-popover-arrow-side-right {
+  border-left-color: white;
+}
+
+.driver-popover.sparrow-tour-popover .driver-popover-arrow-side-top {
+  border-bottom-color: white;
+}
+
+.driver-popover.sparrow-tour-popover .driver-popover-arrow-side-bottom {
+  border-top-color: white;
+}
+
+/* Highlighted element */
+.driver-active-element {
+  outline: 2px solid var(--primary-400) !important;
+  outline-offset: 4px !important;
+  border-radius: 12px !important;
+}
+
+/* Overlay */
+.driver-overlay {
+  background: rgba(27, 17, 58, 0.7) !important;
+}
