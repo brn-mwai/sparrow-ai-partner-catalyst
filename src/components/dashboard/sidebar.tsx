@@ -34,7 +34,7 @@ interface ServiceStatus {
 
 const services: ServiceStatus[] = [
   { name: 'ElevenLabs', status: 'active', icon: 'ph-microphone' },
-  { name: 'Datadog', status: 'monitoring', icon: 'ph-activity' },
+  { name: 'Gemini', status: 'active', icon: 'ph-brain' },
 ];
 
 export function Sidebar() {

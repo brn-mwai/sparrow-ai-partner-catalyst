@@ -47,7 +47,6 @@
 - **Competition:** AI Partner Catalyst Hackathon by Google Cloud
 - **Prize Pool:** $75,000
 - **Primary Track:** ElevenLabs Challenge (Voice-driven conversational AI)
-- **Secondary Track:** Datadog Challenge (LLM Observability) - for monitoring
 - **Deadline:** January 1, 2026
 - **Requirements:**
   - Integrate Google Cloud products (Vertex AI/Gemini)
@@ -384,15 +383,10 @@ Each AI prospect has:
 │                      │  │                      │  │                      │
 │  ┌────────────────┐  │  └──────────────────────┘  └──────────────────────┘
 │  │   Realtime     │  │
-│  │   (Pub/Sub)    │  │             ┌──────────────────────┐
-│  └────────────────┘  │             │     OBSERVABILITY    │
-│                      │             │                      │
-└──────────────────────┘             │  ┌────────────────┐  │
-                                     │  │    Datadog     │  │
-                                     │  │ (LLM Observe)  │  │
-                                     │  └────────────────┘  │
-                                     │                      │
-                                     └──────────────────────┘
+│  │   (Pub/Sub)    │  │
+│  └────────────────┘  │
+│                      │
+└──────────────────────┘
 ```
 
 ### Data Flow: Starting a Call
@@ -460,12 +454,6 @@ Each AI prospect has:
                                          │
                                          ▼
                                    ┌──────────┐
-                                   │ Datadog  │
-                                   │  (trace) │
-                                   └──────────┘
-                                         │
-                                         ▼
-                                   ┌──────────┐
                                    │ Frontend │
                                    │ Debrief  │
                                    └──────────┘
@@ -509,12 +497,6 @@ Each AI prospect has:
 | **ElevenLabs** | Conversational AI | Real-time voice agent |
 | **Google Vertex AI** | Gemini 1.5 Pro | Persona generation, scoring, feedback |
 | **Groq** | Llama 3.1 70B | Fast inference for quick scoring |
-
-### Observability (Secondary Track)
-
-| Service | Purpose |
-|---------|---------|
-| **Datadog** | LLM observability, tracing, cost tracking |
 
 ---
 
@@ -581,18 +563,6 @@ GOOGLE_AI_API_KEY=xxxxx
 # Used for quick scoring during/after calls
 GROQ_API_KEY=gsk_xxxxx
 
-# -------------------- Datadog (LLM Observability - Secondary Track) --------------------
-# Get from: https://app.datadoghq.com
-# OPTIONAL but enables second hackathon track
-DATADOG_API_KEY=xxxxx
-DATADOG_APP_KEY=xxxxx
-DATADOG_SITE=datadoghq.com
-
-# Enable LLM observability
-DD_LLMOBS_ENABLED=true
-DD_LLMOBS_ML_APP=sparrow
-DD_LLMOBS_AGENTLESS_ENABLED=true
-
 # -------------------- Resend (Email) --------------------
 # Get from: https://resend.com
 RESEND_API_KEY=re_xxxxx
@@ -606,7 +576,6 @@ NEXT_PUBLIC_POSTHOG_HOST=https://app.posthog.com
 # -------------------- Feature Flags --------------------
 NEXT_PUBLIC_ENABLE_BILLING=false
 NEXT_PUBLIC_ENABLE_ANALYTICS=false
-NEXT_PUBLIC_ENABLE_DATADOG=true
 ```
 
 ### API Integration Details
@@ -663,32 +632,6 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY);
 export const gemini = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' });
-```
-
-#### Datadog LLM Observability
-
-```typescript
-// lib/datadog/client.ts
-import { llmobs } from 'dd-trace';
-
-// Initialize in instrumentation.ts
-llmobs.enable({
-  mlApp: 'sparrow',
-  agentlessEnabled: true,
-});
-
-// Wrap LLM calls
-export async function trackedGeminiCall(prompt: string, metadata: object) {
-  return llmobs.trace(
-    { kind: 'llm', name: 'gemini-persona-generation' },
-    async (span) => {
-      span.setTag('prompt.tokens', estimateTokens(prompt));
-      const result = await gemini.generateContent(prompt);
-      span.setTag('completion.tokens', estimateTokens(result));
-      return result;
-    }
-  );
-}
 ```
 
 ---
@@ -1030,7 +973,6 @@ import { auth } from '@clerk/nextjs/server';
 import { createClient } from '@/lib/supabase/server';
 import { generatePersona } from '@/lib/gemini/personas';
 import { createConversation } from '@/lib/elevenlabs/client';
-import { llmobs } from '@/lib/datadog/client';
 
 export async function POST(req: NextRequest) {
   const { userId } = await auth();
@@ -1041,9 +983,7 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
   const { type, persona_options } = body;
 
-  // Trace with Datadog
-  return llmobs.trace({ kind: 'workflow', name: 'start-call' }, async () => {
-    // 1. Generate persona with Gemini
+  // 1. Generate persona with Gemini
     const persona = await generatePersona(persona_options);
 
     // 2. Create call record in Supabase
@@ -1074,17 +1014,16 @@ export async function POST(req: NextRequest) {
       })
       .eq('id', call.id);
 
-    return NextResponse.json({
-      success: true,
-      data: {
-        call_id: call.id,
-        persona,
-        elevenlabs: {
-          conversation_id: conversation.conversation_id,
-          signed_url: conversation.signed_url,
-        },
+  return NextResponse.json({
+    success: true,
+    data: {
+      call_id: call.id,
+      persona,
+      elevenlabs: {
+        conversation_id: conversation.conversation_id,
+        signed_url: conversation.signed_url,
       },
-    });
+    },
   });
 }
 ```
@@ -1772,8 +1711,6 @@ sparrow/
     │   │   └── feedback.ts         # Feedback generation
     │   ├── groq/
     │   │   └── client.ts           # Groq client
-    │   ├── datadog/
-    │   │   └── client.ts           # Datadog LLM observability
     │   └── utils/
     │       ├── cn.ts               # Class names utility
     │       └── formatters.ts       # Data formatting
@@ -1828,7 +1765,6 @@ sparrow/
 - [ ] Implement progress tracking
 
 ### Phase 5: Polish & Deploy (Day 5)
-- [ ] Add Datadog LLM observability
 - [ ] Polish UI and animations
 - [ ] Test end-to-end flow
 - [ ] Deploy to Vercel
@@ -1843,7 +1779,6 @@ sparrow/
 - Follow the component hierarchy defined above
 - Use shadcn/ui components via MCP when available
 - Implement proper error handling and loading states
-- Add Datadog tracing to all LLM calls
 - Use Edge runtime for latency-sensitive routes
 - Follow the no-shadows design principle
 
@@ -1858,8 +1793,7 @@ sparrow/
 1. **ElevenLabs** - Voice is the core product, prioritize low latency
 2. **Gemini** - Powers persona generation and deep scoring
 3. **Groq** - Quick scoring for immediate feedback
-4. **Datadog** - Trace all AI calls for observability (secondary track)
-5. **Supabase Realtime** - Stream transcripts to UI during calls
+4. **Supabase Realtime** - Stream transcripts to UI during calls
 
 ### Environment Check
 Before implementing any feature, verify these are configured:
@@ -1868,7 +1802,6 @@ Before implementing any feature, verify these are configured:
 - [ ] ElevenLabs API key is set
 - [ ] Google Cloud credentials are configured
 - [ ] Groq API key is set
-- [ ] (Optional) Datadog keys for observability track
 
 ---
 

@@ -19,11 +19,10 @@
 9. [Real-Time Communication](#9-real-time-communication)
 10. [Voice Conversation Pipeline](#10-voice-conversation-pipeline)
 11. [Scoring Pipeline](#11-scoring-pipeline)
-12. [Observability Architecture](#12-observability-architecture)
-13. [Deployment Architecture](#13-deployment-architecture)
-14. [Security Architecture](#14-security-architecture)
-15. [Error Handling Strategy](#15-error-handling-strategy)
-16. [Performance Considerations](#16-performance-considerations)
+12. [Deployment Architecture](#12-deployment-architecture)
+13. [Security Architecture](#13-security-architecture)
+14. [Error Handling Strategy](#14-error-handling-strategy)
+15. [Performance Considerations](#15-performance-considerations)
 
 ---
 
@@ -37,7 +36,7 @@
 | **Real-Time** | Supabase Realtime for instant transcript updates |
 | **Serverless** | Vercel Edge Functions for low-latency API routes |
 | **Type-Safe** | TypeScript strict mode throughout |
-| **Observable** | Datadog tracing on all LLM operations |
+| **Observable** | Comprehensive logging on all LLM operations |
 
 ### System Boundaries
 
@@ -64,10 +63,6 @@
 │   │  │Voice AI  │  │  2.0     │  │  (Fast)  │  │ Database │  │  Auth  ││  │
 │   │  └──────────┘  └──────────┘  └──────────┘  └──────────┘  └────────┘│  │
 │   │                                                                      │  │
-│   │  ┌──────────┐                                                       │  │
-│   │  │ Datadog  │  ◄── Observability Layer                              │  │
-│   │  │   APM    │                                                       │  │
-│   │  └──────────┘                                                       │  │
 │   └─────────────────────────────────────────────────────────────────────┘  │
 │                                                                             │
 └─────────────────────────────────────────────────────────────────────────────┘
@@ -118,13 +113,13 @@
         │  │ • Webhooks  │  │ • Storage   │  │ • Speech-to-Text    │   │
         │  └─────────────┘  └─────────────┘  └─────────────────────┘   │
         │                                                               │
-        │  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐   │
-        │  │   GEMINI    │  │    GROQ     │  │      DATADOG        │   │
-        │  │             │  │             │  │                     │   │
-        │  │ • Personas  │  │ • Fast      │  │ • APM Traces        │   │
-        │  │ • Scoring   │  │   Scoring   │  │ • LLM Observability │   │
-        │  │ • Feedback  │  │ • Fallback  │  │ • Dashboards        │   │
-        │  └─────────────┘  └─────────────┘  └─────────────────────┘   │
+        │  ┌─────────────┐  ┌─────────────┐                             │
+        │  │   GEMINI    │  │    GROQ     │                             │
+        │  │             │  │             │                             │
+        │  │ • Personas  │  │ • Fast      │                             │
+        │  │ • Scoring   │  │   Scoring   │                             │
+        │  │ • Feedback  │  │ • Fallback  │                             │
+        │  └─────────────┘  └─────────────┘                             │
         │                                                               │
         └───────────────────────────────────────────────────────────────┘
 ```
@@ -162,7 +157,6 @@
 | ElevenLabs | Voice AI | Creator+ |
 | Google Gemini | LLM (Personas/Scoring) | Pay-as-you-go |
 | Groq | Fast LLM (Quick Scoring) | Free/Pro |
-| Datadog | Observability | Pro |
 | Vercel | Hosting | Pro |
 
 ### Development Tools
@@ -394,12 +388,6 @@ interface AgentConfig {
 │  │   Audio     │     │ WebSocket   │────►│  Realtime   │                    │
 │  │   Stream    │     │             │     │  Transcript │                    │
 │  └─────────────┘     └─────────────┘     └─────────────┘                    │
-│         │                   │                   │                            │
-│         │                   ▼                   │                            │
-│         │            ┌─────────────┐            │                            │
-│         │            │  Datadog    │            │                            │
-│         │            │  Trace      │            │                            │
-│         │            └─────────────┘            │                            │
 │         │                                       │                            │
 │         ▼                                       ▼                            │
 │  ┌─────────────┐                        ┌─────────────┐                     │
@@ -1363,155 +1351,9 @@ Return JSON: { "score": number, "summary": string }`;
 
 ---
 
-## 12. Observability Architecture
+## 12. Deployment Architecture
 
-### 12.1 Datadog Integration
-
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                      DATADOG OBSERVABILITY                                   │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                              │
-│  DATA COLLECTION POINTS                                                      │
-│  ──────────────────────                                                      │
-│                                                                              │
-│  ┌─────────────────────────────────────────────────────────────────────┐    │
-│  │                         API ROUTES                                   │    │
-│  │                                                                      │    │
-│  │  • Request duration                                                  │    │
-│  │  • Status codes                                                      │    │
-│  │  • Error rates                                                       │    │
-│  │  • User identification                                               │    │
-│  └─────────────────────────────────────────────────────────────────────┘    │
-│                                                                              │
-│  ┌─────────────────────────────────────────────────────────────────────┐    │
-│  │                         LLM OPERATIONS                               │    │
-│  │                                                                      │    │
-│  │  ┌───────────────┐  ┌───────────────┐  ┌───────────────┐            │    │
-│  │  │    Gemini     │  │     Groq      │  │  ElevenLabs   │            │    │
-│  │  ├───────────────┤  ├───────────────┤  ├───────────────┤            │    │
-│  │  │ • Latency     │  │ • Latency     │  │ • Latency     │            │    │
-│  │  │ • Tokens in   │  │ • Tokens in   │  │ • Duration    │            │    │
-│  │  │ • Tokens out  │  │ • Tokens out  │  │ • Characters  │            │    │
-│  │  │ • Cost        │  │ • Cost        │  │ • Cost        │            │    │
-│  │  │ • Model       │  │ • Model       │  │ • Voice ID    │            │    │
-│  │  │ • Errors      │  │ • Errors      │  │ • Errors      │            │    │
-│  │  └───────────────┘  └───────────────┘  └───────────────┘            │    │
-│  └─────────────────────────────────────────────────────────────────────┘    │
-│                                                                              │
-│  TRACE STRUCTURE                                                             │
-│  ───────────────                                                             │
-│                                                                              │
-│  sparrow.call.end                                                            │
-│  │                                                                           │
-│  ├── sparrow.scoring.groq                                                    │
-│  │   └── llm.request (groq/llama-3.1-70b)                                   │
-│  │                                                                           │
-│  ├── sparrow.scoring.gemini                                                  │
-│  │   └── llm.request (google/gemini-2.0-flash)                              │
-│  │                                                                           │
-│  └── sparrow.db.update                                                       │
-│      └── supabase.query (UPDATE scores)                                      │
-│                                                                              │
-│  CUSTOM METRICS                                                              │
-│  ──────────────                                                              │
-│                                                                              │
-│  sparrow.calls.started          (counter)                                    │
-│  sparrow.calls.completed        (counter)                                    │
-│  sparrow.calls.duration         (histogram)                                  │
-│  sparrow.calls.score            (histogram)                                  │
-│  sparrow.llm.latency            (histogram, by model)                        │
-│  sparrow.llm.tokens             (counter, by model)                          │
-│  sparrow.llm.cost               (counter, by model)                          │
-│  sparrow.llm.errors             (counter, by model, by error_type)           │
-│  sparrow.users.active           (gauge)                                      │
-│                                                                              │
-└─────────────────────────────────────────────────────────────────────────────┘
-```
-
-### 12.2 Datadog Client Implementation
-
-```typescript
-// lib/datadog/client.ts
-import { trace, SpanStatusCode } from '@opentelemetry/api';
-import { datadogLogs } from '@datadog/browser-logs';
-
-const tracer = trace.getTracer('sparrow');
-
-interface LLMSpanOptions {
-  model: string;
-  provider: 'gemini' | 'groq' | 'elevenlabs';
-  operation: string;
-  inputTokens?: number;
-  outputTokens?: number;
-  cost?: number;
-}
-
-export async function traceLLMCall<T>(
-  options: LLMSpanOptions,
-  fn: () => Promise<T>
-): Promise<T> {
-  const span = tracer.startSpan(`llm.${options.provider}.${options.operation}`);
-  
-  span.setAttributes({
-    'llm.provider': options.provider,
-    'llm.model': options.model,
-    'llm.operation': options.operation,
-  });
-  
-  const startTime = Date.now();
-  
-  try {
-    const result = await fn();
-    
-    span.setAttributes({
-      'llm.latency_ms': Date.now() - startTime,
-      'llm.input_tokens': options.inputTokens,
-      'llm.output_tokens': options.outputTokens,
-      'llm.cost_usd': options.cost,
-      'llm.status': 'success',
-    });
-    
-    span.setStatus({ code: SpanStatusCode.OK });
-    return result;
-  } catch (error) {
-    span.setAttributes({
-      'llm.latency_ms': Date.now() - startTime,
-      'llm.status': 'error',
-      'llm.error_type': error.name,
-      'llm.error_message': error.message,
-    });
-    
-    span.setStatus({ 
-      code: SpanStatusCode.ERROR, 
-      message: error.message 
-    });
-    
-    throw error;
-  } finally {
-    span.end();
-  }
-}
-
-// Usage example
-const score = await traceLLMCall(
-  {
-    model: 'gemini-2.0-flash',
-    provider: 'gemini',
-    operation: 'score_call',
-    inputTokens: 2500,
-    outputTokens: 800,
-    cost: 0.003,
-  },
-  () => geminiClient.generateContent(prompt)
-);
-```
-
----
-
-## 13. Deployment Architecture
-
-### 13.1 Vercel Deployment
+### 12.1 Vercel Deployment
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
@@ -1565,7 +1407,7 @@ const score = await traceLLMCall(
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
-### 13.2 Infrastructure as Code
+### 12.2 Infrastructure as Code
 
 ```typescript
 // next.config.ts
@@ -1601,9 +1443,9 @@ export default config;
 
 ---
 
-## 14. Security Architecture
+## 13. Security Architecture
 
-### 14.1 Security Layers
+### 13.1 Security Layers
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
@@ -1646,7 +1488,7 @@ export default config;
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
-### 14.2 Environment Variable Security
+### 13.2 Environment Variable Security
 
 ```bash
 # .env.example (committed to git)
@@ -1678,18 +1520,13 @@ GOOGLE_APPLICATION_CREDENTIALS=./service-account.json
 
 # Groq (https://console.groq.com)
 GROQ_API_KEY=gsk_xxx
-
-# Datadog (https://app.datadoghq.com)
-DD_API_KEY=xxx
-DD_APP_KEY=xxx
-DD_SITE=datadoghq.com
 ```
 
 ---
 
-## 15. Error Handling Strategy
+## 14. Error Handling Strategy
 
-### 15.1 Error Hierarchy
+### 14.1 Error Hierarchy
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
@@ -1755,9 +1592,9 @@ DD_SITE=datadoghq.com
 
 ---
 
-## 16. Performance Considerations
+## 15. Performance Considerations
 
-### 16.1 Latency Budget
+### 15.1 Latency Budget
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
@@ -1795,7 +1632,7 @@ DD_SITE=datadoghq.com
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
-### 16.2 Optimization Strategies
+### 15.2 Optimization Strategies
 
 | Area | Strategy |
 |------|----------|
@@ -1820,7 +1657,6 @@ DD_SITE=datadoghq.com
 | ElevenLabs | https://elevenlabs.io/app |
 | Google Cloud | https://console.cloud.google.com |
 | Groq | https://console.groq.com |
-| Datadog | https://app.datadoghq.com |
 
 ### Key Files
 
@@ -1832,7 +1668,6 @@ DD_SITE=datadoghq.com
 | `lib/elevenlabs/client.ts` | ElevenLabs SDK wrapper |
 | `lib/gemini/client.ts` | Vertex AI client |
 | `lib/groq/client.ts` | Groq client |
-| `lib/datadog/client.ts` | Datadog tracing |
 
 ---
 

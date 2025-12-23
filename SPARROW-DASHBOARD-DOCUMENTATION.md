@@ -1,935 +1,682 @@
-# Sparrow AI Dashboard Documentation
+# Sparrow AI Dashboard - Feature Documentation
 
-> **Voice-Powered Sales Training Platform**  
-> AI Partner Catalyst Hackathon Submission - Targeting ElevenLabs ($12.5K) + Datadog ($12.5K) Tracks
+> Complete documentation of the Sparrow AI dashboard interface based on the HTML prototype (`sparrow-dashboard-v2.html`).
 
 ---
 
 ## Table of Contents
 
 1. [Overview](#overview)
-2. [Hackathon Tracks & Requirements](#hackathon-tracks--requirements)
-3. [Technology Stack & Integrations](#technology-stack--integrations)
-4. [Sidebar Navigation](#sidebar-navigation)
-5. [Pages Deep Dive](#pages-deep-dive)
-   - [Dashboard (Home)](#1-dashboard-home)
-   - [Practice](#2-practice)
-   - [Call Interface](#3-call-interface)
-   - [Debrief](#4-debrief)
-   - [Call History](#5-call-history)
-   - [Progress](#6-progress)
-   - [AI Prospects](#7-ai-prospects)
-   - [Integrations](#8-integrations)
-   - [Settings](#9-settings)
-6. [Special Features](#special-features)
-   - [Coach Sparrow Chatbot](#coach-sparrow-chatbot)
-   - [Custom Prospect Creator](#custom-prospect-creator)
-   - [ElevenLabs Voice Browser](#elevenlabs-voice-browser)
-7. [User Flow](#user-flow)
-8. [Design System](#design-system)
+2. [Navigation Structure](#navigation-structure)
+3. [Dashboard Page](#dashboard-page)
+4. [Practice Page](#practice-page)
+5. [Call Interface](#call-interface)
+6. [Debrief Page](#debrief-page)
+7. [Call History Page](#call-history-page)
+8. [Progress Page](#progress-page)
+9. [AI Prospects Page](#ai-prospects-page)
+10. [Integrations Page](#integrations-page)
+11. [Settings Page](#settings-page)
+12. [Coach Sparrow Chat](#coach-sparrow-chat)
+13. [Data Models](#data-models)
+14. [Integrations](#integrations)
 
 ---
 
 ## Overview
 
-Sparrow AI is a voice-based sales training platform that allows sales professionals to practice conversations with realistic AI prospects. The platform provides real-time feedback, detailed scoring, and personalized coaching to help users improve their sales skills.
+Sparrow AI is a voice-powered sales training platform that enables sales professionals to practice cold calls, discovery conversations, and objection handling with realistic AI prospects.
 
-### Core Value Proposition
-
-| Problem | Solution |
-|---------|----------|
-| Sales reps lack realistic practice opportunities | AI-powered voice conversations with dynamic personas |
-| Feedback is delayed and subjective | Real-time scoring and instant AI coaching |
-| Training doesn't scale | Unlimited practice sessions available 24/7 |
-| No visibility into skill gaps | Detailed analytics and progress tracking |
-
-### Target Users
-
-- **Sales Development Representatives (SDRs)** - Practicing cold calls and outreach
-- **Account Executives** - Refining discovery and closing skills
-- **Sales Managers** - Training and benchmarking team performance
-- **New Hires** - Accelerating onboarding with safe practice environment
+### Key Value Proposition
+- **24/7 Availability**: Practice anytime without scheduling with managers
+- **Realistic AI Prospects**: Configurable personas with unique personalities and objections
+- **Real-time Feedback**: Live scoring during calls powered by Groq
+- **Deep Analysis**: Comprehensive post-call analysis powered by Gemini 2.0
+- **Voice AI**: Natural voice conversations powered by ElevenLabs
 
 ---
 
-## Hackathon Tracks & Requirements
+## Navigation Structure
 
-Sparrow AI is built to compete in **two prize tracks** of the AI Partner Catalyst hackathon:
+### Sidebar Navigation
+- **Dashboard** - Home with stats and quick actions
+- **Practice** - Start new practice sessions
+- **Call History** - Review past calls
+- **Progress** - Track improvement over time
+- **AI Prospects** - Manage practice personas
+- **Integrations** - View connected services
+- **Settings** - User preferences
 
-### 🎯 ElevenLabs Track ($12,500)
-
-> *"Use ElevenLabs and Google Cloud AI to make your app conversational, intelligent, and voice-driven."*
-
-#### Track Requirements & How We Deliver
-
-| Requirement | Sparrow AI Implementation |
-|-------------|---------------------------|
-| Combine ElevenLabs with Vertex AI/Gemini | ✅ ElevenLabs voices + Gemini 2.0 Flash for persona intelligence |
-| Natural, human voice and personality | ✅ 5,000+ voice library with accent/gender/style selection |
-| Users interact entirely through speech | ✅ Full voice conversations during practice calls |
-| React SDK or server-side integration | ✅ Next.js with server-side ElevenLabs API calls |
-
-#### ElevenLabs Features Used
-
-| Feature | Purpose in Sparrow |
-|---------|-------------------|
-| **Text-to-Speech API** | Generate AI prospect voice responses |
-| **Speech-to-Text API** | Transcribe user speech in real-time |
-| **Voice Library API** | Browse 5,000+ voices for prospect customization |
-| **Conversational AI** | Natural turn-taking in sales dialogues |
-| **Voice Design** | Match voice personality to prospect traits |
-
-#### Official Resources
-
-| Resource | Link |
-|----------|------|
-| 📚 ElevenLabs Docs | [elevenlabs.io/docs](https://elevenlabs.io/docs) |
-| 🎙️ Conversational AI Quickstart | [Conversational AI Guide](https://elevenlabs.io/docs/conversational-ai) |
-| 🎨 Voice Design Best Practices | [Voice Design Docs](https://elevenlabs.io/docs/voice-design) |
-| ✍️ Prompting Guide | [Prompting Documentation](https://elevenlabs.io/docs/prompting) |
-| 💬 Discord Support | [ElevenLabs Discord](https://discord.gg/elevenlabs) |
-
-> 💡 **Judge Tip from Thor (ElevenLabs):** *"Explore our Conversational AI and Voice Design Best Practices sections in the docs to create lifelike, engaging voice experiences."*
+### User Menu
+- User avatar with initials
+- User name display
+- Settings access
 
 ---
 
-### 🎯 Datadog Track ($12,500)
+## Dashboard Page
 
-> *"Implement an innovative end-to-end observability monitoring strategy for an LLM application powered by Vertex AI or Gemini."*
+### Stats Cards (4 cards in row)
+| Card | Metric | Example |
+|------|--------|---------|
+| Total Calls | Count of completed calls | 23 |
+| Average Score | Mean overall score (0-100) | 74 |
+| Practice Time | Total duration formatted | 2.4h |
+| Current Streak | Consecutive practice days | 4 days |
 
-#### Hard Requirements & How We Deliver
+### Quick Start Section
+Three action buttons for immediate practice:
+1. **Cold Call** - Practice cold calling prospects
+2. **Discovery** - Practice discovery conversations
+3. **Objection Gauntlet** - Handle rapid-fire objections
 
-| Hard Requirement | Sparrow AI Implementation |
-|------------------|---------------------------|
-| Leverage Vertex AI or Gemini as model host | ✅ Gemini 2.0 Flash for analysis + Groq for real-time scoring |
-| Report telemetry to Datadog | ✅ APM, LLM Observability, custom metrics, logs |
-| Define at least 3 detection rules | ✅ Latency monitors, error rate SLOs, cost alerts |
-| Create actionable records (Incidents/Cases) | ✅ Auto-create incidents with runbook context |
-| In-Datadog view showing app health | ✅ Custom dashboard with latency/errors/tokens/cost |
+### Recent Calls List
+Displays 3 most recent calls with:
+- Prospect avatar (initials with colored background)
+- Prospect name and title
+- Call mode badge (Cold Call, Discovery, Objection)
+- Duration (e.g., "4:23")
+- Score (0-100)
+- Relative timestamp ("Today, 2:34 PM")
 
-#### Datadog Features Used
+### Focus Area Card
+AI-generated improvement suggestion:
+- Skill category needing attention
+- Specific observation from recent calls
+- CTA button to practice that skill
 
-| Feature | Purpose in Sparrow |
-|---------|-------------------|
-| **APM (Application Performance Monitoring)** | Track API response times across all services |
-| **LLM Observability** | Monitor Gemini/Groq token usage, latency, costs |
-| **Distributed Tracing** | Follow requests: ElevenLabs → Supabase → LLMs |
-| **Custom Metrics** | Call duration, scores, user engagement, voice latency |
-| **Monitors & SLOs** | Detection rules for latency spikes, error rates |
-| **Incident Management** | Auto-create actionable items with context |
-| **Dashboards** | Unified view of system health and AI performance |
-
-#### Detection Rules We Define
-
-| Rule | Trigger Condition | Action |
-|------|-------------------|--------|
-| **ElevenLabs Latency Spike** | Voice API p95 > 150ms for 5 min | Create incident + alert |
-| **Gemini Error Rate** | Analysis failures > 5% in 10 min | Create case + notify |
-| **Token Cost Anomaly** | Daily token spend > 150% of baseline | Alert + cost dashboard |
-| **Call Abandonment Rate** | Users ending calls < 30s > 20% | Create case for UX review |
-| **Groq Timeout** | Real-time scoring > 500ms | Fallback alert + trace |
-
-#### Submission Deliverables
-
-| Deliverable | Status |
-|-------------|--------|
-| Hosted application URL | 🔜 Vercel deployment |
-| Public repo with OSI license | 🔜 GitHub (MIT) |
-| README with deployment instructions | 🔜 Included |
-| JSON export of Datadog configs | 🔜 Monitors, SLOs, dashboards |
-| Traffic generator script | 🔜 Simulate practice calls |
-| 3-minute video walkthrough | 🔜 Loom recording |
-| Dashboard screenshots | 🔜 Included |
-
-#### Official Resources
-
-| Resource | Link |
-|----------|------|
-| 📚 Datadog Documentation | [docs.datadoghq.com](https://docs.datadoghq.com) |
-| 🎓 Learning Center | [learn.datadoghq.com](https://learn.datadoghq.com) |
-| 🤖 LLM Observability | [LLM Monitoring Docs](https://docs.datadoghq.com/llm_observability/) |
-| 📊 APM Setup | [APM Documentation](https://docs.datadoghq.com/tracing/) |
-| 🆘 Support | [Datadog Support](https://www.datadoghq.com/support/) |
+### Skills Overview
+5 skill categories with progress bars:
+| Skill | Description |
+|-------|-------------|
+| Opening | First impression, earning attention |
+| Discovery | Asking questions, uncovering pain |
+| Objection Handling | Responding to pushback |
+| Communication | Clarity, active listening |
+| Closing | Asking for next steps |
 
 ---
 
-### 📊 Combined Track Strategy
+## Practice Page
 
-By targeting both tracks, Sparrow AI demonstrates:
+### Mode Selection
+Three radio button options:
+1. **Cold Call Simulator** - Book meetings through cold outreach
+2. **Discovery Call** - Uncover pain and qualify prospects
+3. **Objection Gauntlet** - Handle rapid-fire pushback
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                      SPARROW AI ARCHITECTURE                     │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                  │
-│   USER VOICE ──► ELEVENLABS ──► GEMINI ──► RESPONSE             │
-│        │              │            │           │                 │
-│        └──────────────┴────────────┴───────────┘                 │
-│                         │                                        │
-│                    DATADOG                                       │
-│              (Observing Everything)                              │
-│                                                                  │
-│   • Voice latency metrics (ElevenLabs)                          │
-│   • LLM token tracking (Gemini/Groq)                            │
-│   • End-to-end trace correlation                                │
-│   • Real-time alerting on degradation                           │
-│                                                                  │
-└─────────────────────────────────────────────────────────────────┘
-```
+### Persona Selection
+Grid of available AI prospects with:
+- Avatar (initials with colored background)
+- Name and title
+- Company info (name, industry, size)
+- Difficulty badge (Easy/Medium/Hard)
+- Personality trait badge
+- Background description
+- User stats (calls count, average score)
+- "Practice" CTA button
 
-**Why This Wins Both Tracks:**
+### Default Personas
 
-1. **ElevenLabs Track** - Voice is core to the experience, not bolted on
-2. **Datadog Track** - Observability is production-grade, not demo-level
-3. **Integration Depth** - Both services work together (Datadog monitors ElevenLabs performance)
-4. **Real Problem** - Sales training is a genuine market with paying customers
+| Name | Title | Company | Difficulty | Personality |
+|------|-------|---------|------------|-------------|
+| Sarah Chen | VP of Operations | LogiFlow (Logistics, 200 emp) | Medium | Skeptical |
+| Mike Torres | CTO | DataSync (SaaS, 85 emp) | Hard | Technical |
+| Rachel Johnson | Dir. of Procurement | MedTech Corp (Healthcare, 500 emp) | Easy | Friendly |
 
 ---
 
-## Technology Stack & Integrations
+## Call Interface
 
-Sparrow AI leverages six key integrations, each serving a specific purpose in the platform:
-
-### 1. ElevenLabs (Voice AI)
-
-**Purpose:** Powers all voice interactions in the platform
-
-| Feature | How It's Used |
-|---------|---------------|
-| **Text-to-Speech (TTS)** | Generates realistic AI prospect voices during calls |
-| **Speech-to-Text (STT)** | Transcribes user speech in real-time |
-| **Voice Library** | 5,000+ voices for prospect customization |
-| **Voice Cloning** | (Future) Clone customer voices for ultra-realistic practice |
-
-**Where You'll See It:**
-- Call interface (voice generation)
-- Live transcript panel
-- Voice browser in prospect creator
-- Sidebar status indicator
-
-**Why ElevenLabs:** Industry-leading voice quality with <75ms latency, essential for natural conversation flow. The extensive voice library enables diverse prospect personas matching real-world demographics.
-
----
-
-### 2. Datadog (Observability)
-
-**Purpose:** Monitors all platform services and tracks performance metrics
-
-| Feature | How It's Used |
-|---------|---------------|
-| **APM (Application Performance Monitoring)** | Tracks API response times |
-| **Distributed Tracing** | Follows requests across ElevenLabs → Supabase → LLMs |
-| **Custom Metrics** | Tracks call duration, scores, user engagement |
-| **Alerts** | Notifies team of latency spikes or errors |
-| **Dashboards** | Visualizes system health and user analytics |
-
-**Where You'll See It:**
-- Dashboard banner ("Monitored by Datadog")
-- Call interface (tracing indicator)
-- Progress page (analytics powered by Datadog)
-- Integrations page (detailed status)
-- Sidebar (monitoring status)
-
-**Why Datadog:** Critical for hackathon judging criteria. Demonstrates production-ready observability, enables performance optimization, and provides audit trail for AI interactions.
-
----
-
-### 3. Gemini 2.0 Flash (Google AI)
-
-**Purpose:** Handles complex analysis and content generation
-
-| Feature | How It's Used |
-|---------|---------------|
-| **Persona Generation** | Creates detailed AI prospect backstories and behaviors |
-| **Deep Call Analysis** | Comprehensive scoring with specific feedback |
-| **Coach Sparrow Responses** | Powers the post-call chatbot conversations |
-| **Objection Generation** | Creates realistic, contextual objections |
-
-**Where You'll See It:**
-- Debrief page (scoring breakdown)
-- Coach Sparrow chat panel
-- AI Prospects page (persona indicator)
-- Practice page (powered by section)
-
-**Why Gemini 2.0:** Superior reasoning capabilities for nuanced sales feedback. Flash variant provides good balance of quality and speed (~2.3s for deep analysis).
-
----
-
-### 4. Groq (Ultra-Fast Inference)
-
-**Purpose:** Real-time scoring during live calls
-
-| Feature | How It's Used |
-|---------|---------------|
-| **Live Scoring** | Updates skill scores during conversation (~200ms) |
-| **Quick Feedback** | Instant tips during the call |
-| **Fallback** | Backup if Gemini experiences latency |
-
-**Where You'll See It:**
-- Call interface (Coach Sparrow panel with live scores)
-- Debrief page (quick score indicator)
-- Practice page (powered by section)
-
-**Why Groq:** 10x faster than traditional LLM inference. Essential for real-time feedback without interrupting conversation flow.
-
----
-
-### 5. Supabase (Database & Realtime)
-
-**Purpose:** Data persistence and real-time updates
-
-| Feature | How It's Used |
-|---------|---------------|
-| **PostgreSQL Database** | Stores users, calls, transcripts, scores |
-| **Realtime Subscriptions** | Pushes live transcript updates |
-| **Row-Level Security** | Ensures users only access their own data |
-| **Edge Functions** | Serverless compute for API routes |
-
-**Where You'll See It:**
-- Call interface (realtime transcript indicator)
-- Integrations page (connection status)
-
-**Why Supabase:** Seamless Next.js integration, built-in realtime capabilities eliminate need for separate WebSocket infrastructure.
-
----
-
-### 6. Clerk (Authentication)
-
-**Purpose:** User authentication and session management
-
-| Feature | How It's Used |
-|---------|---------------|
-| **Sign Up/Sign In** | Email, Google, GitHub OAuth |
-| **Session Management** | JWT tokens for API authentication |
-| **User Profiles** | Stores name, avatar, preferences |
-| **Webhooks** | Syncs user data with Supabase |
-
-**Where You'll See It:**
-- Sidebar (user profile section)
-- Settings page (profile management)
-- Integrations page (auth status)
-
-**Why Clerk:** Drop-in auth solution that handles security best practices. Reduces development time while ensuring enterprise-grade authentication.
-
----
-
-## Sidebar Navigation
-
-The sidebar provides persistent navigation across all dashboard pages.
-
-### Structure
-
-```
-┌─────────────────────────┐
-│  🐦 Sparrow AI          │  ← Logo/Brand
-├─────────────────────────┤
-│  ▣ Dashboard            │  ← Primary nav
-│  📞 Practice            │
-│  🕐 Call History        │
-│  📈 Progress            │
-│  👥 AI Prospects        │
-├─────────────────────────┤
-│  🔌 Integrations        │  ← Secondary nav
-│  ⚙️ Settings            │
-├─────────────────────────┤
-│  Services Status        │  ← Integration health
-│  • ElevenLabs   Active  │
-│  • Datadog   Monitoring │
-├─────────────────────────┤
-│  👤 Brian Mwai          │  ← User profile
-│     brian@hausorlabs.com│
-│                    [↗]  │  ← Sign out
-└─────────────────────────┘
-```
-
-### Navigation Items
-
-| Item | Purpose | Icon |
-|------|---------|------|
-| **Dashboard** | Home view with stats and quick actions | `ph-squares-four` |
-| **Practice** | Start a new practice call | `ph-phone-call` |
-| **Call History** | View past practice sessions | `ph-clock-counter-clockwise` |
-| **Progress** | Analytics and skill tracking | `ph-chart-line-up` |
-| **AI Prospects** | Manage practice personas | `ph-users-three` |
-| **Integrations** | View connected services | `ph-plugs-connected` |
-| **Settings** | Profile and preferences | `ph-gear` |
-
-### Services Status Section
-
-**Why It's Here:** Provides at-a-glance system health without leaving the current page. The pulsing indicator on Datadog emphasizes active monitoring.
-
-### User Profile Section
-
-**Why It's Here:** Quick access to user identity and sign-out. Positioned at bottom following common dashboard patterns (Slack, Discord, etc.).
-
----
-
-## Pages Deep Dive
-
-### 1. Dashboard (Home)
-
-**URL:** `/dashboard`  
-**Purpose:** Command center for the user's training journey
-
-#### What It Contains
-
-| Section | Content | Why It's Here |
-|---------|---------|---------------|
-| **Header** | Welcome message, "Start Practice Call" CTA | Personalization + primary action always visible |
-| **Integration Banner** | System health status with Datadog indicator | Reassures user platform is operational |
-| **Stats Cards** | Total Calls, Average Score, Practice Time, Streak | Gamification + progress awareness |
-| **Quick Start** | 3 practice mode cards (Cold Call, Discovery, Objection) | Reduce friction to starting practice |
-| **Recent Calls** | Last 3 calls with prospect, mode, score, time | Continue momentum, review recent work |
-| **Focus Area** | AI-identified weakness with actionable advice | Targeted improvement guidance |
-| **Skills Overview** | Progress bars for 4 skill categories | Visual snapshot of strengths/weaknesses |
-
-#### Key Design Decisions
-
-- **Stats cards use +/- indicators** to show trend direction (positive reinforcement)
-- **Streak counter** gamifies consistency (behavioral motivation)
-- **Focus Area uses orange** to draw attention to improvement opportunities
-- **Closing skill bar is orange** when below threshold, highlighting weakness
-
----
-
-### 2. Practice
-
-**URL:** `/practice`  
-**Purpose:** Configure and launch a practice session
-
-#### What It Contains
-
-| Section | Content | Why It's Here |
-|---------|---------|---------------|
-| **Mode Selection** | 3 radio card options with feature lists | Clear differentiation between practice types |
-| **Persona Selection** | 6 AI prospect cards with difficulty/traits | Match practice to skill level and scenario |
-| **Powered By Section** | ElevenLabs, Gemini, Groq logos | Transparency about AI stack |
-| **Start Call Button** | Primary CTA | Clear next step |
-
-#### Practice Modes Explained
-
-| Mode | Skills Practiced | Typical Duration |
-|------|-----------------|------------------|
-| **Cold Call** | Opening hooks, gatekeeper handling, value props | 2-5 minutes |
-| **Discovery Call** | Open questions, active listening, pain quantification | 5-10 minutes |
-| **Objection Gauntlet** | Price objections, timing concerns, competitor handling | 3-5 minutes |
-
-#### Persona Card Information
-
-Each card displays:
-- **Name & Title** - Professional identity
-- **Company & Industry** - Context for conversation
-- **Difficulty Badge** - Easy (green), Medium (yellow), Hard (red)
-- **Personality Trait** - Behavioral hint (Skeptical, Technical, Friendly, etc.)
-- **Description** - Brief behavioral preview
-
-**Why 6 Personas:** Covers range of difficulties and personality types without overwhelming choice. More available via AI Prospects page.
-
----
-
-### 3. Call Interface
-
-**URL:** `/call`  
-**Purpose:** The live practice call experience
-
-#### Layout: Three-Panel Design
-
-```
-┌──────────────┬────────────────────────┬──────────────────┐
-│              │                        │                  │
-│   Context    │      Call Center       │   Transcript     │
-│   Panel      │                        │   & Scoring      │
-│              │                        │                  │
-└──────────────┴────────────────────────┴──────────────────┘
-     272px            flexible                  384px
-```
+### Layout (3 Panels)
 
 #### Left Panel - Context
+- **Prospect Info**: Avatar, name, title, company
+- **Call Goal**: What you're trying to achieve
+- **Key Tips**: 3 actionable suggestions for the call
 
-| Content | Why |
-|---------|-----|
-| Practice Mode | Reminds user what they're practicing |
-| AI Prospect Info | Name, title, company for reference |
-| Call Tips | 3 contextual suggestions |
-| Active Services | ElevenLabs latency, Datadog tracing status |
-| End Call Button | Emergency exit |
-
-#### Center Panel - Call Interface
-
-| Content | Why |
-|---------|-----|
-| Call Status | Green pulse indicates live connection |
-| Timer | Duration awareness |
-| Datadog Indicator | Shows monitoring is active |
-| Audio Visualization | Animated waveform provides visual feedback |
-| Mic Controls | Mute/unmute, volume, end call |
+#### Center Panel - Audio
+- Large circular audio visualization (voice waveform)
+- Call timer (MM:SS format)
+- Control buttons:
+  - Mute/Unmute microphone
+  - End Call
 
 #### Right Panel - Live Transcript
+- Real-time transcript with speaker labels
+- Color-coded backgrounds:
+  - User messages: Right-aligned, primary color
+  - Prospect messages: Left-aligned, gray background
+- **Coach Sparrow Real-time Scoring**:
+  - Score chips (75, 82, etc.) next to segments
+  - Expandable insights on hover
+  - Categories: Opener, Objection, Discovery, etc.
+  - Tips for improvement
 
-| Content | Why |
-|---------|-----|
-| Chat Bubbles | Real-time conversation record |
-| Speaker Labels | Distinguish user from AI prospect |
-| Typing Indicator | Shows when AI is generating response |
-| Coach Sparrow Scores | Live updating skill scores |
-| Service Indicator | Shows Supabase realtime is active |
-
-#### Real-Time Scoring (Coach Sparrow Panel)
-
-Displays live scores for:
-- **Opening** - Hook quality, attention capture
-- **Discovery** - Question quality, listening signals
-- **Objections** - Handling technique, reframe success
-
-**Why Real-Time Scoring:** Immediate feedback accelerates learning. Users can course-correct mid-call rather than waiting for post-call review.
-
----
-
-### 4. Debrief
-
-**URL:** `/debrief`  
-**Purpose:** Post-call analysis and learning
-
-#### What It Contains
-
-| Section | Content | Why It's Here |
-|---------|---------|---------------|
-| **Scoring Banner** | Groq (180ms) + Gemini (2.3s) timing | Transparency about AI analysis |
-| **Overall Score** | Circular progress with number | Clear headline metric |
-| **Performance Summary** | Good/needs work text + comparison | Context for the score |
-| **Score Breakdown** | 5 category cards with individual scores | Granular feedback |
-| **Key Moments** | Timeline of specific call events | Actionable, timestamped feedback |
-| **Strengths List** | What went well (green checkmarks) | Positive reinforcement |
-| **Improvements List** | What to work on (orange arrows) | Clear next steps |
-| **Coach Sparrow CTA** | Button to open chat panel | Path to deeper learning |
-| **Transcript Link** | Access full conversation | Reference for self-review |
-
-#### Score Categories
-
-| Category | What It Measures | Weight |
-|----------|------------------|--------|
-| **Opening** | Hook strength, personalization, attention capture | 20% |
-| **Discovery** | Question quality, listening, pain identification | 25% |
-| **Objections** | Handling technique, reframes, composure | 20% |
-| **Communication** | Clarity, pace, professionalism | 15% |
-| **Closing** | Next step ask, commitment, urgency | 20% |
-
-#### Key Moments Types
-
-- **Green (Success)** - Strong hook, good reframe, effective question
-- **Orange (Improvement)** - Weak close, missed opportunity, unclear response
-
-**Why Timestamped Feedback:** Allows user to mentally replay the moment. More actionable than generic advice.
+### Call Flow
+1. Connection animation
+2. Prospect greeting
+3. Back-and-forth conversation
+4. Real-time scoring overlay
+5. End call -> Transition to debrief
 
 ---
 
-### 5. Call History
+## Debrief Page
 
-**URL:** `/history`  
-**Purpose:** Access and review past practice sessions
+### Header Section
+- Result badge (Meeting Booked, Callback, Rejected, No Decision)
+- Call duration
+- Back to dashboard link
 
-#### What It Contains
+### Overall Score
+- Large score display (0-100)
+- Progress bar visualization
+- Trend indicator vs previous calls
 
-| Section | Content | Why It's Here |
-|---------|---------|---------------|
-| **Filters** | Mode dropdown, date range selector | Find specific calls quickly |
-| **Calls Table** | Prospect, mode, duration, score, date | Scannable overview |
-| **Row Actions** | Click to view debrief | Easy access to details |
+### Score Breakdown (5 Categories)
+| Category | Score | Progress Bar | Description |
+|----------|-------|--------------|-------------|
+| Opening | 0-100 | Visual bar | First impression |
+| Discovery | 0-100 | Visual bar | Uncovering needs |
+| Objection Handling | 0-100 | Visual bar | Handling pushback |
+| Communication | 0-100 | Visual bar | Clarity and flow |
+| Closing | 0-100 | Visual bar | Asking for next step |
 
-#### Table Columns
+### Key Moments
+Timestamped highlights from the call:
 
-| Column | Purpose |
-|--------|---------|
-| **Prospect** | Avatar, name, title - identify the conversation |
-| **Mode** | Color-coded badge - see practice type at glance |
-| **Duration** | Time spent - track commitment |
-| **Score** | Numeric result - quick performance check |
-| **Date** | Recency - temporal context |
-| **Arrow** | Navigate to full debrief |
+**Strong Moments** (Green)
+- Timestamp (e.g., "0:15")
+- Title (e.g., "Strong Opener")
+- Description with transcript excerpt
 
-**Why a Table:** Efficient for scanning many items. Familiar pattern from email/CRM interfaces sales users know.
+**Weak Moments** (Orange/Yellow)
+- Timestamp
+- Title (e.g., "Weak Close")
+- Description with improvement suggestion
 
----
+**Missed Opportunities** (Blue)
+- Timestamp
+- Title
+- What could have been done differently
 
-### 6. Progress
+### Strengths Section
+Bulleted list of what went well:
+- Specific observations with examples
+- Positive reinforcement
 
-**URL:** `/progress`  
-**Purpose:** Track improvement over time
+### Areas to Improve Section
+Bulleted list of improvement areas:
+- Specific, actionable feedback
+- Suggested alternatives
 
-#### What It Contains
+### Coach Sparrow CTA
+- Gemini 2.0 powered chat assistant
+- "Start Conversation" button
+- Opens slide-in chat panel
 
-| Section | Content | Why It's Here |
-|---------|---------|---------------|
-| **Datadog Banner** | "Analytics powered by Datadog" | Hackathon track visibility |
-| **Trend Stats** | Score trend, calls completed, best score, time | High-level progress indicators |
-| **Score Chart** | Weekly bar chart visualization | Visual trend over time |
-| **Skills Progress** | 5 skills with scores and deltas | Per-skill improvement tracking |
-
-#### Stats Cards
-
-| Stat | What It Shows | Why It Matters |
-|------|---------------|----------------|
-| **Score Trend** | % change vs last period | Are you improving? |
-| **Calls Completed** | Total practice sessions | Volume of practice |
-| **Best Score** | Highest achieved score + mode | Peak performance reference |
-| **Practice Time** | Hours invested | Commitment measurement |
-
-#### Skills Progress Details
-
-Each skill shows:
-- **Current Score** - Where you are now
-- **Delta** - Change from last period (green +, red -)
-- **Progress Bar** - Visual representation
-
-**Why Delta Indicators:** Shows direction of change, not just current state. Motivates continued practice when positive, highlights areas needing attention when negative.
-
----
-
-### 7. AI Prospects
-
-**URL:** `/personas`  
-**Purpose:** Manage AI conversation partners
-
-#### What It Contains
-
-| Section | Content | Why It's Here |
-|---------|---------|---------------|
-| **Tabs** | Default Prospects / My Custom Prospects | Organize built-in vs user-created |
-| **Create Button** | "Create Prospect" CTA | Enable customization |
-| **Prospect Grid** | Cards for each persona | Visual browsing |
-| **Per-Prospect Stats** | Calls count, average score | Track performance by persona |
-
-#### Default Prospect Cards
-
-Each card includes:
-- **Avatar** - Color-coded initials
-- **Name & Title** - Professional identity
-- **Company Info** - Industry and size
-- **Difficulty Badge** - Visual skill level indicator
-- **Personality Trait** - Behavioral hint
-- **Background Story** - 2-3 sentence context
-- **User Stats** - Personal performance with this prospect
-
-#### Custom Prospects Tab
-
-When empty, shows:
-- **Empty State Illustration** - Visual cue
-- **Explanation Text** - Why create custom prospects
-- **Create CTA** - Action button
-
-When populated, shows:
-- **Custom Prospect Cards** - Same format as default
-- **Delete Option** - Hover to reveal trash icon
-- **Practice Button** - Quick start call
-- **Voice Indicator** - Shows selected ElevenLabs voice
-
-**Why Custom Prospects:** Users may want to practice for specific customers, industries, or challenging scenarios not covered by defaults.
+### Full Transcript Link
+- View complete conversation
+- Timestamps for each message
+- Jump-to-moment functionality
 
 ---
 
-### 8. Integrations
+## Call History Page
 
-**URL:** `/integrations`  
-**Purpose:** Transparency about connected services
+### Filters
+- **Mode Filter**: All Modes, Cold Call, Discovery, Objection Gauntlet
+- **Time Filter**: Last 7 days, Last 30 days, All time
 
-#### What It Contains
+### History Table
+| Column | Description |
+|--------|-------------|
+| Prospect | Avatar, name, title |
+| Mode | Call type badge |
+| Duration | MM:SS format |
+| Score | Numeric (0-100) |
+| Date | Relative/absolute timestamp |
+| Action | Arrow to view debrief |
 
-| Section | Content | Why It's Here |
-|---------|---------|---------------|
-| **Service Cards** | 6 integration cards with status | Detailed view of each service |
-| **Connection Status** | Green badges with indicators | Confirm services are working |
-| **Use Case Lists** | Bullet points per service | Explain what each does |
-| **Performance Metrics** | Latency, uptime stats | Technical transparency |
-| **Architecture Diagram** | Visual flow of data | System understanding |
+### Row Interaction
+- Hover state
+- Click to open debrief page
 
-#### Service Cards Include
+---
 
-For each integration (ElevenLabs, Datadog, Gemini, Groq, Supabase, Clerk):
-- **Logo** - Visual identification
-- **Name & Category** - Service identity
-- **Status Badge** - Connected/Monitoring indicator
-- **Description** - One-sentence purpose
-- **Use Cases** - 3-4 bullet points of features used
-- **Metrics** - Latency, region, model version
+## Progress Page
 
-#### Architecture Flow Diagram
+### Progress Stats (4 Cards)
+| Stat | Description | Example |
+|------|-------------|---------|
+| Score Trend | % change vs previous period | +18% |
+| Calls Completed | Count this period | 23 this month |
+| Best Score | Highest score achieved | 92 (Objection Gauntlet) |
+| Practice Time | Total duration this period | 4.2h this month |
 
+### Score Over Time Chart
+- Bar chart showing weekly averages
+- 4-week view
+- Visual progression
+
+### Skills Progress
+5 skill categories with:
+- Current score (0-100)
+- Progress bar
+- Change indicator (+/- from previous)
+- Color coding for declining skills (orange)
+
+---
+
+## AI Prospects Page
+
+### Tabs
+1. **Default Prospects** - Pre-built personas
+2. **My Custom Prospects** - User-created personas
+
+### Default Prospects Grid
+3 pre-configured personas (see Practice Page)
+
+### Custom Prospects
+- Empty state with CTA when none exist
+- Grid of user-created prospects
+- Delete button on hover
+
+### Create Custom Prospect Modal
+
+#### Basic Information
+- First Name (required)
+- Last Name (required)
+
+#### Role & Company
+- Job Title (required)
+- Company Name (required)
+- Industry (dropdown, required):
+  - Technology, Healthcare, Finance, Retail, Manufacturing, Real Estate, Education, Consulting, Media, Logistics, Energy, Agriculture, Other
+- Company Size (dropdown, required):
+  - 1-10, 11-50, 51-200, 201-500, 501-1000, 1000+
+
+#### Difficulty & Personality
+- Difficulty Level (radio, required):
+  - Easy - Friendly & open
+  - Medium - Some resistance
+  - Hard - Very challenging
+- Personality Traits (checkboxes, max 3):
+  - Skeptical, Technical, Busy, Friendly, Analytical, Impatient, Budget-conscious, Risk-averse, Decision-maker, Gatekeeper
+
+#### Background & Context
+- Background Story (optional textarea)
+- Common Objections (optional textarea)
+
+#### Voice Selection (ElevenLabs)
+- Selected voice display
+- Browse Voices button -> Opens Voice Browser Modal
+- Speaking Style dropdown:
+  - Conversational, Professional, Casual, Formal
+- Speaking Pace dropdown:
+  - Normal, Fast (busy exec), Slow (thoughtful)
+
+#### AI Enhancement Notice
+- Gemini 2.0 enhances persona with realistic responses
+
+---
+
+## ElevenLabs Voice Browser Modal
+
+### Header
+- ElevenLabs branding
+- "Choose from 5,000+ AI voices"
+- Close button
+
+### Search & Filters
+- Search input (name, accent, style)
+- Gender filter: All, Female, Male
+- Accent filter: All, American, British, Australian, Indian, African, European
+- Category filter: All, Professional, Conversational, Narrative, Characters
+
+### Category Tabs
+1. Featured - Curated top voices
+2. Default Voices - Standard library
+3. Community - User-shared voices
+4. My Cloned Voices - Personal clones
+
+### Voice Cards
+- Avatar (gender-colored)
+- Name
+- Description
+- Labels (traits)
+- Preview button (play icon)
+- Selected state with checkmark
+
+### Footer
+- Info text
+- Cancel button
+- Select Voice button (disabled until selection)
+
+---
+
+## Integrations Page
+
+### Active Integrations Grid (4 Services)
+
+#### ElevenLabs
+- Status: Connected
+- Used for:
+  - Real-time voice conversations
+  - Speech-to-text transcription
+  - AI prospect voice generation
+- Metrics: Avg latency 42ms, 99.9% uptime
+
+#### Gemini 2.0 Flash (Google AI)
+- Status: Connected
+- Used for:
+  - AI persona generation & backstories
+  - Deep call analysis & scoring
+  - Coach Sparrow chat responses
+- Metrics: Avg latency 2.3s
+
+#### Groq
+- Status: Connected
+- Used for:
+  - Real-time call scoring (~200ms)
+  - Quick feedback during calls
+  - Fallback for Gemini timeouts
+- Metrics: Avg latency 180ms, Model: llama-3.3-70b-versatile
+
+#### Supabase
+- Status: Connected
+- Used for:
+  - User data & call history storage
+  - Real-time transcript streaming
+  - Row-level security & auth sync
+- Metrics: Region us-east-1, Realtime Active
+
+#### Clerk
+- Status: Connected
+- Used for:
+  - User sign-up & sign-in flows
+  - Session & JWT management
+  - Webhook sync with Supabase
+- Metrics: OAuth (Google, GitHub), MFA Available
+
+### Integration Flow Diagram
+Visual flow: User -> ElevenLabs -> Supabase -> Groq -> Gemini
+
+---
+
+## Settings Page
+
+### Profile Section
+- User avatar (initials)
+- Change photo button
+- First name input
+- Last name input
+
+### Audio Settings
+- Microphone dropdown (system devices)
+- Speaker dropdown (system devices)
+
+### Notifications
+- Practice reminders toggle
+- Weekly progress reports toggle
+
+### Save Action
+- Save Changes button
+
+---
+
+## Coach Sparrow Chat
+
+### Slide-in Panel
+- Fixed right side, full height
+- 384px width (w-96)
+
+### Header
+- Robot avatar
+- "Coach Sparrow" title
+- "Ask about your call" subtitle
+- Close button
+
+### Powered By Badge
+- "Powered by Gemini 2.0 Flash"
+
+### Welcome Message
+- Personalized greeting with call context
+- Overall score reference
+- Prompt for questions
+
+### Suggested Questions
+- 3 pre-built question buttons
+- Contextual to the call just completed
+
+### Chat Input
+- Text input field
+- Send button
+- Context note ("Based on your transcript with [Prospect]")
+
+### Chat Messages
+- User messages: Right-aligned, primary background
+- AI messages: Left-aligned, gray background
+- Markdown support for formatting
+
+---
+
+## Data Models
+
+### User
 ```
-User → Voice (ElevenLabs) → Database (Supabase) → Fast Score (Groq) → Deep Analysis (Gemini) ↔ Monitor (Datadog)
-```
-
-**Why This Page Exists:** 
-1. Hackathon judges need to see integration depth
-2. Users appreciate transparency about AI stack
-3. Troubleshooting reference if issues occur
-
----
-
-### 9. Settings
-
-**URL:** `/settings`  
-**Purpose:** User preferences and configuration
-
-#### What It Contains
-
-| Section | Content | Why It's Here |
-|---------|---------|---------------|
-| **Profile** | Avatar, name fields | Basic identity management |
-| **Audio Settings** | Microphone/speaker selection | Ensure correct devices |
-| **Notifications** | Toggle switches | Control communication preferences |
-| **Save Button** | Apply changes | Confirm action |
-
-#### Settings Sections
-
-| Setting | Options | Default |
-|---------|---------|---------|
-| **First Name** | Text input | From Clerk profile |
-| **Last Name** | Text input | From Clerk profile |
-| **Microphone** | Device dropdown | System default |
-| **Speaker** | Device dropdown | System default |
-| **Practice Reminders** | Toggle on/off | On |
-| **Weekly Reports** | Toggle on/off | On |
-
-**Why Minimal Settings:** Focus on essential configuration. Avoid overwhelming users with options. Can expand as platform matures.
-
----
-
-## Special Features
-
-### Coach Sparrow Chatbot
-
-**Location:** Slide-out panel on Debrief page  
-**Trigger:** "Ask Coach Sparrow" button
-
-#### What It Does
-
-- Answers questions about the specific call just completed
-- Provides personalized advice based on transcript
-- Suggests alternative responses for weak moments
-- Explains scoring rationale
-
-#### Interface Elements
-
-| Element | Purpose |
-|---------|---------|
-| **Header** | Coach Sparrow identity + Gemini badge |
-| **Welcome Message** | Context-aware greeting with score mention |
-| **Suggested Questions** | 3 clickable prompts to start conversation |
-| **Chat History** | Scrollable message thread |
-| **Input Field** | Free-form question entry |
-| **Send Button** | Submit question |
-
-#### Sample Questions Handled
-
-- "Why did I score low on closing?"
-- "How could I have handled the objection better?"
-- "What should I say next time to close?"
-- "Was my opening strong enough?"
-- "How do I improve my discovery questions?"
-
-**Why a Chatbot:** More engaging than static feedback. Allows users to explore specific concerns. Mimics having a sales coach available 24/7.
-
----
-
-### Custom Prospect Creator
-
-**Location:** Modal triggered from AI Prospects page  
-**Trigger:** "Create Prospect" button
-
-#### Form Sections
-
-| Section | Fields | Purpose |
-|---------|--------|---------|
-| **Basic Info** | First name, Last name | Identity |
-| **Role & Company** | Title, Company, Industry, Size | Professional context |
-| **Difficulty** | Easy/Medium/Hard radio | Skill matching |
-| **Personality** | 10 trait checkboxes (max 3) | Behavioral definition |
-| **Background** | Backstory textarea | Conversation context |
-| **Objections** | Common objections textarea | Challenge preparation |
-| **Voice** | ElevenLabs voice browser | Audio identity |
-| **Settings** | Speaking style, pace | Voice tuning |
-
-#### Personality Traits Available
-
-| Trait | Behavior Impact |
-|-------|-----------------|
-| **Skeptical** | Questions claims, needs proof |
-| **Technical** | Asks detailed implementation questions |
-| **Busy** | Interrupts, wants brevity |
-| **Friendly** | Warm, encouraging |
-| **Analytical** | Data-driven, ROI focused |
-| **Impatient** | Short responses, time pressure |
-| **Budget-conscious** | Price objections |
-| **Risk-averse** | Needs case studies, references |
-| **Decision-maker** | Can commit, asks about terms |
-| **Gatekeeper** | Protective, filters access |
-
-**Why Custom Prospects:** 
-- Practice for specific upcoming calls
-- Simulate difficult customers
-- Industry-specific scenarios
-- Personal skill development targets
-
----
-
-### ElevenLabs Voice Browser
-
-**Location:** Modal triggered from Custom Prospect Creator  
-**Trigger:** "Browse Voices" button
-
-#### Features
-
-| Feature | Description |
-|---------|-------------|
-| **Search** | Find voices by name, accent, keyword |
-| **Gender Filter** | Male / Female / All |
-| **Accent Filter** | American, British, Australian, Indian, African, European |
-| **Category Filter** | Professional, Conversational, Narrative, Characters |
-| **Category Tabs** | Featured, Default, Community, Cloned |
-| **Voice Cards** | Preview and select voices |
-| **Audio Preview** | Play sample of each voice |
-
-#### Voice Card Information
-
-- **Name** - Voice identifier
-- **Gender Icon** - Pink (female) / Blue (male)
-- **Description** - Character and tone description
-- **Labels** - Accent, personality tags
-- **Play Button** - Preview audio
-- **Selection Indicator** - Checkmark when chosen
-
-#### Voice Categories
-
-| Category | Description | Example Voices |
-|----------|-------------|----------------|
-| **Featured** | Curated high-quality voices | Rachel, Drew, Emily, Josh |
-| **Default** | ElevenLabs premade voices | Aria, Roger, Sarah, Charlie |
-| **Community** | 5,000+ shared voices | Priya, Kwame, Sofia, Marcus |
-| **Cloned** | User's own cloned voices | (User-created) |
-
-**Why Voice Selection Matters:** Voice significantly impacts practice realism. A skeptical executive sounds different than a friendly startup founder. Matching voice to persona increases immersion.
-
----
-
-## User Flow
-
-### Primary User Journey
-
-```
-┌─────────────┐
-│  Sign Up    │
-│  (Clerk)    │
-└──────┬──────┘
-       │
-       ▼
-┌─────────────┐
-│  Dashboard  │ ◄─────────────────────────────────┐
-│  (Home)     │                                   │
-└──────┬──────┘                                   │
-       │                                          │
-       ▼                                          │
-┌─────────────┐                                   │
-│  Practice   │                                   │
-│  Setup      │                                   │
-└──────┬──────┘                                   │
-       │ Select mode + prospect                   │
-       ▼                                          │
-┌─────────────┐                                   │
-│    Call     │                                   │
-│  Interface  │                                   │
-└──────┬──────┘                                   │
-       │ End call                                 │
-       ▼                                          │
-┌─────────────┐     ┌─────────────┐              │
-│   Debrief   │────►│  Coach Sparrow   │              │
-│             │     │    Chat     │              │
-└──────┬──────┘     └─────────────┘              │
-       │                                          │
-       ├──────────► Practice Again ───────────────┘
-       │
-       ▼
-┌─────────────┐
-│   History   │
-│  Progress   │
-└─────────────┘
+- id: UUID
+- clerk_id: String (unique)
+- email: String
+- name: String
+- role: Enum (sdr, ae, manager, founder)
+- industry: String
+- preferences: JSON
+- plan: Enum (free, starter, pro)
+- onboarding_completed: Boolean
+- created_at: Timestamp
+- updated_at: Timestamp
 ```
 
-### Secondary Flows
+### Prospect
+```
+- id: UUID
+- name: String
+- title: String
+- company_name: String
+- company_size: String
+- industry: String
+- difficulty: Enum (easy, medium, hard)
+- personality_traits: String[]
+- background: Text
+- objections: Text
+- voice_id: String (ElevenLabs)
+- speaking_style: Enum
+- speaking_pace: Enum
+- is_default: Boolean
+- created_by: UUID (null for defaults)
+- created_at: Timestamp
+```
 
-**Create Custom Prospect:**
+### Call
 ```
-AI Prospects → Create Prospect → Fill Form → Browse Voices → Select Voice → Create → Custom Prospects Tab
+- id: UUID
+- user_id: UUID (FK)
+- prospect_id: UUID (FK)
+- type: Enum (cold_call, discovery, objection_gauntlet)
+- status: Enum (ready, active, completed, abandoned)
+- duration_seconds: Integer
+- goal: String
+- recording_url: String
+- elevenlabs_conversation_id: String
+- started_at: Timestamp
+- completed_at: Timestamp
+- created_at: Timestamp
 ```
 
-**Review Past Performance:**
+### Call Transcript
 ```
-Dashboard → Call History → Select Call → Debrief → Coach Sparrow
+- id: UUID
+- call_id: UUID (FK)
+- messages: JSONB
+  - speaker: Enum (user, prospect)
+  - content: String
+  - timestamp_ms: Integer
+- created_at: Timestamp
+- updated_at: Timestamp
 ```
 
-**Track Progress:**
+### Call Score
 ```
-Dashboard → Progress → View Trends → Identify Weak Areas → Practice (targeting weakness)
+- id: UUID
+- call_id: UUID (FK, unique)
+- overall_score: Integer (0-100)
+- opening_score: Integer (0-100)
+- discovery_score: Integer (0-100)
+- objection_score: Integer (0-100)
+- communication_score: Integer (0-100)
+- closing_score: Integer (0-100)
+- outcome: Enum (meeting_booked, callback, rejected, no_decision)
+- created_at: Timestamp
+```
+
+### Call Feedback
+```
+- id: UUID
+- call_id: UUID (FK)
+- category: Enum (opening, discovery, objection, communication, closing)
+- timestamp_ms: Integer
+- feedback_type: Enum (positive, negative, missed_opportunity)
+- title: String
+- content: Text
+- suggestion: Text
+- transcript_excerpt: Text
+- created_at: Timestamp
+```
+
+### User Progress
+```
+- id: UUID
+- user_id: UUID (FK, unique)
+- total_calls: Integer
+- total_duration_seconds: Integer
+- current_streak: Integer
+- longest_streak: Integer
+- last_call_date: Date
+- avg_overall_score: Decimal
+- skill_scores: JSONB
+  - opening: Integer
+  - discovery: Integer
+  - objection: Integer
+  - communication: Integer
+  - closing: Integer
+- updated_at: Timestamp
+```
+
+### User Prospect Stats
+```
+- id: UUID
+- user_id: UUID (FK)
+- prospect_id: UUID (FK)
+- calls_count: Integer
+- avg_score: Decimal
+- updated_at: Timestamp
 ```
 
 ---
 
-## Design System
+## Integrations
+
+### ElevenLabs (Voice AI)
+- **Purpose**: Real-time voice conversations
+- **Features Used**:
+  - Conversational AI SDK
+  - Speech-to-Text
+  - Text-to-Speech
+  - Voice Library API
+- **Environment Variables**:
+  - `ELEVENLABS_API_KEY`
+  - `NEXT_PUBLIC_ELEVENLABS_AGENT_ID`
+  - `ELEVENLABS_VOICE_*` (voice IDs)
+
+### Google Gemini 2.0 Flash
+- **Purpose**: Deep analysis and persona generation
+- **Features Used**:
+  - Persona backstory generation
+  - Comprehensive call analysis
+  - Coach Sparrow responses
+  - Scoring synthesis
+- **Environment Variables**:
+  - `GOOGLE_GENERATIVE_AI_API_KEY`
+  - `GEMINI_MODEL`
+
+### Groq
+- **Purpose**: Real-time scoring during calls
+- **Features Used**:
+  - Ultra-fast inference (~200ms)
+  - Real-time segment scoring
+  - Quick feedback generation
+- **Environment Variables**:
+  - `GROQ_API_KEY`
+  - `GROQ_MODEL`
+
+### Supabase
+- **Purpose**: Database and real-time features
+- **Features Used**:
+  - PostgreSQL database
+  - Row-level security
+  - Real-time subscriptions
+  - File storage (recordings)
+- **Environment Variables**:
+  - `NEXT_PUBLIC_SUPABASE_URL`
+  - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+  - `SUPABASE_SERVICE_ROLE_KEY`
+
+### Clerk
+- **Purpose**: Authentication
+- **Features Used**:
+  - Sign-up / Sign-in flows
+  - OAuth (Google, GitHub)
+  - Session management
+  - Webhooks for user sync
+- **Environment Variables**:
+  - `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`
+  - `CLERK_SECRET_KEY`
+  - `CLERK_WEBHOOK_SECRET`
+
+---
+
+## Design System Notes
+
+### Color Palette
+- Primary: Blue (#2563eb, primary-600)
+- Success: Green (#16a34a)
+- Warning: Orange (#f97316)
+- Error: Red (#dc2626)
+- Neutral: Gray scale
+
+### Styling Principles
+- **No shadows**: Use borders instead
+- **Clean borders**: 1px gray-200
+- **Rounded corners**: 8px (rounded-lg)
+- **Generous spacing**: p-6, gap-6
+- **Consistent padding**: 4px, 8px, 12px, 16px, 24px
 
 ### Typography
+- Font: System font stack
+- Headings: Semibold (600)
+- Body: Normal (400)
+- Small text: text-sm (14px)
 
-| Element | Size | Weight |
-|---------|------|--------|
-| **Page Title** | 24px (text-2xl) | Semibold |
-| **Section Header** | 18px (text-lg) | Semibold |
-| **Body** | 14px (text-sm) | Normal |
-| **Caption** | 12px (text-xs) | Normal/Medium |
-
-### Component Patterns
-
-| Pattern | Usage |
-|---------|-------|
-| **Cards with Borders** | All containers use `border border-gray-200` |
-| **No Shadows** | Clean, flat design throughout |
-| **Progress Bars** | 6px height, rounded, gray background |
-| **Badges** | Rounded, color-coded by type |
-| **Avatars** | Initials in colored circles |
-
-### Icon Library
-
-**Phosphor Icons** - Used throughout for consistent style
-
-Common icons:
-- `ph-phone-call` - Practice/calls
-- `ph-chart-line-up` - Progress
-- `ph-robot` - Coach Sparrow
-- `ph-brain` - Gemini AI
-- `ph-lightning` - Groq (speed)
-- `ph-activity` - Datadog monitoring
+### Components
+- Cards with borders (no shadows)
+- Pills/badges for status
+- Progress bars for scores
+- Avatar circles with initials
+- Icon library: Phosphor Icons
 
 ---
 
-## Summary
-
-Sparrow AI's dashboard is designed to create a complete sales training loop:
-
-1. **Motivate** - Dashboard gamification (streaks, scores, progress)
-2. **Practice** - Realistic voice conversations with AI
-3. **Analyze** - Detailed, timestamped feedback
-4. **Learn** - Coach Sparrow for deeper understanding
-5. **Track** - Progress visualization over time
-6. **Customize** - Prospect creator for specific needs
-
-Every integration serves the core mission:
-- **ElevenLabs** makes conversations realistic
-- **Datadog** ensures reliability and observability
-- **Gemini** provides intelligent analysis
-- **Groq** enables real-time feedback
-- **Supabase** stores and streams data
-- **Clerk** secures user access
-
-The result is a production-ready platform that demonstrates both technical excellence (for hackathon judging) and genuine user value (for real-world adoption).
-
----
-
-*Documentation version 1.0 - December 2024*  
-*Sparrow AI - AI Partner Catalyst Hackathon Submission*
+*Last Updated: December 2024*
+*Based on: sparrow-dashboard-v2.html prototype*
