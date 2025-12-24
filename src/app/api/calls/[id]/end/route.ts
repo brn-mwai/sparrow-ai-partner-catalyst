@@ -303,6 +303,16 @@ export async function POST(
     // Update user progress
     await updateUserProgress(supabase, call.user_id, scores);
 
+    // Convert feedback timestamp_estimate strings to timestamp_ms numbers for client
+    const formattedFeedback = (feedback || []).map((f) => ({
+      category: mapCategoryToDb(f.category),
+      timestamp_ms: parseTimestamp(f.timestamp_estimate),
+      type: f.type,
+      content: f.content,
+      suggestion: f.suggestion,
+      excerpt: f.excerpt,
+    }));
+
     return NextResponse.json({
       success: true,
       callId,
@@ -312,7 +322,7 @@ export async function POST(
         categories: scores.categories,
         outcome: scores.outcome,
       },
-      feedback: feedback || [],
+      feedback: formattedFeedback,
       transcript,
     });
   } catch (error) {

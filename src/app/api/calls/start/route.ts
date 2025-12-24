@@ -154,6 +154,7 @@ export async function POST(req: NextRequest) {
       elevenLabsSession = await getSignedUrl({
         persona: {
           name: persona.name,
+          gender: persona.gender, // Pass explicit gender for voice selection
           title: persona.title,
           company: persona.company,
           background: persona.background,

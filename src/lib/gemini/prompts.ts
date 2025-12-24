@@ -37,6 +37,7 @@ export const PERSONA_GENERATION_USER = (options: {
 Create a JSON persona with this exact structure:
 {
   "name": "<realistic full name matching likely demographics>",
+  "gender": "<male|female - must match the name you generate>",
   "title": "<specific job title>",
   "company": "<realistic company name>",
   "company_size": "<e.g., 50-200 employees>",

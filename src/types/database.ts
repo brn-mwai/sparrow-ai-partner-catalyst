@@ -323,6 +323,7 @@ export type UserProgressUpdate = Database['public']['Tables']['user_progress']['
 
 export interface PersonaConfig {
   name: string;
+  gender?: 'male' | 'female';
   title: string;
   company: string;
   company_size: string;

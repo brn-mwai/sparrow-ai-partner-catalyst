@@ -37,6 +37,7 @@ export class GeminiError extends Error {
 
 export interface PersonaConfig {
   name: string;
+  gender: 'male' | 'female';
   title: string;
   company: string;
   company_size: string;

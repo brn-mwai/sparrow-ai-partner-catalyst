@@ -30,6 +30,7 @@ export class ElevenLabsError extends Error {
 
 export interface PersonaForAgent {
   name: string;
+  gender?: 'male' | 'female';
   title: string;
   company: string;
   background: string;
@@ -106,24 +107,28 @@ export async function getSignedUrl(
   const apiKey = getApiKey();
   const agentId = config.agentId || getAgentId();
 
-  // Select voice based on persona name (gender inference) and personality
+  // Select voice based on persona gender and personality
+  // Gender is now explicitly set by the AI during persona generation
   let voice: VoiceConfig;
   if (config.voiceId) {
     voice = Object.values(ELEVENLABS_VOICES).find((v) => v.id === config.voiceId) ||
       getVoiceForPersona({
         name: config.persona.name,
+        gender: config.persona.gender, // Use explicit gender from persona
         personality: config.persona.personality,
       });
   } else {
-    // Use persona name to infer gender for voice selection
+    // Use persona's explicit gender for voice selection
     voice = getVoiceForPersona({
       name: config.persona.name,
+      gender: config.persona.gender, // Use explicit gender from persona
       personality: config.persona.personality,
     });
   }
 
   console.log('Voice selection:', {
     personaName: config.persona.name,
+    personaGender: config.persona.gender,
     personality: config.persona.personality,
     selectedVoice: voice.name,
     voiceGender: voice.gender,
