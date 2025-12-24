@@ -10,7 +10,7 @@ export default function SupportPage() {
       <header className={styles.legalHeader}>
         <Link href="/" className={styles.logo}>
           <Image
-            src="/Logo/Logo-full.svg"
+            src="/Logo/sparrow-logo.svg"
             alt="Sparrow AI"
             width={120}
             height={40}
@@ -29,43 +29,57 @@ export default function SupportPage() {
           <h2>Frequently Asked Questions</h2>
 
           <div className={styles.faqItem}>
-            <h3>How do I generate a brief?</h3>
+            <h3>How do I start a practice call?</h3>
             <p>
-              You can generate a brief in two ways:
+              Starting a practice call is simple:
             </p>
             <ol>
-              <li><strong>From the Dashboard:</strong> Go to your dashboard, click &quot;New Brief,&quot; paste a LinkedIn profile URL, select your meeting goal, and click Generate.</li>
-              <li><strong>From the Chrome Extension:</strong> Visit any LinkedIn profile, click the Sparrow AI button, and a brief will be generated automatically.</li>
+              <li>Go to your dashboard and click &quot;Start Practicing&quot;</li>
+              <li>Choose your practice mode: Cold Call, Discovery, or Objection Gauntlet</li>
+              <li>Configure your AI prospect (industry, role, personality, difficulty)</li>
+              <li>Review the prospect briefing with tips and goals</li>
+              <li>Click &quot;Start Call&quot; and begin speaking</li>
             </ol>
           </div>
 
           <div className={styles.faqItem}>
-            <h3>What LinkedIn profiles can I generate briefs for?</h3>
+            <h3>What practice modes are available?</h3>
             <p>
-              You can generate briefs for any public LinkedIn profile. Private profiles or profiles
-              with restricted visibility may not have all information available.
-            </p>
-          </div>
-
-          <div className={styles.faqItem}>
-            <h3>How do I install the Chrome extension?</h3>
-            <ol>
-              <li>Visit the Chrome Web Store and search for &quot;Sparrow AI&quot;</li>
-              <li>Click &quot;Add to Chrome&quot;</li>
-              <li>Click the extension icon and sign in with your Sparrow AI account</li>
-              <li>Visit any LinkedIn profile and click the Sparrow AI button</li>
-            </ol>
-          </div>
-
-          <div className={styles.faqItem}>
-            <h3>How many briefs can I generate?</h3>
-            <p>
-              Brief limits depend on your plan:
+              Sparrow AI offers three practice modes:
             </p>
             <ul>
-              <li><strong>Free:</strong> 10 briefs per month</li>
-              <li><strong>Starter:</strong> 50 briefs per month</li>
-              <li><strong>Pro:</strong> Unlimited briefs</li>
+              <li><strong>Cold Call Simulator:</strong> Practice opening calls, earning attention, and booking meetings</li>
+              <li><strong>Discovery Call Simulator:</strong> Practice asking questions, uncovering pain, and qualification</li>
+              <li><strong>Objection Gauntlet:</strong> Handle common objections like &quot;not interested&quot; or &quot;too expensive&quot;</li>
+            </ul>
+          </div>
+
+          <div className={styles.faqItem}>
+            <h3>How does the scoring work?</h3>
+            <p>
+              After each call, our AI analyzes your performance across five categories:
+            </p>
+            <ul>
+              <li><strong>Opening:</strong> How well you captured attention and established credibility</li>
+              <li><strong>Discovery:</strong> Quality of questions asked and pain points uncovered</li>
+              <li><strong>Objection Handling:</strong> How you addressed pushback and concerns</li>
+              <li><strong>Call Control:</strong> Your ability to guide the conversation</li>
+              <li><strong>Closing:</strong> How effectively you moved toward next steps</li>
+            </ul>
+            <p>
+              You&apos;ll also receive specific feedback on key moments with suggestions for improvement.
+            </p>
+          </div>
+
+          <div className={styles.faqItem}>
+            <h3>How many practice calls can I make?</h3>
+            <p>
+              Call limits depend on your plan:
+            </p>
+            <ul>
+              <li><strong>Free:</strong> 5 calls per month</li>
+              <li><strong>Starter:</strong> 30 calls per month</li>
+              <li><strong>Pro:</strong> Unlimited calls</li>
             </ul>
             <p>
               Limits reset on the first day of each month.
@@ -73,36 +87,47 @@ export default function SupportPage() {
           </div>
 
           <div className={styles.faqItem}>
-            <h3>Can I connect my own LinkedIn profile?</h3>
+            <h3>What microphone should I use?</h3>
             <p>
-              Yes! Go to Dashboard &gt; Settings and paste your LinkedIn profile URL.
-              This allows Sparrow AI to find common ground between you and your contacts,
-              making briefs more personalized.
+              For the best experience, we recommend:
+            </p>
+            <ul>
+              <li>A quality headset with built-in microphone</li>
+              <li>A quiet environment to minimize background noise</li>
+              <li>Testing your audio before starting a call</li>
+            </ul>
+            <p>
+              You can test and configure your microphone in Dashboard &gt; Settings &gt; Audio.
             </p>
           </div>
 
           <div className={styles.faqItem}>
-            <h3>How accurate is the AI-generated content?</h3>
+            <h3>Can I customize the AI prospects?</h3>
             <p>
-              Our AI strives for accuracy, but generated content should be used as a starting point.
-              We recommend verifying important details before your meeting. The AI works with
-              publicly available information and may not capture everything about a person.
+              Yes! You can customize several aspects of your AI prospect:
             </p>
+            <ul>
+              <li><strong>Industry:</strong> SaaS, Healthcare, Finance, Manufacturing, and more</li>
+              <li><strong>Role:</strong> VP, Director, Manager, C-Suite</li>
+              <li><strong>Personality:</strong> Skeptical, Busy, Friendly, Technical</li>
+              <li><strong>Difficulty:</strong> Easy, Medium, Hard, Brutal</li>
+            </ul>
           </div>
 
           <div className={styles.faqItem}>
             <h3>How do I cancel my subscription?</h3>
             <p>
-              Go to Dashboard &gt; Billing and click &quot;Manage Subscription.&quot; You can cancel
+              Go to Dashboard &gt; Settings &gt; Billing and click &quot;Manage Subscription.&quot; You can cancel
               anytime, and your access will continue until the end of your billing period.
             </p>
           </div>
 
           <div className={styles.faqItem}>
-            <h3>Is my data secure?</h3>
+            <h3>Is my voice data secure?</h3>
             <p>
-              Yes. We use industry-standard encryption, secure authentication through Clerk,
-              and never sell your personal data. Read our <Link href="/privacy">Privacy Policy</Link> for details.
+              Yes. Your voice is processed in real-time for conversation but not permanently stored.
+              Transcripts are encrypted and stored securely. You can delete your call history at any time.
+              Read our <Link href="/privacy">Privacy Policy</Link> for full details.
             </p>
           </div>
         </section>
@@ -111,22 +136,32 @@ export default function SupportPage() {
           <h2>Troubleshooting</h2>
 
           <div className={styles.faqItem}>
-            <h3>The extension isn&apos;t working</h3>
+            <h3>The AI isn&apos;t responding to my voice</h3>
             <ol>
-              <li>Make sure you&apos;re signed in (click the extension icon to check)</li>
-              <li>Refresh the LinkedIn page</li>
-              <li>Try disabling and re-enabling the extension</li>
-              <li>Clear your browser cache and cookies</li>
-              <li>Reinstall the extension from the Chrome Web Store</li>
+              <li>Check that your microphone is properly connected and selected</li>
+              <li>Ensure your browser has permission to access the microphone</li>
+              <li>Speak clearly and at a moderate pace</li>
+              <li>Check your internet connection speed</li>
+              <li>Try refreshing the page and starting a new call</li>
             </ol>
           </div>
 
           <div className={styles.faqItem}>
-            <h3>Brief generation is failing</h3>
+            <h3>I&apos;m experiencing audio delay or lag</h3>
             <ul>
-              <li>Check that the LinkedIn URL is valid and the profile is public</li>
-              <li>Verify you haven&apos;t exceeded your monthly limit</li>
-              <li>Try again in a few minutes (temporary API issues)</li>
+              <li>Check your internet connection (we recommend at least 5 Mbps)</li>
+              <li>Close other tabs or applications using bandwidth</li>
+              <li>Try using a wired connection instead of WiFi</li>
+              <li>Clear your browser cache and restart</li>
+            </ul>
+          </div>
+
+          <div className={styles.faqItem}>
+            <h3>My call ended unexpectedly</h3>
+            <ul>
+              <li>Check your internet connection stability</li>
+              <li>Verify you haven&apos;t exceeded your monthly call limit</li>
+              <li>Try starting a new call</li>
               <li>Contact support if the problem persists</li>
             </ul>
           </div>
@@ -138,6 +173,16 @@ export default function SupportPage() {
               <li>Try a different browser</li>
               <li>Check if your email address is correct</li>
               <li>Use the &quot;Forgot Password&quot; option if needed</li>
+            </ul>
+          </div>
+
+          <div className={styles.faqItem}>
+            <h3>My scores aren&apos;t showing</h3>
+            <ul>
+              <li>Wait a few moments after ending the call for analysis to complete</li>
+              <li>Refresh the debrief page</li>
+              <li>Check your call history for the completed call</li>
+              <li>Ensure the call wasn&apos;t ended too early (minimum 30 seconds)</li>
             </ul>
           </div>
         </section>
@@ -157,8 +202,8 @@ export default function SupportPage() {
               </div>
               <h3>Email Support</h3>
               <p>Get help via email</p>
-              <a href="mailto:support@brianmwai.com" className={styles.contactLink}>
-                support@brianmwai.com
+              <a href="mailto:support@sparrow-ai.com" className={styles.contactLink}>
+                support@sparrow-ai.com
               </a>
             </div>
 

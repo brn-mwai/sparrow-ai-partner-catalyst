@@ -10,7 +10,7 @@ export default function CookiePolicyPage() {
       <header className={styles.legalHeader}>
         <Link href="/" className={styles.logo}>
           <Image
-            src="/Logo/Logo-full.svg"
+            src="/Logo/sparrow-logo.svg"
             alt="Sparrow AI"
             width={120}
             height={40}
@@ -21,7 +21,7 @@ export default function CookiePolicyPage() {
 
       <main className={styles.legalContent}>
         <h1>Cookie Policy</h1>
-        <p className={styles.lastUpdated}>Last updated: December 12, 2024</p>
+        <p className={styles.lastUpdated}>Last updated: December 24, 2024</p>
 
         <section>
           <h2>1. What Are Cookies</h2>
@@ -32,7 +32,7 @@ export default function CookiePolicyPage() {
           </p>
           <p>
             This Cookie Policy explains how Sparrow AI (&quot;we,&quot; &quot;us,&quot; or &quot;our&quot;) uses cookies and similar
-            technologies on our website (sparrow-ai.brianmwai.com) and Chrome extension.
+            technologies on our AI-powered sales training platform.
           </p>
         </section>
 
@@ -43,7 +43,7 @@ export default function CookiePolicyPage() {
           <h3>2.1 Essential Cookies</h3>
           <p>
             These cookies are necessary for the website to function and cannot be switched off.
-            They are usually set in response to your actions, such as logging in or filling out forms.
+            They are usually set in response to your actions, such as logging in or managing your practice sessions.
           </p>
           <table className={styles.cookieTable}>
             <thead>
@@ -75,7 +75,7 @@ export default function CookiePolicyPage() {
           <h3>2.2 Functional Cookies</h3>
           <p>
             These cookies enable enhanced functionality and personalization, such as remembering
-            your preferences and settings.
+            your call preferences and settings.
           </p>
           <table className={styles.cookieTable}>
             <thead>
@@ -88,7 +88,7 @@ export default function CookiePolicyPage() {
             <tbody>
               <tr>
                 <td>sparrow_preferences</td>
-                <td>User preferences and settings</td>
+                <td>User preferences (difficulty, call type)</td>
                 <td>1 year</td>
               </tr>
               <tr>
@@ -96,12 +96,17 @@ export default function CookiePolicyPage() {
                 <td>Theme preference (light/dark)</td>
                 <td>1 year</td>
               </tr>
+              <tr>
+                <td>sparrow_audio_settings</td>
+                <td>Microphone and audio preferences</td>
+                <td>1 year</td>
+              </tr>
             </tbody>
           </table>
 
           <h3>2.3 Analytics Cookies</h3>
           <p>
-            These cookies help us understand how visitors interact with our website by collecting
+            These cookies help us understand how visitors interact with our platform by collecting
             and reporting information anonymously.
           </p>
           <table className={styles.cookieTable}>
@@ -123,18 +128,18 @@ export default function CookiePolicyPage() {
         </section>
 
         <section>
-          <h2>3. Chrome Extension Storage</h2>
+          <h2>3. Local Storage</h2>
           <p>
-            Our Chrome extension uses browser local storage (not cookies) to store:
+            In addition to cookies, we use browser local storage to enhance your experience:
           </p>
           <ul>
-            <li><strong>Authentication Token:</strong> To keep you signed in to the extension</li>
-            <li><strong>Cached Briefs:</strong> Recently generated briefs for faster access</li>
-            <li><strong>User Preferences:</strong> Your extension settings and preferences</li>
+            <li><strong>Call Settings:</strong> Your preferred call duration and difficulty settings</li>
+            <li><strong>Audio Device Preferences:</strong> Selected microphone and speaker devices</li>
+            <li><strong>UI Preferences:</strong> Dashboard layout and display preferences</li>
           </ul>
           <p>
             This data is stored locally in your browser and is not transmitted to third parties.
-            You can clear this data by removing the extension or clearing your browser data.
+            You can clear this data through your browser settings.
           </p>
         </section>
 
@@ -154,6 +159,11 @@ export default function CookiePolicyPage() {
               <br />
               <a href="https://vercel.com/legal/privacy-policy" target="_blank" rel="noopener noreferrer">Vercel Privacy Policy</a>
             </li>
+            <li>
+              <strong>Supabase (Database):</strong> Stores user data and call history.
+              <br />
+              <a href="https://supabase.com/privacy" target="_blank" rel="noopener noreferrer">Supabase Privacy Policy</a>
+            </li>
           </ul>
         </section>
 
@@ -170,7 +180,7 @@ export default function CookiePolicyPage() {
           </ul>
           <p>
             Please note that blocking essential cookies may prevent you from using certain features
-            of our Service, such as logging in.
+            of our Service, such as logging in or participating in practice calls.
           </p>
 
           <h3>Browser-Specific Instructions</h3>
@@ -222,8 +232,8 @@ export default function CookiePolicyPage() {
             If you have questions about our use of cookies, please contact us at:
           </p>
           <ul>
-            <li>Email: privacy@brianmwai.com</li>
-            <li>Website: <Link href="https://sparrow-ai.brianmwai.com">sparrow-ai.brianmwai.com</Link></li>
+            <li>Email: privacy@sparrow-ai.com</li>
+            <li>Website: <Link href="/">sparrow-ai.com</Link></li>
           </ul>
         </section>
       </main>

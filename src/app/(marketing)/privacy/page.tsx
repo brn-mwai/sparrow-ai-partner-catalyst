@@ -10,7 +10,7 @@ export default function PrivacyPolicyPage() {
       <header className={styles.legalHeader}>
         <Link href="/" className={styles.logo}>
           <Image
-            src="/Logo/Logo-full.svg"
+            src="/Logo/sparrow-logo.svg"
             alt="Sparrow AI"
             width={120}
             height={40}
@@ -21,15 +21,15 @@ export default function PrivacyPolicyPage() {
 
       <main className={styles.legalContent}>
         <h1>Privacy Policy</h1>
-        <p className={styles.lastUpdated}>Last updated: December 12, 2024</p>
+        <p className={styles.lastUpdated}>Last updated: December 24, 2024</p>
 
         <section>
           <h2>1. Introduction</h2>
           <p>
             Welcome to Sparrow AI (&quot;we,&quot; &quot;our,&quot; or &quot;us&quot;). We are committed to protecting your privacy
             and ensuring the security of your personal information. This Privacy Policy explains how we collect,
-            use, disclose, and safeguard your information when you use our website (sparrow-ai.brianmwai.com) and
-            Chrome extension (collectively, the &quot;Service&quot;).
+            use, disclose, and safeguard your information when you use our AI-powered sales training platform
+            (the &quot;Service&quot;).
           </p>
           <p>
             By using our Service, you agree to the collection and use of information in accordance with this policy.
@@ -42,21 +42,23 @@ export default function PrivacyPolicyPage() {
           <h3>2.1 Information You Provide</h3>
           <ul>
             <li><strong>Account Information:</strong> When you create an account, we collect your name, email address, and authentication credentials through our authentication provider (Clerk).</li>
-            <li><strong>LinkedIn Profile URL:</strong> When you generate a brief, you provide the LinkedIn profile URL of the person you want to research.</li>
-            <li><strong>Your LinkedIn Data:</strong> If you choose to connect your LinkedIn profile, we store your professional information to find common ground with your contacts.</li>
+            <li><strong>Profile Information:</strong> Your role (SDR, AE, Manager, Founder), industry, and sales experience level.</li>
+            <li><strong>Voice Data:</strong> Audio recordings of your practice calls with AI prospects, processed through ElevenLabs for real-time conversation.</li>
+            <li><strong>Call Transcripts:</strong> Text transcriptions of your practice sessions for scoring and feedback.</li>
           </ul>
 
           <h3>2.2 Information Collected Automatically</h3>
           <ul>
-            <li><strong>Usage Data:</strong> We collect information about how you use the Service, including briefs generated, features used, and timestamps.</li>
+            <li><strong>Usage Data:</strong> Practice call history, scores, duration, and improvement metrics.</li>
+            <li><strong>Performance Data:</strong> Opening, discovery, objection handling, call control, and closing scores.</li>
             <li><strong>Device Information:</strong> Browser type, operating system, and device identifiers.</li>
             <li><strong>Log Data:</strong> IP address, access times, and pages viewed.</li>
           </ul>
 
           <h3>2.3 Information from Third Parties</h3>
           <ul>
-            <li><strong>LinkedIn Data:</strong> We use the RapidAPI LinkedIn Data API to fetch publicly available profile information for brief generation.</li>
             <li><strong>Authentication Provider:</strong> We receive basic profile information from Clerk when you sign in.</li>
+            <li><strong>Voice AI Provider:</strong> ElevenLabs processes your voice for real-time AI conversations.</li>
           </ul>
         </section>
 
@@ -64,75 +66,78 @@ export default function PrivacyPolicyPage() {
           <h2>3. How We Use Your Information</h2>
           <p>We use the collected information for:</p>
           <ul>
-            <li>Providing and maintaining the Service</li>
-            <li>Generating AI-powered meeting briefs</li>
-            <li>Personalizing your experience and finding common ground</li>
+            <li>Providing real-time voice conversations with AI sales prospects</li>
+            <li>Generating AI-powered personas tailored to your practice needs</li>
+            <li>Scoring your calls and providing detailed feedback</li>
+            <li>Tracking your progress and identifying areas for improvement</li>
+            <li>Personalizing difficulty levels and prospect personalities</li>
             <li>Processing transactions and managing subscriptions</li>
-            <li>Communicating with you about updates, security alerts, and support</li>
-            <li>Analyzing usage patterns to improve our Service</li>
-            <li>Enforcing our terms and preventing fraud</li>
+            <li>Communicating with you about updates and support</li>
+            <li>Improving our AI models and Service quality</li>
           </ul>
         </section>
 
         <section>
-          <h2>4. Data Sharing and Disclosure</h2>
+          <h2>4. Voice Data and Recordings</h2>
+          <p>
+            Your voice data is central to our Service. Here&apos;s how we handle it:
+          </p>
+          <ul>
+            <li><strong>Real-time Processing:</strong> Voice is streamed to ElevenLabs for AI conversation and immediately processed.</li>
+            <li><strong>Transcripts:</strong> Call transcripts are stored to provide scoring and coaching feedback.</li>
+            <li><strong>No Permanent Audio Storage:</strong> We do not permanently store raw audio recordings after processing.</li>
+            <li><strong>Deletion:</strong> You can request deletion of your transcripts at any time.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>5. Data Sharing and Disclosure</h2>
           <p>We do not sell your personal information. We may share your information with:</p>
           <ul>
-            <li><strong>Service Providers:</strong> Third-party services that help us operate the Service (e.g., Clerk for authentication, Supabase for database, Anthropic/OpenAI for AI processing).</li>
+            <li><strong>ElevenLabs:</strong> For voice AI processing and real-time conversations.</li>
+            <li><strong>Google (Gemini):</strong> For AI persona generation and call analysis.</li>
+            <li><strong>Groq:</strong> For fast call scoring and feedback generation.</li>
+            <li><strong>Clerk:</strong> For authentication and account management.</li>
+            <li><strong>Supabase:</strong> For secure database storage.</li>
             <li><strong>Legal Requirements:</strong> When required by law or to protect our rights and safety.</li>
-            <li><strong>Business Transfers:</strong> In connection with a merger, acquisition, or sale of assets.</li>
           </ul>
         </section>
 
         <section>
-          <h2>5. Data Security</h2>
+          <h2>6. Data Security</h2>
           <p>
-            We implement appropriate technical and organizational measures to protect your personal information, including:
+            We implement appropriate technical and organizational measures to protect your personal information:
           </p>
           <ul>
-            <li>Encryption of data in transit (HTTPS/TLS)</li>
+            <li>Encryption of data in transit (HTTPS/TLS) and at rest</li>
             <li>Secure authentication through Clerk</li>
-            <li>Regular security assessments</li>
             <li>Access controls and authentication for our systems</li>
+            <li>Regular security assessments</li>
+            <li>Secure WebSocket connections for voice streaming</li>
           </ul>
-          <p>
-            However, no method of transmission over the Internet is 100% secure, and we cannot guarantee absolute security.
-          </p>
         </section>
 
         <section>
-          <h2>6. Data Retention</h2>
+          <h2>7. Data Retention</h2>
           <p>
             We retain your personal information for as long as your account is active or as needed to provide the Service.
-            Generated briefs are stored until you delete them or close your account. You can request deletion of your
-            data at any time by contacting us.
+            Call transcripts and scores are stored until you delete them or close your account. You can request deletion
+            of your data at any time by contacting us.
           </p>
         </section>
 
         <section>
-          <h2>7. Your Rights</h2>
+          <h2>8. Your Rights</h2>
           <p>Depending on your location, you may have the right to:</p>
           <ul>
             <li>Access the personal information we hold about you</li>
             <li>Correct inaccurate or incomplete information</li>
-            <li>Delete your personal information</li>
+            <li>Delete your personal information and call history</li>
             <li>Export your data in a portable format</li>
             <li>Opt-out of marketing communications</li>
             <li>Withdraw consent where processing is based on consent</li>
           </ul>
           <p>To exercise these rights, please contact us at the email below.</p>
-        </section>
-
-        <section>
-          <h2>8. Chrome Extension</h2>
-          <p>Our Chrome extension:</p>
-          <ul>
-            <li>Stores authentication tokens locally in Chrome storage</li>
-            <li>Detects LinkedIn profile URLs from your current browser tab</li>
-            <li>Sends profile URLs to our servers to generate briefs</li>
-            <li>Does not track your browsing history</li>
-            <li>Only activates on LinkedIn.com domains</li>
-          </ul>
         </section>
 
         <section>
@@ -146,8 +151,8 @@ export default function PrivacyPolicyPage() {
         <section>
           <h2>10. Children&apos;s Privacy</h2>
           <p>
-            Our Service is not intended for individuals under the age of 16. We do not knowingly collect
-            personal information from children. If you believe we have collected information from a child,
+            Our Service is not intended for individuals under the age of 18. We do not knowingly collect
+            personal information from children. If you believe we have collected information from a minor,
             please contact us immediately.
           </p>
         </section>
@@ -155,9 +160,9 @@ export default function PrivacyPolicyPage() {
         <section>
           <h2>11. International Data Transfers</h2>
           <p>
-            Your information may be transferred to and processed in countries other than your own.
-            We ensure appropriate safeguards are in place to protect your information in accordance
-            with this Privacy Policy.
+            Your information may be transferred to and processed in countries other than your own,
+            including the United States where our service providers are located. We ensure appropriate
+            safeguards are in place to protect your information.
           </p>
         </section>
 
@@ -165,8 +170,7 @@ export default function PrivacyPolicyPage() {
           <h2>12. Changes to This Policy</h2>
           <p>
             We may update this Privacy Policy from time to time. We will notify you of any changes by
-            posting the new policy on this page and updating the &quot;Last updated&quot; date. Continued use
-            of the Service after changes constitutes acceptance of the updated policy.
+            posting the new policy on this page and updating the &quot;Last updated&quot; date.
           </p>
         </section>
 
@@ -176,8 +180,8 @@ export default function PrivacyPolicyPage() {
             If you have questions about this Privacy Policy or our data practices, please contact us at:
           </p>
           <ul>
-            <li>Email: privacy@brianmwai.com</li>
-            <li>Website: <Link href="https://sparrow-ai.brianmwai.com">sparrow-ai.brianmwai.com</Link></li>
+            <li>Email: privacy@sparrow-ai.com</li>
+            <li>Website: <Link href="/">sparrow-ai.com</Link></li>
           </ul>
         </section>
       </main>
