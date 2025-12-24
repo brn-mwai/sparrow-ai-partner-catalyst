@@ -36,66 +36,66 @@ Sparrow AI solves a fundamental problem in sales training: **you can't get good 
 
 | Challenge | Impact |
 |:----------|:-------|
-| 🕐 Average SDR ramp time | 3-6 months |
-| 📉 Reps missing quota | 67% |
-| 👔 Manager time on roleplay | 15-20% (and inconsistent) |
-| ⚠️ Where practice happens | On real prospects = lost deals |
+| Average SDR ramp time | 3-6 months |
+| Reps missing quota | 67% |
+| Manager time on roleplay | 15-20% (and inconsistent) |
+| Where practice happens | On real prospects = lost deals |
 
 ### The Solution
 
 An AI sparring partner that:
-- ✅ Is available 24/7
-- ✅ Never gets tired of roleplaying
-- ✅ Provides consistent, objective feedback
-- ✅ Creates a safe space to fail
-- ✅ Adapts difficulty based on skill level
+- Is available 24/7
+- Never gets tired of roleplaying
+- Provides consistent, objective feedback
+- Creates a safe space to fail
+- Adapts difficulty based on skill level
 
 ---
 
 ## Features
 
-### 🎯 Three Practice Modes
+### Three Practice Modes
 
 ```
-┌─────────────────────────────────────────────────────────────────────────┐
-│                        PRACTICE MODES                                   │
-├─────────────────────┬─────────────────────┬─────────────────────────────┤
-│    COLD CALL        │     DISCOVERY       │    OBJECTION GAUNTLET       │
-│    ────────────     │     ─────────       │    ─────────────────        │
-│  Book meetings      │  Uncover pain       │  Handle pushback            │
-│  with prospects     │  points through     │  with confidence            │
-│  who weren't        │  strategic          │  through rapid-fire         │
-│  expecting you      │  questioning        │  objections                 │
-└─────────────────────┴─────────────────────┴─────────────────────────────┘
++-----------------------------------------------------------------------------+
+|                        PRACTICE MODES                                       |
++---------------------+---------------------+-----------------------------+
+|    COLD CALL        |     DISCOVERY       |    OBJECTION GAUNTLET       |
+|    ------------     |     ---------       |    -----------------        |
+|  Book meetings      |  Uncover pain       |  Handle pushback            |
+|  with prospects     |  points through     |  with confidence            |
+|  who weren't        |  strategic          |  through rapid-fire         |
+|  expecting you      |  questioning        |  objections                 |
++---------------------+---------------------+-----------------------------+
 ```
 
-### 🤖 Realistic AI Prospects
+### Realistic AI Prospects
 
 Each AI prospect has:
 
 | Attribute | Description |
 |:----------|:------------|
-| 🏢 **Backstory** | Company, role, tenure, recent challenges |
-| 😣 **Hidden Pain Points** | Only revealed if user asks the right questions |
-| 🎭 **Personality Type** | Skeptical, Busy, Friendly, or Technical |
-| 🛡️ **Specific Objections** | Tailored to their role and industry |
-| 📈 **Adaptive Behavior** | Gets harder or easier based on performance |
+| **Backstory** | Company, role, tenure, recent challenges |
+| **Hidden Pain Points** | Only revealed if user asks the right questions |
+| **Personality Type** | Skeptical, Busy, Friendly, or Technical |
+| **Specific Objections** | Tailored to their role and industry |
+| **Adaptive Behavior** | Gets harder or easier based on performance |
 
-### 📊 Instant Scoring & Feedback
+### Instant Scoring & Feedback
 
 ```
-┌─────────────────────────────────────────────────────────────────────────┐
-│                         SCORE BREAKDOWN                                 │
-├─────────────────────────────────────────────────────────────────────────┤
-│                                                                         │
-│  Opening           ████████████████████████░░░░░░  8.1/10              │
-│  Discovery         ████████████░░░░░░░░░░░░░░░░░░  6.2/10  ← Focus     │
-│  Objection         ██████████████████░░░░░░░░░░░░  7.1/10              │
-│  Call Control      ██████████████████░░░░░░░░░░░░  7.0/10              │
-│  Closing           ████████████░░░░░░░░░░░░░░░░░░  5.4/10  ← Focus     │
-│                                                                         │
-│  Overall: 6.8/10                                                        │
-└─────────────────────────────────────────────────────────────────────────┘
++-----------------------------------------------------------------------------+
+|                         SCORE BREAKDOWN                                     |
++-----------------------------------------------------------------------------+
+|                                                                             |
+|  Opening           ████████████████████████░░░░░░  8.1/10                  |
+|  Discovery         ████████████░░░░░░░░░░░░░░░░░░  6.2/10  <- Focus        |
+|  Objection         ██████████████████░░░░░░░░░░░░  7.1/10                  |
+|  Call Control      ██████████████████░░░░░░░░░░░░  7.0/10                  |
+|  Closing           ████████████░░░░░░░░░░░░░░░░░░  5.4/10  <- Focus        |
+|                                                                             |
+|  Overall: 6.8/10                                                            |
++-----------------------------------------------------------------------------+
 ```
 
 ---
@@ -106,28 +106,28 @@ Each AI prospect has:
 
 ```mermaid
 flowchart TB
-    subgraph Client["🖥️ CLIENT (Browser)"]
+    subgraph Client["CLIENT (Browser)"]
         UI[Next.js 15 + React 19]
         SDK[ElevenLabs React SDK]
         RT[Supabase Realtime]
     end
 
-    subgraph API["⚡ API LAYER (Vercel)"]
+    subgraph API["API LAYER (Vercel)"]
         Routes[Next.js API Routes]
         Auth[Clerk Auth Middleware]
     end
 
-    subgraph AI["🧠 AI SERVICES"]
+    subgraph AI["AI SERVICES"]
         Gemini[Google Gemini 2.0]
         Groq[Groq - Llama 3.1]
     end
 
-    subgraph Voice["🎙️ VOICE SERVICE"]
+    subgraph Voice["VOICE SERVICE"]
         EL[ElevenLabs Conversational AI]
         WS[WebSocket Audio Stream]
     end
 
-    subgraph DB["💾 DATABASE"]
+    subgraph DB["DATABASE"]
         Supa[(Supabase PostgreSQL)]
         Store[File Storage]
     end
@@ -155,7 +155,7 @@ flowchart TB
 
 ```mermaid
 flowchart LR
-    subgraph Pages["📄 Pages"]
+    subgraph Pages["Pages"]
         Landing[Landing Page]
         Dashboard[Dashboard]
         Practice[Practice]
@@ -165,20 +165,20 @@ flowchart LR
         Prospects[AI Prospects]
     end
 
-    subgraph Components["🧩 Components"]
+    subgraph Components["Components"]
         UI[UI Components]
         Call_UI[Call Interface]
         Score[Score Cards]
         Trans[Transcript Viewer]
     end
 
-    subgraph Hooks["🪝 Hooks"]
+    subgraph Hooks["Hooks"]
         useCall[useCall]
         useAudio[useAudio]
         useRealtime[useRealtime]
     end
 
-    subgraph Lib["📚 Libraries"]
+    subgraph Lib["Libraries"]
         EL_Client[ElevenLabs Client]
         Gemini_Client[Gemini Client]
         Groq_Client[Groq Client]
@@ -203,14 +203,14 @@ flowchart LR
 
 | Layer | Technology | Purpose |
 |:------|:-----------|:--------|
-| 🎨 **Frontend** | Next.js 15, React 19, TypeScript | UI Framework |
-| 🎙️ **Voice AI** | ElevenLabs Conversational AI | Real-time voice interactions |
-| 🧠 **AI/LLM** | Google Gemini 2.0 Flash | Persona generation, deep analysis |
-| ⚡ **Fast AI** | Groq (Llama 3.1 70B) | Quick scoring (<2s response) |
-| 💾 **Database** | Supabase (PostgreSQL) | Data persistence, realtime |
-| 🔐 **Auth** | Clerk | User authentication |
-| 🚀 **Hosting** | Vercel | Edge deployment |
-| 🎨 **Styling** | Tailwind CSS, shadcn/ui | Component styling |
+| **Frontend** | Next.js 15, React 19, TypeScript | UI Framework |
+| **Voice AI** | ElevenLabs Conversational AI | Real-time voice interactions |
+| **AI/LLM** | Google Gemini 2.0 Flash | Persona generation, deep analysis |
+| **Fast AI** | Groq (Llama 3.1 70B) | Quick scoring (<2s response) |
+| **Database** | Supabase (PostgreSQL) | Data persistence, realtime |
+| **Auth** | Clerk | User authentication |
+| **Hosting** | Vercel | Edge deployment |
+| **Styling** | Tailwind CSS, shadcn/ui | Component styling |
 
 ### Package Dependencies
 
@@ -273,7 +273,7 @@ sequenceDiagram
     loop Voice Conversation
         U->>F: Speak
         F->>EL: Audio stream
-        EL->>EL: STT → LLM → TTS
+        EL->>EL: STT > LLM > TTS
         EL-->>F: AI audio response
         F-->>U: Play audio
 
