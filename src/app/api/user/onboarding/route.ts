@@ -5,7 +5,7 @@
 // ============================================
 
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
+import { auth, currentUser } from '@clerk/nextjs/server';
 import { createAdminClient } from '@/lib/supabase/server';
 
 export const runtime = 'nodejs';
@@ -63,6 +63,15 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Get current user info from Clerk
+    const clerkUser = await currentUser();
+    if (!clerkUser) {
+      return NextResponse.json(
+        { error: 'User not found' },
+        { status: 401 }
+      );
+    }
+
     const body = await req.json();
     const { role, industry, goals, company_name } = body;
 
@@ -76,31 +85,77 @@ export async function POST(req: NextRequest) {
 
     const supabase = createAdminClient();
 
-    // Update user with onboarding data
+    // First, check if user exists
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: user, error: updateError } = await (supabase as any)
+    const { data: existingUser } = await (supabase as any)
       .from('users')
-      .update({
-        role,
-        industry,
-        preferences: {
-          goals: goals || [],
-          company_name: company_name || null,
-          show_tour: true, // Enable tour for new users
-        },
-        onboarding_completed: true,
-        updated_at: new Date().toISOString(),
-      })
+      .select('id')
       .eq('clerk_id', userId)
-      .select()
       .single();
 
-    if (updateError) {
-      console.error('Failed to update user:', updateError);
-      return NextResponse.json(
-        { error: 'Failed to complete onboarding' },
-        { status: 500 }
-      );
+    let user;
+
+    if (existingUser) {
+      // Update existing user
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: updatedUser, error: updateError } = await (supabase as any)
+        .from('users')
+        .update({
+          role,
+          industry,
+          preferences: {
+            goals: goals || [],
+            company_name: company_name || null,
+            show_tour: true,
+          },
+          onboarding_completed: true,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('clerk_id', userId)
+        .select()
+        .single();
+
+      if (updateError) {
+        console.error('Failed to update user:', updateError);
+        return NextResponse.json(
+          { error: 'Failed to complete onboarding' },
+          { status: 500 }
+        );
+      }
+      user = updatedUser;
+    } else {
+      // Create new user (webhook may not have fired yet)
+      const email = clerkUser.emailAddresses?.[0]?.emailAddress;
+      const name = [clerkUser.firstName, clerkUser.lastName].filter(Boolean).join(' ') || null;
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: newUser, error: insertError } = await (supabase as any)
+        .from('users')
+        .insert({
+          clerk_id: userId,
+          email: email || '',
+          name,
+          role,
+          industry,
+          preferences: {
+            goals: goals || [],
+            company_name: company_name || null,
+            show_tour: true,
+          },
+          onboarding_completed: true,
+          plan: 'free',
+        })
+        .select()
+        .single();
+
+      if (insertError) {
+        console.error('Failed to create user:', insertError);
+        return NextResponse.json(
+          { error: 'Failed to complete onboarding' },
+          { status: 500 }
+        );
+      }
+      user = newUser;
     }
 
     // Create initial user_progress record

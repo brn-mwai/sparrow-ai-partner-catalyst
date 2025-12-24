@@ -13,11 +13,12 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.32.1",
     "@clerk/nextjs": "^6.9.1",
+    "@elevenlabs/elevenlabs-js": "^2.28.0",
     "@elevenlabs/react": "^0.12.3",
     "@google/generative-ai": "^0.24.1",
     "@lottiefiles/dotlottie-react": "^0.17.10",
     "@rive-app/react-canvas": "^4.24.0",
-    "@rive-app/react-webgl2": "^4.24.0",
+    "@rive-app/react-webgl2": "^4.25.1",
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.47.10",
     "driver.js": "^1.4.0",

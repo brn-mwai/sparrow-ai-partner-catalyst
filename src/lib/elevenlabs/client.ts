@@ -6,7 +6,7 @@
 import {
   ELEVENLABS_VOICES,
   AGENT_CONFIG,
-  getVoiceForPersonality,
+  getVoiceForPersona,
   type VoiceConfig,
 } from './config';
 import {
@@ -106,14 +106,28 @@ export async function getSignedUrl(
   const apiKey = getApiKey();
   const agentId = config.agentId || getAgentId();
 
-  // Select voice based on persona personality
+  // Select voice based on persona name (gender inference) and personality
   let voice: VoiceConfig;
   if (config.voiceId) {
     voice = Object.values(ELEVENLABS_VOICES).find((v) => v.id === config.voiceId) ||
-      getVoiceForPersonality(config.persona.personality);
+      getVoiceForPersona({
+        name: config.persona.name,
+        personality: config.persona.personality,
+      });
   } else {
-    voice = getVoiceForPersonality(config.persona.personality);
+    // Use persona name to infer gender for voice selection
+    voice = getVoiceForPersona({
+      name: config.persona.name,
+      personality: config.persona.personality,
+    });
   }
+
+  console.log('Voice selection:', {
+    personaName: config.persona.name,
+    personality: config.persona.personality,
+    selectedVoice: voice.name,
+    voiceGender: voice.gender,
+  });
 
   // Build the system prompt for the agent
   const systemPrompt = ELEVENLABS_AGENT_SYSTEM(config.persona, config.callType);
@@ -126,36 +140,17 @@ export async function getSignedUrl(
   );
 
   try {
-    // Create conversation with dynamic prompt override
-    const response = await fetch(`${ELEVENLABS_API_URL}/convai/conversation/get_signed_url`, {
-      method: 'POST',
-      headers: {
-        'xi-api-key': apiKey,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        agent_id: agentId,
-        // Override agent configuration for this specific conversation
-        conversation_config_override: {
-          agent: {
-            prompt: {
-              prompt: systemPrompt,
-            },
-            first_message: firstMessage,
-            language: 'en',
-          },
-          tts: {
-            voice_id: voice.id,
-            stability: AGENT_CONFIG.voice.stability,
-            similarity_boost: AGENT_CONFIG.voice.similarityBoost,
-          },
-          conversation: {
-            max_duration_seconds: config.maxDuration || AGENT_CONFIG.conversation.maxDuration,
-            turn_timeout_secs: AGENT_CONFIG.conversation.silenceTimeout,
-          },
+    // Get signed URL for the conversation
+    // The ElevenLabs React SDK will handle the conversation setup
+    const response = await fetch(
+      `${ELEVENLABS_API_URL}/convai/conversation/get-signed-url?agent_id=${agentId}`,
+      {
+        method: 'GET',
+        headers: {
+          'xi-api-key': apiKey,
         },
-      }),
-    });
+      }
+    );
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -168,8 +163,21 @@ export async function getSignedUrl(
 
     const data = await response.json();
 
-    return {
+    console.log('ElevenLabs signed URL response:', {
+      hasSignedUrl: !!data.signed_url,
+      signedUrlPreview: data.signed_url ? data.signed_url.substring(0, 100) + '...' : null,
       conversationId: data.conversation_id,
+      agentId,
+    });
+
+    if (!data.signed_url) {
+      throw new ElevenLabsError('No signed URL in response', 'API_ERROR');
+    }
+
+    // Store persona context for the client-side SDK to use
+    // The React SDK's useConversation will handle the actual conversation
+    return {
+      conversationId: data.conversation_id || `conv_${Date.now()}`,
       signedUrl: data.signed_url,
       agentId,
       voiceId: voice.id,
@@ -444,5 +452,5 @@ export async function getAgentDetails(agentId?: string): Promise<{
 export {
   ELEVENLABS_VOICES,
   AGENT_CONFIG,
-  getVoiceForPersonality,
+  getVoiceForPersona,
 };

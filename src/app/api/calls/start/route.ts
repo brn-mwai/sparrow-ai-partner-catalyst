@@ -6,6 +6,13 @@ import type { CallType, PersonaConfig } from '@/types/database';
 
 export const runtime = 'nodejs';
 
+// Plan limits configuration
+const PLAN_LIMITS = {
+  free: 4,      // Free users get 4 calls total
+  starter: 50,  // Starter plan: 50 calls/month
+  pro: -1,      // Pro plan: unlimited (-1 means no limit)
+} as const;
+
 interface StartCallRequest {
   type: CallType;
   persona: PersonaConfig;
@@ -37,13 +44,16 @@ export async function POST(req: NextRequest) {
     // Get Supabase client
     const supabase = createAdminClient();
 
-    // Get user ID from database
+    // Get user with plan info from database
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: user, error: userError } = await (supabase as any)
       .from('users')
-      .select('id')
+      .select('id, plan')
       .eq('clerk_id', userId)
       .single();
+
+    let dbUserId: string;
+    let userPlan: 'free' | 'starter' | 'pro' = 'free';
 
     if (userError || !user) {
       // Create user if doesn't exist
@@ -53,8 +63,9 @@ export async function POST(req: NextRequest) {
         .insert({
           clerk_id: userId,
           email: `${userId}@placeholder.com`, // Will be updated by webhook
+          plan: 'free',
         })
-        .select('id')
+        .select('id, plan')
         .single();
 
       if (createError) {
@@ -71,9 +82,50 @@ export async function POST(req: NextRequest) {
           { status: 404 }
         );
       }
+
+      dbUserId = newUser.id;
+      userPlan = newUser.plan || 'free';
+    } else {
+      dbUserId = user.id;
+      userPlan = user.plan || 'free';
     }
 
-    const dbUserId = user?.id;
+    // Check rate limits based on plan
+    const callLimit = PLAN_LIMITS[userPlan];
+
+    if (callLimit !== -1) {
+      // Count user's COMPLETED calls only (not failed/abandoned attempts)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { count, error: countError } = await (supabase as any)
+        .from('calls')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', dbUserId)
+        .eq('status', 'completed');
+
+      if (countError) {
+        console.error('Failed to count calls:', countError);
+        return NextResponse.json(
+          { error: 'Failed to check usage limits' },
+          { status: 500 }
+        );
+      }
+
+      const currentCallCount = count || 0;
+
+      if (currentCallCount >= callLimit) {
+        return NextResponse.json(
+          {
+            error: 'Call limit reached',
+            message: `You've reached your limit of ${callLimit} calls on the ${userPlan} plan. Please upgrade to continue practicing.`,
+            code: 'RATE_LIMIT_EXCEEDED',
+            currentCount: currentCallCount,
+            limit: callLimit,
+            plan: userPlan,
+          },
+          { status: 429 }
+        );
+      }
+    }
 
     // Create call record in database
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -159,6 +211,7 @@ export async function POST(req: NextRequest) {
       elevenlabs: {
         conversationId: elevenLabsSession.conversationId,
         signedUrl: elevenLabsSession.signedUrl,
+        agentId: elevenLabsSession.agentId,
         voiceId: elevenLabsSession.voiceId,
       },
     });

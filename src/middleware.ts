@@ -62,42 +62,13 @@ export default clerkMiddleware(async (auth, request) => {
       pathname.startsWith('/dashboard') &&
       !skipOnboardingCheck(request)
     ) {
-      // Get onboarding cookie status (set after completing onboarding)
+      // Check cookie for onboarding completion (set by onboarding page)
       const onboardingCompleted = request.cookies.get('sparrow_onboarding_completed');
 
       if (!onboardingCompleted) {
-        // Check with API if onboarding is completed
-        try {
-          const baseUrl = request.nextUrl.origin;
-          const checkResponse = await fetch(`${baseUrl}/api/user/onboarding`, {
-            headers: {
-              Cookie: request.headers.get('cookie') || '',
-            },
-          });
-
-          if (checkResponse.ok) {
-            const data = await checkResponse.json();
-
-            if (!data.onboarding_completed) {
-              // Redirect to onboarding
-              const onboardingUrl = new URL('/onboarding', request.url);
-              return NextResponse.redirect(onboardingUrl);
-            } else {
-              // Set cookie to avoid future API calls
-              const response = NextResponse.next();
-              response.cookies.set('sparrow_onboarding_completed', 'true', {
-                maxAge: 60 * 60 * 24 * 30, // 30 days
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                sameSite: 'lax',
-              });
-              return response;
-            }
-          }
-        } catch (error) {
-          // If check fails, allow access (don't block on error)
-          console.error('Onboarding check failed:', error);
-        }
+        // Redirect to onboarding - it will check DB and redirect back if already completed
+        const onboardingUrl = new URL('/onboarding', request.url);
+        return NextResponse.redirect(onboardingUrl);
       }
     }
   }

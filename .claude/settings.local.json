@@ -11,7 +11,25 @@
       "Bash(cat:*)",
       "Bash(rm:*)",
       "Bash(git checkout:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nfeat: Complete Sparrow AI sales training platform\n\n- Add ElevenLabs voice AI integration\n- Add Gemini 2.0 Flash for persona generation and analysis\n- Add Groq for real-time scoring\n- Add Supabase database with schema\n- Add Clerk authentication\n- Add Chrome extension for LinkedIn integration\n- Add comprehensive documentation \\(CLAUDE.md, ARCHITECTURE.md, etc.\\)\n- Add landing page with marketing components\n- Add dashboard with sidebar navigation\n- Configure environment variables template\n\n🤖 Generated with [Claude Code]\\(https://claude.com/claude-code\\)\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git push:*)",
+      "Bash(npx vercel:*)",
+      "Bash(git commit:*)",
+      "Bash(printf:*)",
+      "Bash(npm install:*)",
+      "Bash(taskkill:*)",
+      "Bash(npm uninstall:*)",
+      "Bash(pnpm dev:*)",
+      "Bash(pnpm add:*)",
+      "Bash(tasklist:*)",
+      "Bash(findstr:*)",
+      "Bash(head:*)",
+      "Bash(grep:*)",
+      "WebFetch(domain:elevenlabs.io)",
+      "WebSearch",
+      "WebFetch(domain:www.npmjs.com)",
+      "WebFetch(domain:github.com)"
     ]
   }
 }

@@ -19,7 +19,9 @@ export type CallOutcome = 'meeting_booked' | 'callback' | 'rejected' | 'no_decis
 export type PersonalityType = 'skeptical' | 'busy' | 'friendly' | 'technical';
 export type DifficultyLevel = 'easy' | 'medium' | 'hard' | 'brutal';
 export type FeedbackType = 'positive' | 'negative' | 'missed_opportunity';
-export type FeedbackCategory = 'opening' | 'discovery' | 'objection_handling' | 'call_control' | 'closing';
+// Note: Database uses 'objection' and 'communication' as enum values
+// The API layer maps 'objection_handling' -> 'objection' and 'call_control' -> 'communication'
+export type FeedbackCategory = 'opening' | 'discovery' | 'objection' | 'communication' | 'closing';
 export type UserPlan = 'free' | 'starter' | 'pro';
 export type UserRole = 'sdr' | 'ae' | 'manager' | 'founder';
 

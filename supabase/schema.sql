@@ -94,12 +94,16 @@ CREATE INDEX IF NOT EXISTS idx_prospects_difficulty ON prospects(difficulty);
 CREATE TABLE IF NOT EXISTS calls (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  prospect_id UUID NOT NULL REFERENCES prospects(id) ON DELETE RESTRICT,
+  prospect_id UUID REFERENCES prospects(id) ON DELETE RESTRICT,
 
   -- Call Config
   type call_type NOT NULL,
   status call_status NOT NULL DEFAULT 'ready',
   goal TEXT,
+
+  -- Dynamic Persona (used when prospect_id is NULL)
+  -- Stores the AI-generated persona config as JSONB
+  persona_config JSONB,
 
   -- Call Data
   duration_seconds INTEGER,

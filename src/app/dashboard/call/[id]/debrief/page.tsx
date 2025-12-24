@@ -3,10 +3,12 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { TranscriptCoach } from '@/components/debrief/transcript-coach';
 import type { CallOutcome, FeedbackType, FeedbackCategory, PersonaConfig } from '@/types/database';
 
 interface CallResult {
   callId: string;
+  type?: 'cold_call' | 'discovery' | 'objection_gauntlet';
   duration_seconds: number;
   scores: {
     overall: number;
@@ -38,8 +40,10 @@ interface CallResult {
 const categoryLabels: Record<string, string> = {
   opening: 'Opening',
   discovery: 'Discovery',
-  objection_handling: 'Objection Handling',
-  call_control: 'Call Control',
+  objection: 'Objection Handling',
+  objection_handling: 'Objection Handling', // Legacy support
+  communication: 'Call Control',
+  call_control: 'Call Control', // Legacy support
   closing: 'Closing',
 };
 
@@ -59,6 +63,7 @@ export default function DebriefPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'feedback' | 'transcript'>('feedback');
   const [error, setError] = useState<string | null>(null);
+  const [isCoachOpen, setIsCoachOpen] = useState(false);
 
   useEffect(() => {
     loadCallResult();
@@ -71,10 +76,12 @@ export default function DebriefPage() {
       const stored = sessionStorage.getItem(`call_result_${callId}`);
       if (stored) {
         const parsed = JSON.parse(stored);
-        // Get persona from call data
+        // Get persona and call type from call data
         const callData = sessionStorage.getItem(`call_${callId}`);
         if (callData) {
-          parsed.persona = JSON.parse(callData).persona;
+          const callDataParsed = JSON.parse(callData);
+          parsed.persona = callDataParsed.persona;
+          parsed.type = callDataParsed.callType;
         }
         setResult(parsed);
         setIsLoading(false);
@@ -127,8 +134,8 @@ export default function DebriefPage() {
 
   if (isLoading) {
     return (
-      <div className="debrief-page loading">
-        <div className="loading-content">
+      <div className="dashboard-page">
+        <div className="debrief-loading">
           <i className="ph ph-spinner animate-spin"></i>
           <h2>Analyzing your call...</h2>
           <p>This may take a few seconds</p>
@@ -139,12 +146,12 @@ export default function DebriefPage() {
 
   if (error || !result) {
     return (
-      <div className="debrief-page error">
-        <div className="error-content">
+      <div className="dashboard-page">
+        <div className="debrief-error">
           <i className="ph ph-warning-circle"></i>
           <h2>Could not load call data</h2>
           <p>{error || 'Call data not found'}</p>
-          <Link href="/dashboard/history" className="btn-primary">
+          <Link href="/dashboard/history" className="btn btn-primary">
             View Call History
           </Link>
         </div>
@@ -156,33 +163,34 @@ export default function DebriefPage() {
   const outcomeInfo = outcomeLabels[scores.outcome];
 
   return (
-    <div className="debrief-page">
+    <div className={`debrief-page-wrapper ${isCoachOpen ? 'coach-open' : ''}`}>
+    <div className="dashboard-page debrief-page">
       {/* Header */}
-      <div className="debrief-header">
-        <Link href="/dashboard" className="back-link">
-          <i className="ph ph-arrow-left"></i>
-          Back to Dashboard
-        </Link>
-        <h1>Call Debrief</h1>
-        <div className="header-meta">
-          <span className="call-duration">
+      <div className="dashboard-page-header debrief-header">
+        <div>
+          <Link href="/dashboard" className="back-link">
+            <i className="ph ph-arrow-left"></i>
+            Back to Dashboard
+          </Link>
+          <h1 className="dashboard-page-title">Call Debrief</h1>
+          <p className="dashboard-page-subtitle">
             <i className="ph ph-timer"></i>
-            {formatDuration(result.duration_seconds)}
-          </span>
+            Duration: {formatDuration(result.duration_seconds)}
+          </p>
         </div>
       </div>
 
       {/* Outcome Banner */}
-      <div className="outcome-banner" style={{ backgroundColor: `${outcomeInfo.color}15`, borderColor: outcomeInfo.color }}>
-        <i className={`ph ${outcomeInfo.icon}`} style={{ color: outcomeInfo.color }}></i>
-        <span style={{ color: outcomeInfo.color }}>{outcomeInfo.label}</span>
+      <div className="dashboard-card outcome-banner" style={{ backgroundColor: `${outcomeInfo.color}10`, borderColor: outcomeInfo.color }}>
+        <i className={`ph ${outcomeInfo.icon}`} style={{ color: outcomeInfo.color, fontSize: '1.5rem' }}></i>
+        <span style={{ color: outcomeInfo.color, fontWeight: 600, fontSize: '1.125rem' }}>{outcomeInfo.label}</span>
       </div>
 
       {/* Prospect Info */}
       {persona && (
-        <div className="prospect-summary">
+        <div className="dashboard-card prospect-summary">
           <div className="prospect-avatar">
-            {persona.name.split(' ').map(n => n[0]).join('')}
+            {persona.name ? persona.name.split(' ').map(n => n[0]).join('') : '?'}
           </div>
           <div className="prospect-details">
             <span className="prospect-name">{persona.name}</span>
@@ -196,7 +204,7 @@ export default function DebriefPage() {
       )}
 
       {/* Overall Score */}
-      <div className="overall-score-card">
+      <div className="dashboard-card overall-score-card">
         <div className="score-display">
           <span className="score-value" style={{ color: getScoreColor(scores.overall) }}>
             {scores.overall.toFixed(1)}
@@ -207,7 +215,7 @@ export default function DebriefPage() {
       </div>
 
       {/* Category Scores */}
-      <div className="score-breakdown">
+      <div className="dashboard-card score-breakdown">
         <h3>Score Breakdown</h3>
         <div className="category-scores">
           {Object.entries(scores.categories).map(([key, value]) => {
@@ -259,7 +267,7 @@ export default function DebriefPage() {
       </div>
 
       {/* Tab Content */}
-      <div className="debrief-content">
+      <div className="dashboard-card debrief-content">
         {activeTab === 'feedback' && (
           <div className="feedback-list">
             {feedback.length === 0 ? (
@@ -334,19 +342,30 @@ export default function DebriefPage() {
 
       {/* Actions */}
       <div className="debrief-actions">
-        <Link href="/dashboard/practice" className="btn-secondary">
+        <Link href="/dashboard/practice" className="btn btn-secondary">
           <i className="ph ph-arrows-clockwise"></i>
           Try Again
         </Link>
-        <Link href="/dashboard/history" className="btn-secondary">
+        <Link href="/dashboard/history" className="btn btn-secondary">
           <i className="ph ph-clock-counter-clockwise"></i>
           View History
         </Link>
-        <Link href="/dashboard" className="btn-primary">
+        <Link href="/dashboard" className="btn btn-primary">
           <i className="ph ph-house"></i>
           Back to Dashboard
         </Link>
       </div>
+    </div>
+
+    {/* Coach Sparrow Transcript Analysis Panel */}
+    <TranscriptCoach
+      transcript={transcript}
+      prospectName={persona?.name || 'Prospect'}
+      callType={result.type || 'cold_call'}
+      scores={scores}
+      isOpen={isCoachOpen}
+      onToggle={() => setIsCoachOpen(!isCoachOpen)}
+    />
     </div>
   );
 }

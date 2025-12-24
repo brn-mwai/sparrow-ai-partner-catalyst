@@ -533,17 +533,27 @@ export interface PersonaConfig {
   company: string;
   company_size: string;
   industry: string;
+  tenure_months: number;
   background: string;
+  current_challenges: string[];
   personality: 'skeptical' | 'busy' | 'friendly' | 'technical';
+  communication_style: string;
   difficulty: 'easy' | 'medium' | 'hard' | 'brutal';
   hidden_pain_points: string[];
   objections: string[];
+  buying_signals: string[];
   triggers: {
     positive: string[];
     negative: string[];
   };
-  goal: string;
-  voice_style: string;
+  decision_criteria: string[];
+  competitors_mentioned: string[];
+  budget_situation: string;
+  timeline_urgency: 'low' | 'medium' | 'high';
+  goal_for_rep: string;
+  opening_mood: string;
+  first_response: string;
+  voice_description: string;
 }
 
 /**
@@ -559,24 +569,34 @@ export async function generatePersona(options: {
   const systemPrompt = `You are an expert at creating realistic sales prospect personas for training.
 Generate a detailed, believable prospect persona based on the given parameters.
 
-Respond ONLY with valid JSON matching this structure:
+Respond ONLY with valid JSON matching this EXACT structure:
 {
   "name": "<realistic full name>",
   "title": "<job title>",
   "company": "<company name>",
   "company_size": "<e.g., 50-200 employees>",
   "industry": "<industry>",
+  "tenure_months": <number 3-60>,
   "background": "<2-3 sentences about their career and current situation>",
+  "current_challenges": ["<challenge 1>", "<challenge 2>"],
   "personality": "<skeptical|busy|friendly|technical>",
+  "communication_style": "<e.g., Direct and analytical, prefers data>",
   "difficulty": "<easy|medium|hard|brutal>",
   "hidden_pain_points": ["<pain point 1>", "<pain point 2>", "<pain point 3>"],
   "objections": ["<objection 1>", "<objection 2>", "<objection 3>"],
+  "buying_signals": ["<signal 1>", "<signal 2>"],
   "triggers": {
-    "positive": ["<what makes them warm up>"],
-    "negative": ["<what turns them off>"]
+    "positive": ["<what makes them warm up>", "<another trigger>"],
+    "negative": ["<what turns them off>", "<another trigger>"]
   },
-  "goal": "<what the sales rep needs to achieve>",
-  "voice_style": "<description for voice synthesis>"
+  "decision_criteria": ["<criterion 1>", "<criterion 2>"],
+  "competitors_mentioned": ["<competitor 1>"],
+  "budget_situation": "<e.g., Budget allocated for Q1>",
+  "timeline_urgency": "<low|medium|high>",
+  "goal_for_rep": "<what the sales rep needs to achieve in this call>",
+  "opening_mood": "<e.g., distracted|neutral|curious|skeptical>",
+  "first_response": "<the prospect's opening line when answering the call>",
+  "voice_description": "<description for voice synthesis, e.g., professional female, slight skepticism>"
 }`;
 
   const response = await chat(
@@ -593,7 +613,7 @@ Make them realistic and challenging. Include specific objections for a ${options
       },
     ],
     {
-      model: GROQ_MODELS.GPT_OSS_120B,
+      model: GROQ_MODELS.LLAMA_3_3_70B_VERSATILE,
       temperature: 0.8,
       maxTokens: 2048,
     }

@@ -79,6 +79,19 @@ export async function GET(
       timestamp_ms: number;
     }>;
 
+    // Map database column names to API response format:
+    // - objection_score -> objection_handling
+    // - communication_score -> call_control
+    // - feedback category 'objection' -> 'objection_handling'
+    // - feedback category 'communication' -> 'call_control'
+    const mapCategoryFromDb = (cat: string): string => {
+      const mapping: Record<string, string> = {
+        'objection': 'objection_handling',
+        'communication': 'call_control',
+      };
+      return mapping[cat] || cat;
+    };
+
     const result = {
       callId: call.id,
       type: call.type,
@@ -94,14 +107,14 @@ export async function GET(
               opening: scores.opening_score,
               discovery: scores.discovery_score,
               objection_handling: scores.objection_score,
-              call_control: scores.control_score,
+              call_control: (scores as any).communication_score,
               closing: scores.closing_score,
             },
             outcome: scores.outcome,
           }
         : null,
       feedback: feedback.map((f) => ({
-        category: f.category,
+        category: mapCategoryFromDb(f.category),
         timestamp_ms: f.timestamp_ms,
         type: f.feedback_type,
         content: f.content,

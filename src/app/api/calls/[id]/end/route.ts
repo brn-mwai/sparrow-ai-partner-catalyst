@@ -11,13 +11,15 @@ import type {
   Call,
   User,
   UserProgress,
-  DeepAnalysisResult,
   ScoreResult,
 } from '@/types/database';
+import type { DeepAnalysisResult as GroqDeepAnalysisResult } from '@/lib/groq/client';
+import type { DeepAnalysisResult as GeminiDeepAnalysisResult } from '@/lib/gemini/client';
 
 export const runtime = 'nodejs';
 
 interface EndCallRequest {
+  transcript?: TranscriptMessage[]; // Client-captured transcript
   duration_seconds?: number;
 }
 
@@ -95,9 +97,11 @@ export async function POST(
       }
     }
 
-    // Get transcript from ElevenLabs
-    let transcript: TranscriptMessage[] = [];
-    if (call.elevenlabs_conversation_id) {
+    // Use client-provided transcript as primary, fallback to ElevenLabs API
+    let transcript: TranscriptMessage[] = body.transcript || [];
+
+    // If no client transcript, try to get from ElevenLabs
+    if (transcript.length === 0 && call.elevenlabs_conversation_id) {
       try {
         const history = await getConversationHistory(call.elevenlabs_conversation_id);
         transcript = history.map((msg) => ({
@@ -106,9 +110,11 @@ export async function POST(
           timestamp_ms: msg.timestamp,
         }));
       } catch (err) {
-        console.error('Failed to get transcript:', err);
+        console.error('Failed to get transcript from ElevenLabs:', err);
       }
     }
+
+    console.log(`📝 Transcript has ${transcript.length} messages`);
 
     // Update transcript in database
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -146,75 +152,100 @@ export async function POST(
     // Perform scoring
     let scores: ScoreResult;
     let feedback: FeedbackItem[] = [];
-    let scoringProvider = 'groq';
+    let scoringProvider = 'none';
+    let quickScoreLatency = 0;
+    let deepAnalysisLatency = 0;
 
-    // Quick score with Groq (fast)
-    const startQuickScore = Date.now();
-    try {
-      const groqResult = await groqQuickScore(
-        transcriptText,
-        call.type as CallType,
-        personaContext
-      );
-      scores = {
-        overall: groqResult.overall,
-        categories: groqResult.categories,
-        outcome: groqResult.outcome,
-        confidence: groqResult.confidence,
-      };
-    } catch (groqError) {
-      console.error('Groq quick score failed, trying Gemini:', groqError);
-      scoringProvider = 'gemini';
+    // Only score if we have transcript content
+    if (transcript.length > 0 && transcriptText.trim().length > 0) {
+      scoringProvider = 'groq';
+
+      // Quick score with Groq (fast)
+      const startQuickScore = Date.now();
       try {
-        const geminiResult = await geminiQuickScore(
+        const groqResult = await groqQuickScore(
           transcriptText,
           call.type as CallType,
           personaContext
         );
         scores = {
-          overall: geminiResult.overall,
-          categories: geminiResult.categories,
-          outcome: geminiResult.outcome,
-          confidence: geminiResult.confidence,
+          overall: groqResult.overall,
+          categories: groqResult.categories,
+          outcome: groqResult.outcome,
+          confidence: groqResult.confidence,
         };
-      } catch (geminiError) {
-        console.error('Gemini quick score also failed:', geminiError);
-        // Use default scores
-        scores = {
-          overall: 5,
-          categories: {
-            opening: 5,
-            discovery: 5,
-            objection_handling: 5,
-            call_control: 5,
-            closing: 5,
-          },
-          outcome: 'no_decision',
-          confidence: 0,
-        };
+      } catch (groqError) {
+        console.error('Groq quick score failed, trying Gemini:', groqError);
+        scoringProvider = 'gemini';
+        try {
+          const geminiResult = await geminiQuickScore(
+            transcriptText,
+            call.type as CallType,
+            personaContext
+          );
+          scores = {
+            overall: geminiResult.overall,
+            categories: geminiResult.categories,
+            outcome: geminiResult.outcome,
+            confidence: geminiResult.confidence,
+          };
+        } catch (geminiError) {
+          console.error('Gemini quick score also failed:', geminiError);
+          // Use default scores
+          scores = {
+            overall: 5,
+            categories: {
+              opening: 5,
+              discovery: 5,
+              objection_handling: 5,
+              call_control: 5,
+              closing: 5,
+            },
+            outcome: 'no_decision',
+            confidence: 0,
+          };
+        }
       }
-    }
-    const quickScoreLatency = Date.now() - startQuickScore;
+      quickScoreLatency = Date.now() - startQuickScore;
 
-    // Deep analysis (can be slower)
-    const startDeepAnalysis = Date.now();
-    try {
-      const deepResult: DeepAnalysisResult = scoringProvider === 'groq'
-        ? await groqDeepAnalysis(transcriptText, call.type as CallType, personaContext, scores)
-        : await geminiDeepAnalysis(transcriptText, call.type as CallType, personaContext, scores);
+      // Deep analysis (can be slower)
+      const startDeepAnalysis = Date.now();
+      try {
+        const deepResult: GroqDeepAnalysisResult | GeminiDeepAnalysisResult = scoringProvider === 'groq'
+          ? await groqDeepAnalysis(transcriptText, call.type as CallType, personaContext, scores)
+          : await geminiDeepAnalysis(transcriptText, call.type as CallType, personaContext, scores);
 
-      // Update scores with deep analysis if more confident
-      if (deepResult.scores.confidence > scores.confidence) {
-        scores = deepResult.scores;
+        // Update scores with deep analysis if more confident
+        if (deepResult.scores.confidence > scores.confidence) {
+          scores = deepResult.scores;
+        }
+        feedback = deepResult.feedback as FeedbackItem[];
+      } catch (deepError) {
+        console.error('Deep analysis failed:', deepError);
+        feedback = [];
       }
-      feedback = deepResult.feedback as FeedbackItem[];
-    } catch (deepError) {
-      console.error('Deep analysis failed:', deepError);
-      feedback = [];
+      deepAnalysisLatency = Date.now() - startDeepAnalysis;
+    } else {
+      // No transcript - use default scores
+      console.log('No transcript available, using default scores');
+      scores = {
+        overall: 5,
+        categories: {
+          opening: 5,
+          discovery: 5,
+          objection_handling: 5,
+          call_control: 5,
+          closing: 5,
+        },
+        outcome: 'no_decision',
+        confidence: 0,
+      };
     }
-    const deepAnalysisLatency = Date.now() - startDeepAnalysis;
 
     // Save scores to database
+    // Map code category names to database column names:
+    // - objection_handling -> objection_score
+    // - call_control -> communication_score (database uses communication)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { error: scoreError } = await (supabase as any)
       .from('call_scores')
@@ -224,15 +255,11 @@ export async function POST(
         opening_score: scores.categories.opening,
         discovery_score: scores.categories.discovery,
         objection_score: scores.categories.objection_handling,
-        control_score: scores.categories.call_control,
+        communication_score: scores.categories.call_control,
         closing_score: scores.categories.closing,
         outcome: scores.outcome,
-        scoring_metadata: {
-          provider: scoringProvider,
-          quick_score_latency_ms: quickScoreLatency,
-          deep_analysis_latency_ms: deepAnalysisLatency,
-          transcript_length: transcriptText.length,
-        } as unknown as Record<string, unknown>,
+        scoring_provider: scoringProvider,
+        scoring_latency_ms: quickScoreLatency + deepAnalysisLatency,
       });
 
     if (scoreError) {
@@ -240,12 +267,24 @@ export async function POST(
     }
 
     // Save feedback to database
+    // Map code category names to database enum values:
+    // - objection_handling -> objection
+    // - call_control -> communication
+    const mapCategoryToDb = (cat: string): string => {
+      const mapping: Record<string, string> = {
+        'objection_handling': 'objection',
+        'call_control': 'communication',
+      };
+      return mapping[cat] || cat;
+    };
+
     if (feedback && feedback.length > 0) {
       const feedbackRecords = feedback.map((f) => ({
         call_id: callId,
-        category: f.category as 'opening' | 'discovery' | 'objection_handling' | 'call_control' | 'closing',
+        category: mapCategoryToDb(f.category),
         timestamp_ms: parseTimestamp(f.timestamp_estimate),
         feedback_type: f.type as 'positive' | 'negative' | 'missed_opportunity',
+        title: f.content.substring(0, 100), // Use first 100 chars as title
         content: f.content,
         suggestion: f.suggestion || null,
         transcript_excerpt: f.excerpt || null,
@@ -328,11 +367,12 @@ async function updateUserProgress(
       : scores.overall;
 
     // Update skill scores (weighted average)
+    // Note: Database uses 'objection' and 'communication' instead of 'objection_handling' and 'call_control'
     const existingSkills = progress.skill_scores as {
       opening: number | null;
       discovery: number | null;
-      objection_handling: number | null;
-      call_control: number | null;
+      objection: number | null;
+      communication: number | null;
       closing: number | null;
     };
 
@@ -344,11 +384,11 @@ async function updateUserProgress(
       discovery: existingSkills.discovery
         ? existingSkills.discovery * (1 - weight) + scores.categories.discovery * weight
         : scores.categories.discovery,
-      objection_handling: existingSkills.objection_handling
-        ? existingSkills.objection_handling * (1 - weight) + scores.categories.objection_handling * weight
+      objection: existingSkills.objection
+        ? existingSkills.objection * (1 - weight) + scores.categories.objection_handling * weight
         : scores.categories.objection_handling,
-      call_control: existingSkills.call_control
-        ? existingSkills.call_control * (1 - weight) + scores.categories.call_control * weight
+      communication: existingSkills.communication
+        ? existingSkills.communication * (1 - weight) + scores.categories.call_control * weight
         : scores.categories.call_control,
       closing: existingSkills.closing
         ? existingSkills.closing * (1 - weight) + scores.categories.closing * weight
@@ -370,6 +410,7 @@ async function updateUserProgress(
       .eq('user_id', userId);
   } else {
     // Create new progress record
+    // Note: Database uses 'objection' and 'communication' instead of 'objection_handling' and 'call_control'
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await (supabase as any)
       .from('user_progress')
@@ -383,8 +424,8 @@ async function updateUserProgress(
         skill_scores: {
           opening: scores.categories.opening,
           discovery: scores.categories.discovery,
-          objection_handling: scores.categories.objection_handling,
-          call_control: scores.categories.call_control,
+          objection: scores.categories.objection_handling,
+          communication: scores.categories.call_control,
           closing: scores.categories.closing,
         } as unknown as Record<string, unknown>,
       });

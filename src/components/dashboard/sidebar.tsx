@@ -15,6 +15,7 @@ interface NavItem {
 
 const mainNavItems: NavItem[] = [
   { label: 'Dashboard', href: '/dashboard', icon: 'ph-squares-four' },
+  { label: 'Coach Sparrow', href: '/dashboard/coach', icon: 'ph-bird' },
   { label: 'Practice', href: '/dashboard/practice', icon: 'ph-phone-call' },
   { label: 'Call History', href: '/dashboard/history', icon: 'ph-clock-counter-clockwise' },
   { label: 'Progress', href: '/dashboard/progress', icon: 'ph-chart-line-up' },
@@ -55,7 +56,7 @@ export function Sidebar() {
         <Link href="/dashboard" className="sidebar-logo">
           {isCollapsed ? (
             <Image
-              src="/Logo/sparrow-logo.png"
+              src="/Assets/sparrow-ai.png"
               alt="Sparrow AI"
               width={32}
               height={32}
@@ -63,7 +64,7 @@ export function Sidebar() {
             />
           ) : (
             <Image
-              src="/Logo/sparrow-full.svg"
+              src="/Logo/sparrow-logo.svg"
               alt="Sparrow AI"
               width={120}
               height={32}
@@ -76,7 +77,7 @@ export function Sidebar() {
           onClick={toggleCollapse}
           title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
-          <i className={`ph ${isCollapsed ? 'ph-caret-right' : 'ph-caret-left'}`}></i>
+          <i className={`ph ${isCollapsed ? 'ph-sidebar-simple' : 'ph-sidebar-simple'}`}></i>
         </button>
       </div>
 

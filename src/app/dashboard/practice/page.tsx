@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { UsageBanner } from '@/components/shared/usage-banner';
 import type { CallType, PersonalityType, DifficultyLevel, PersonaConfig } from '@/types/database';
 
 interface PracticeMode {
@@ -100,6 +101,8 @@ function PracticePageContent() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedPersona, setGeneratedPersona] = useState<PersonaConfig | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [showRateLimitModal, setShowRateLimitModal] = useState(false);
+  const [rateLimitInfo, setRateLimitInfo] = useState<{ limit: number; plan: string } | null>(null);
 
   useEffect(() => {
     const type = searchParams.get('type') as CallType;
@@ -151,6 +154,7 @@ function PracticePageContent() {
     if (!generatedPersona || !selectedMode) return;
 
     setIsGenerating(true);
+    setError(null);
 
     try {
       const response = await fetch('/api/calls/start', {
@@ -162,16 +166,28 @@ function PracticePageContent() {
         }),
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to start call');
+      const data = await response.json();
+
+      // Handle rate limit error
+      if (response.status === 429) {
+        setRateLimitInfo({
+          limit: data.limit,
+          plan: data.plan,
+        });
+        setShowRateLimitModal(true);
+        setIsGenerating(false);
+        return;
       }
 
-      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to start call');
+      }
 
       // Store call data in sessionStorage for the call page
       sessionStorage.setItem(`call_${data.callId}`, JSON.stringify({
         callId: data.callId,
         persona: generatedPersona,
+        callType: selectedMode,
         elevenlabs: data.elevenlabs,
       }));
 
@@ -186,6 +202,9 @@ function PracticePageContent() {
 
   return (
     <div className="practice-page">
+      {/* Usage Banner */}
+      <UsageBanner />
+
       {/* Header */}
       <div className="practice-header">
         <Link href="/dashboard" className="back-link">
@@ -368,7 +387,7 @@ function PracticePageContent() {
           <div className="persona-card">
             <div className="persona-header">
               <div className="persona-avatar">
-                {generatedPersona.name.split(' ').map(n => n[0]).join('')}
+                {generatedPersona.name ? generatedPersona.name.split(' ').map(n => n[0]).join('') : '?'}
               </div>
               <div className="persona-info">
                 <h3>{generatedPersona.name}</h3>
@@ -475,6 +494,36 @@ function PracticePageContent() {
                 </>
               )}
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Rate Limit Modal */}
+      {showRateLimitModal && (
+        <div className="modal-overlay" onClick={() => setShowRateLimitModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="rate-limit-modal">
+              <div className="rate-limit-modal-icon">
+                <i className="ph ph-warning-circle"></i>
+              </div>
+              <h2>Call Limit Reached</h2>
+              <p>
+                You've used all {rateLimitInfo?.limit} practice calls on the {rateLimitInfo?.plan} plan.
+                Upgrade to continue improving your sales skills!
+              </p>
+              <div className="rate-limit-modal-actions">
+                <button
+                  className="btn btn-secondary"
+                  onClick={() => setShowRateLimitModal(false)}
+                >
+                  Maybe Later
+                </button>
+                <Link href="/pricing" className="btn btn-primary">
+                  <i className="ph ph-rocket-launch"></i>
+                  Upgrade Now
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
       )}

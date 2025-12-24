@@ -9,10 +9,10 @@ export default function SignUpPage() {
         <div className="auth-header">
           <Link href="/" className="auth-logo">
             <Image
-              src="/Logo/sparrow-logo.png"
+              src="/Logo/sparrow-logo.svg"
               alt="Sparrow AI"
-              width={80}
-              height={80}
+              width={150}
+              height={40}
               priority
             />
           </Link>
@@ -20,6 +20,7 @@ export default function SignUpPage() {
         </div>
 
         <SignUp
+          forceRedirectUrl="/onboarding"
           appearance={{
             variables: {
               colorPrimary: '#AA90FE',

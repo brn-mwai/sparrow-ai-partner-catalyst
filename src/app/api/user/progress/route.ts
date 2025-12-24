@@ -131,6 +131,25 @@ export async function GET(req: NextRequest) {
       closing: null,
     };
 
+    // Map database skill score names to API response format
+    // Database uses: objection, communication
+    // API uses: objection_handling, call_control
+    const dbSkillScores = progress?.skill_scores as {
+      opening: number | null;
+      discovery: number | null;
+      objection: number | null;
+      communication: number | null;
+      closing: number | null;
+    } | null;
+
+    const mappedSkillScores = dbSkillScores ? {
+      opening: dbSkillScores.opening,
+      discovery: dbSkillScores.discovery,
+      objection_handling: dbSkillScores.objection,
+      call_control: dbSkillScores.communication,
+      closing: dbSkillScores.closing,
+    } : defaultSkillScores;
+
     const progressResponse = {
       total_calls: progress?.total_calls || calls.length,
       total_duration_seconds: progress?.total_duration_seconds || total_duration_seconds,
@@ -141,7 +160,7 @@ export async function GET(req: NextRequest) {
           ? calls.filter(c => c.call_scores?.overall_score).reduce((sum, c) => sum + (c.call_scores?.overall_score || 0), 0) /
             calls.filter(c => c.call_scores?.overall_score).length
           : null),
-      skill_scores: (progress?.skill_scores as typeof defaultSkillScores) || defaultSkillScores,
+      skill_scores: mappedSkillScores,
       score_history,
       calls_by_type,
       outcomes,

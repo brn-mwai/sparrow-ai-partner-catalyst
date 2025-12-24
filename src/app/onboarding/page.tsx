@@ -1,11 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUser } from '@clerk/nextjs';
+import Image from 'next/image';
+import Link from 'next/link';
 import './onboarding.css';
 
-type Step = 'role' | 'industry' | 'goals';
+type Step = 'role' | 'industry' | 'goals' | 'loading';
 
 interface OnboardingData {
   role: string;
@@ -92,10 +94,16 @@ const goals = [
   },
 ];
 
+// Helper to set cookie
+function setCookie(name: string, value: string, days: number) {
+  const expires = new Date(Date.now() + days * 864e5).toUTCString();
+  document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/; SameSite=Lax`;
+}
+
 export default function OnboardingPage() {
   const router = useRouter();
-  const { user } = useUser();
-  const [step, setStep] = useState<Step>('role');
+  const { user, isLoaded } = useUser();
+  const [step, setStep] = useState<Step>('loading');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [data, setData] = useState<OnboardingData>({
     role: '',
@@ -103,6 +111,33 @@ export default function OnboardingPage() {
     goals: [],
     company_name: '',
   });
+
+  // Check if user has already completed onboarding
+  useEffect(() => {
+    if (!isLoaded) return;
+
+    const checkOnboarding = async () => {
+      try {
+        const response = await fetch('/api/user/onboarding');
+        if (response.ok) {
+          const result = await response.json();
+          if (result.onboarding_completed) {
+            // Set cookie and redirect to dashboard
+            setCookie('sparrow_onboarding_completed', 'true', 30);
+            router.replace('/dashboard');
+            return;
+          }
+        }
+        // Not completed, show onboarding
+        setStep('role');
+      } catch (error) {
+        console.error('Failed to check onboarding status:', error);
+        setStep('role');
+      }
+    };
+
+    checkOnboarding();
+  }, [isLoaded, router]);
 
   const handleRoleSelect = (roleId: string) => {
     setData(prev => ({ ...prev, role: roleId }));
@@ -135,6 +170,8 @@ export default function OnboardingPage() {
       });
 
       if (response.ok) {
+        // Set cookie to mark onboarding as completed
+        setCookie('sparrow_onboarding_completed', 'true', 30);
         // Redirect to dashboard with tour param
         router.push('/dashboard?tour=true');
       } else {
@@ -157,8 +194,24 @@ export default function OnboardingPage() {
       case 'role': return 1;
       case 'industry': return 2;
       case 'goals': return 3;
+      default: return 1;
     }
   };
+
+  // Show loading state while checking onboarding status
+  if (step === 'loading') {
+    return (
+      <div className="onboarding-page">
+        <div className="onboarding-bg">
+          <div className="onboarding-bg-gradient" />
+        </div>
+        <div className="onboarding-loading">
+          <i className="ph ph-spinner animate-spin"></i>
+          <span>Loading...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="onboarding-page">
@@ -174,19 +227,15 @@ export default function OnboardingPage() {
 
       <div className="onboarding-container">
         {/* Logo */}
-        <div className="onboarding-logo">
-          <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-            <circle cx="16" cy="16" r="16" fill="var(--primary-500)" />
-            <path
-              d="M10 20L16 12L22 20"
-              stroke="white"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-          <span>Sparrow</span>
-        </div>
+        <Link href="/" className="onboarding-logo">
+          <Image
+            src="/Logo/sparrow-logo.svg"
+            alt="Sparrow AI"
+            width={140}
+            height={36}
+            priority
+          />
+        </Link>
 
         {/* Progress indicator */}
         <div className="onboarding-progress">

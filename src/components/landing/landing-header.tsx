@@ -22,10 +22,10 @@ export function LandingHeader({ onMobileMenuClick }: LandingHeaderProps) {
         <div className={styles.headerLeft}>
           <Link href="/" className={styles.logo}>
             <Image
-              src="/Logo/sparrow-logo.png"
+              src="/Logo/sparrow-logo.svg"
               alt="Sparrow AI"
-              width={90}
-              height={24}
+              width={120}
+              height={32}
               className={styles.logoImg}
               priority
             />

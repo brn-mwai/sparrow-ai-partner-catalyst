@@ -106,7 +106,7 @@ export default function HistoryPage() {
           <h1 className="dashboard-page-title">Call History</h1>
           <p className="dashboard-page-subtitle">Review your past practice sessions</p>
         </div>
-        <Link href="/dashboard/practice" className="btn-primary">
+        <Link href="/dashboard/practice" className="btn btn-primary">
           <i className="ph ph-plus"></i>
           New Practice
         </Link>
@@ -168,7 +168,7 @@ export default function HistoryPage() {
             <i className="ph ph-phone-slash"></i>
             <h3>No calls yet</h3>
             <p>Start practicing to see your call history here</p>
-            <Link href="/dashboard/practice" className="btn-primary">
+            <Link href="/dashboard/practice" className="btn btn-primary">
               <i className="ph ph-phone-call"></i>
               Start Practicing
             </Link>
