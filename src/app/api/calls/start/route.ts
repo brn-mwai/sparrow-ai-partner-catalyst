@@ -16,6 +16,7 @@ const PLAN_LIMITS = {
 interface StartCallRequest {
   type: CallType;
   persona: PersonaConfig;
+  prospectId?: string; // Optional ID of saved prospect
 }
 
 export async function POST(req: NextRequest) {
@@ -31,7 +32,7 @@ export async function POST(req: NextRequest) {
 
     // Parse request body
     const body: StartCallRequest = await req.json();
-    const { type, persona } = body;
+    const { type, persona, prospectId } = body;
 
     // Validate required fields
     if (!type || !persona) {
@@ -133,6 +134,7 @@ export async function POST(req: NextRequest) {
       .from('calls')
       .insert({
         user_id: dbUserId,
+        prospect_id: prospectId || null, // Link to saved prospect if available
         type,
         persona_config: persona as unknown as Record<string, unknown>,
         status: 'ready',

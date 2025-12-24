@@ -40,6 +40,13 @@ const QUICK_QUESTIONS = [
   { label: 'How was my closing?', icon: 'ph-handshake' },
 ];
 
+// Strip XML tags like <Sparrow-1>...</Sparrow-1> from transcript content
+const stripXmlTags = (text: string): string => {
+  return text
+    .replace(/<[^>]+>/g, '') // Remove all XML/HTML tags
+    .trim();
+};
+
 export function TranscriptCoach({
   transcript,
   prospectName,
@@ -76,7 +83,7 @@ export function TranscriptCoach({
         const secs = Math.floor((msg.timestamp_ms % 60000) / 1000);
         const timestamp = `${mins}:${secs.toString().padStart(2, '0')}`;
         const speaker = msg.speaker === 'user' ? 'Rep' : prospectName;
-        return `[${timestamp}] ${speaker}: ${msg.content}`;
+        return `[${timestamp}] ${speaker}: ${stripXmlTags(msg.content)}`;
       })
       .join('\n');
   };

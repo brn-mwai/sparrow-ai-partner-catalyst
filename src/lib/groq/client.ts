@@ -529,6 +529,7 @@ Think step-by-step and use available tools when needed to provide accurate answe
 
 export interface PersonaConfig {
   name: string;
+  gender: 'male' | 'female';
   title: string;
   company: string;
   company_size: string;
@@ -572,6 +573,7 @@ Generate a detailed, believable prospect persona based on the given parameters.
 Respond ONLY with valid JSON matching this EXACT structure:
 {
   "name": "<realistic full name>",
+  "gender": "<male|female>",
   "title": "<job title>",
   "company": "<company name>",
   "company_size": "<e.g., 50-200 employees>",

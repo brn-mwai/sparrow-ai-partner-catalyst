@@ -174,6 +174,8 @@ export default function ProspectsPage() {
   const handleGenerate = async () => {
     try {
       setIsGenerating(true);
+      setError(null);
+
       const response = await fetch('/api/personas/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -181,11 +183,16 @@ export default function ProspectsPage() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to generate persona');
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `API error: ${response.status}`);
       }
 
       const data = await response.json();
       const persona = data.persona;
+
+      if (!persona) {
+        throw new Error('No persona data received from API');
+      }
 
       // Save the generated persona as a prospect
       const saveResponse = await fetch('/api/prospects', {
@@ -205,14 +212,18 @@ export default function ProspectsPage() {
         }),
       });
 
-      if (saveResponse.ok) {
-        const savedData = await saveResponse.json();
-        setProspects((prev) => [savedData.prospect, ...prev]);
-        setShowGenerateModal(false);
+      if (!saveResponse.ok) {
+        const saveError = await saveResponse.json().catch(() => ({}));
+        throw new Error(saveError.error || 'Failed to save prospect');
       }
+
+      const savedData = await saveResponse.json();
+      setProspects((prev) => [savedData.prospect, ...prev]);
+      setShowGenerateModal(false);
     } catch (err) {
       console.error('Error generating prospect:', err);
-      alert('Failed to generate prospect. Please try again.');
+      const message = err instanceof Error ? err.message : 'Unknown error occurred';
+      setError(`Failed to generate prospect: ${message}`);
     } finally {
       setIsGenerating(false);
     }
@@ -536,6 +547,20 @@ export default function ProspectsPage() {
                 </select>
               </div>
             </div>
+
+            {/* Error Display */}
+            {error && (
+              <div className="modal-error">
+                <i className="ph ph-warning-circle"></i>
+                <span>{error}</span>
+                <button
+                  className="btn btn-ghost btn-icon btn-sm"
+                  onClick={() => setError(null)}
+                >
+                  <i className="ph ph-x"></i>
+                </button>
+              </div>
+            )}
 
             <div className="modal-footer">
               <button

@@ -100,6 +100,7 @@ function PracticePageContent() {
   const [selectedDifficulty, setSelectedDifficulty] = useState<DifficultyLevel>('medium');
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedPersona, setGeneratedPersona] = useState<PersonaConfig | null>(null);
+  const [generatedProspectId, setGeneratedProspectId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [showRateLimitModal, setShowRateLimitModal] = useState(false);
   const [rateLimitInfo, setRateLimitInfo] = useState<{ limit: number; plan: string } | null>(null);
@@ -142,6 +143,7 @@ function PracticePageContent() {
 
       const data = await response.json();
       setGeneratedPersona(data.persona);
+      setGeneratedProspectId(data.prospectId || null); // Store the saved prospect ID
       setStep(3);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong');
@@ -163,6 +165,7 @@ function PracticePageContent() {
         body: JSON.stringify({
           type: selectedMode,
           persona: generatedPersona,
+          prospectId: generatedProspectId, // Link call to saved prospect
         }),
       });
 

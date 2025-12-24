@@ -132,6 +132,13 @@ export default function DebriefPage() {
     }
   };
 
+  // Strip XML tags like <Sparrow-1>...</Sparrow-1> from transcript content
+  const stripXmlTags = (text: string): string => {
+    return text
+      .replace(/<[^>]+>/g, '') // Remove all XML/HTML tags
+      .trim();
+  };
+
   if (isLoading) {
     return (
       <div className="dashboard-page">
@@ -332,7 +339,7 @@ export default function DebriefPage() {
                       {formatTimestamp(msg.timestamp_ms)}
                     </span>
                   </div>
-                  <p className="message-content">{msg.content}</p>
+                  <p className="message-content">{stripXmlTags(msg.content)}</p>
                 </div>
               ))
             )}

@@ -443,23 +443,26 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION update_user_prospect_stats()
 RETURNS TRIGGER AS $$
 BEGIN
-  -- Update stats when score is added
-  INSERT INTO user_prospect_stats (user_id, prospect_id, calls_count, avg_score, best_score, last_call_at)
-  SELECT
-    c.user_id,
-    c.prospect_id,
-    1,
-    NEW.overall_score,
-    NEW.overall_score,
-    NOW()
-  FROM calls c
-  WHERE c.id = NEW.call_id
-  ON CONFLICT (user_id, prospect_id) DO UPDATE SET
-    calls_count = user_prospect_stats.calls_count + 1,
-    avg_score = (user_prospect_stats.avg_score * user_prospect_stats.calls_count + NEW.overall_score) / (user_prospect_stats.calls_count + 1),
-    best_score = GREATEST(user_prospect_stats.best_score, NEW.overall_score),
-    last_call_at = NOW(),
-    updated_at = NOW();
+  -- Only update stats if the call has a linked prospect
+  -- Skip if prospect_id is NULL (e.g., AI-generated persona not saved)
+  IF EXISTS (SELECT 1 FROM calls c WHERE c.id = NEW.call_id AND c.prospect_id IS NOT NULL) THEN
+    INSERT INTO user_prospect_stats (user_id, prospect_id, calls_count, avg_score, best_score, last_call_at)
+    SELECT
+      c.user_id,
+      c.prospect_id,
+      1,
+      NEW.overall_score,
+      NEW.overall_score,
+      NOW()
+    FROM calls c
+    WHERE c.id = NEW.call_id AND c.prospect_id IS NOT NULL
+    ON CONFLICT (user_id, prospect_id) DO UPDATE SET
+      calls_count = user_prospect_stats.calls_count + 1,
+      avg_score = (user_prospect_stats.avg_score * user_prospect_stats.calls_count + NEW.overall_score) / (user_prospect_stats.calls_count + 1),
+      best_score = GREATEST(user_prospect_stats.best_score, NEW.overall_score),
+      last_call_at = NOW(),
+      updated_at = NOW();
+  END IF;
 
   RETURN NEW;
 END;

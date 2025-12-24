@@ -32,6 +32,27 @@
   --primary-800: #6544d4;
   --primary-900: #5234b0;
 
+  /* Semantic CSS Variables for Components */
+  --background: #ffffff;
+  --foreground: #1B113A;
+  --card: #ffffff;
+  --card-foreground: #1B113A;
+  --primary: #AA90FE;
+  --primary-light: #f5f3ff;
+  --primary-dark: #7c5ce8;
+  --secondary: #f3f1f7;
+  --secondary-foreground: #1B113A;
+  --muted: #f3f1f7;
+  --muted-foreground: #7c7591;
+  --accent: #f3f1f7;
+  --accent-foreground: #1B113A;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: #e8e5ef;
+  --input: #e8e5ef;
+  --ring: #AA90FE;
+  --primary-purple: #7c5ce8;
+
   /* Secondary - Dark Purple #1B113A */
   --secondary-50: #f0eef5;
   --secondary-100: #d9d5e6;
@@ -9343,6 +9364,16 @@ select {
   font-size: 0.9375rem;
   line-height: 1.5;
   margin: 0;
+  color: inherit;
+  word-break: break-word;
+}
+
+.transcript-view .transcript-message.user .message-content {
+  color: white;
+}
+
+.transcript-view .transcript-message.prospect .message-content {
+  color: var(--foreground);
 }
 
 .debrief-actions {
@@ -9664,6 +9695,33 @@ select {
 
 .modal-body {
   padding: 1.5rem;
+}
+
+.modal-error {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  margin: 0 1.5rem 1rem;
+  background: var(--error-50);
+  border: 1px solid var(--error-200);
+  border-radius: 0.5rem;
+  color: var(--error-700);
+  font-size: 0.875rem;
+}
+
+.modal-error i:first-child {
+  color: var(--error-500);
+  flex-shrink: 0;
+}
+
+.modal-error span {
+  flex: 1;
+}
+
+.modal-error .btn {
+  flex-shrink: 0;
+  color: var(--error-600);
 }
 
 .modal-footer {
@@ -10111,7 +10169,7 @@ select {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1rem;
+  gap: 0.75rem;
 }
 
 .prospect-avatar-large {
@@ -10129,19 +10187,12 @@ select {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.3s ease;
+  transition: border-color 0.2s ease;
+  border: 3px solid transparent;
 }
 
 .avatar-ring.speaking {
-  box-shadow: 0 0 0 8px rgba(170, 144, 254, 0.2),
-              0 0 0 16px rgba(170, 144, 254, 0.1),
-              0 0 40px rgba(170, 144, 254, 0.3);
-  animation: pulse-speaking 1s ease-in-out infinite;
-}
-
-@keyframes pulse-speaking {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.02); }
+  border-color: var(--primary-400);
 }
 
 .avatar-inner {
@@ -10158,48 +10209,47 @@ select {
   letter-spacing: -0.02em;
 }
 
-/* Waveform Animation */
+/* Waveform Animation - Clean bars below avatar */
 .waveform-container {
-  position: absolute;
-  bottom: -30px;
   display: flex;
-  align-items: flex-end;
-  gap: 4px;
-  height: 24px;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  height: 32px;
 }
 
 .waveform-bar {
   width: 4px;
   background: var(--primary-400);
   border-radius: 2px;
-  animation: waveform 0.8s ease-in-out infinite;
+  animation: waveform 0.6s ease-in-out infinite;
 }
 
-.waveform-bar:nth-child(1) { height: 8px; animation-delay: 0s; }
-.waveform-bar:nth-child(2) { height: 16px; animation-delay: 0.1s; }
-.waveform-bar:nth-child(3) { height: 24px; animation-delay: 0.2s; }
-.waveform-bar:nth-child(4) { height: 16px; animation-delay: 0.3s; }
-.waveform-bar:nth-child(5) { height: 8px; animation-delay: 0.4s; }
+.waveform-bar:nth-child(1) { height: 12px; animation-delay: 0s; }
+.waveform-bar:nth-child(2) { height: 20px; animation-delay: 0.1s; }
+.waveform-bar:nth-child(3) { height: 28px; animation-delay: 0.15s; }
+.waveform-bar:nth-child(4) { height: 20px; animation-delay: 0.2s; }
+.waveform-bar:nth-child(5) { height: 12px; animation-delay: 0.25s; }
 
 @keyframes waveform {
-  0%, 100% { transform: scaleY(0.5); }
+  0%, 100% { transform: scaleY(0.4); }
   50% { transform: scaleY(1); }
 }
 
-.prospect-name {
+.call-page .prospect-name {
   font-size: 1.5rem;
   font-weight: 600;
   color: var(--white);
   margin: 0;
 }
 
-.prospect-title {
+.call-page .prospect-title {
   font-size: 1rem;
   color: var(--gray-300);
   margin: 0;
 }
 
-.prospect-company {
+.call-page .prospect-company {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -10208,7 +10258,7 @@ select {
   margin: 0;
 }
 
-.prospect-company i {
+.call-page .prospect-company i {
   font-size: 1rem;
 }
 
@@ -10312,10 +10362,11 @@ select {
   color: var(--gray-400);
 }
 
-.message-content {
+.transcript-panel .message-content {
   font-size: 0.875rem;
   color: var(--gray-200);
   line-height: 1.5;
+  word-break: break-word;
 }
 
 /* Call Controls */
@@ -10397,7 +10448,7 @@ select {
     font-size: 1.75rem;
   }
 
-  .prospect-name {
+  .call-page .prospect-name {
     font-size: 1.25rem;
   }
 

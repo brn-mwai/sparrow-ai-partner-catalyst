@@ -257,12 +257,19 @@ export default function CallPage() {
           console.log('🔊 Voice ID:', elevenlabs.voiceId);
           console.log('📝 Prompt preview:', prompt.substring(0, 200) + '...');
 
-          // Start the session with dynamic variables
+          // Start the session with dynamic variables and voice override
           // These fill in the {{variable}} placeholders in the ElevenLabs agent
-          console.log('🔧 Starting with dynamic variables...');
+          console.log('🔧 Starting with dynamic variables and voice override...');
+          console.log('🔊 Using voice ID:', elevenlabs.voiceId);
 
           await conversation.startSession({
             signedUrl: callData.elevenlabs.signedUrl,
+            // Override the voice to match persona gender
+            overrides: {
+              tts: {
+                voiceId: elevenlabs.voiceId,
+              },
+            },
             dynamicVariables: {
               persona_name: persona.name,
               persona_title: persona.title,
@@ -365,6 +372,13 @@ export default function CallPage() {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  // Strip XML tags like <Sparrow-1>...</Sparrow-1> from transcript content
+  const stripXmlTags = (text: string): string => {
+    return text
+      .replace(/<[^>]+>/g, '') // Remove all XML/HTML tags
+      .trim();
   };
 
   // Handle retry
@@ -486,17 +500,17 @@ export default function CallPage() {
                 {persona.name ? persona.name.split(' ').map((n) => n[0]).join('') : '?'}
               </div>
             </div>
-            {/* Voice waveform visualization */}
-            {conversation.isSpeaking && (
-              <div className="waveform-container">
-                <div className="waveform-bar"></div>
-                <div className="waveform-bar"></div>
-                <div className="waveform-bar"></div>
-                <div className="waveform-bar"></div>
-                <div className="waveform-bar"></div>
-              </div>
-            )}
           </div>
+          {/* Voice waveform visualization - below avatar */}
+          {conversation.isSpeaking && (
+            <div className="waveform-container">
+              <div className="waveform-bar"></div>
+              <div className="waveform-bar"></div>
+              <div className="waveform-bar"></div>
+              <div className="waveform-bar"></div>
+              <div className="waveform-bar"></div>
+            </div>
+          )}
           <h2 className="prospect-name">{persona.name}</h2>
           <p className="prospect-title">{persona.title}</p>
           <p className="prospect-company">
@@ -529,7 +543,7 @@ export default function CallPage() {
                 <span className="message-speaker">
                   {msg.speaker === 'user' ? 'You' : persona.name.split(' ')[0]}
                 </span>
-                <span className="message-content">{msg.content}</span>
+                <span className="message-content">{stripXmlTags(msg.content)}</span>
               </div>
             ))
           )}
