@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="public/Assets/sparrow-ai-banner.png" alt="Sparrow AI Banner" width="100%" />
+</p>
+
 # Sparrow AI
 
 **AI-Powered Sales Training Platform**
