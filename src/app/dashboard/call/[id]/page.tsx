@@ -5,11 +5,10 @@ import { useParams, useRouter } from 'next/navigation';
 import { useConversation } from '@elevenlabs/react';
 import type { PersonaConfig, TranscriptMessage } from '@/types/database';
 
-// Voice IDs from new ElevenLabs account (confirmed working)
-const VOICE_IDS = {
-  male: 'kHhWB9Fw3aF6ly7JvltC',   // Stokes
-  female: 'g6xIsTj2HwM6VR4iXFCw', // Jessica
-};
+// Voice IDs from new ElevenLabs account (for reference)
+// NOTE: Voice override via SDK causes disconnection - use ElevenLabs dashboard instead
+// Male: Stokes - kHhWB9Fw3aF6ly7JvltC
+// Female: Jessica - g6xIsTj2HwM6VR4iXFCw, Hope - OYTbf65OHHFELVut7v2H
 
 // ============================================
 // CREDIT MANAGEMENT - Demo Mode Configuration
@@ -290,22 +289,15 @@ export default function CallPage() {
           console.log('🔊 Voice ID:', elevenlabs.voiceId);
           console.log('📝 Prompt preview:', prompt.substring(0, 200) + '...');
 
-          // Select voice based on persona gender
-          const selectedVoiceId = persona.gender?.toLowerCase() === 'female'
-            ? VOICE_IDS.female  // Jessica for female prospects
-            : VOICE_IDS.male;   // Stokes for male prospects
-
-          console.log('🔧 Starting with dynamic variables and voice override...');
+          // NOTE: Voice override disabled - it causes disconnection
+          // The agent will use its default voice (configured in ElevenLabs dashboard)
+          // To change voice per gender, configure multiple agents or use ElevenLabs voice settings
+          console.log('🔧 Starting with dynamic variables (no voice override)...');
           console.log('👤 Persona gender:', persona.gender);
-          console.log('🔊 Selected voice ID:', selectedVoiceId);
 
           await conversation.startSession({
             signedUrl: callData.elevenlabs.signedUrl,
-            overrides: {
-              tts: {
-                voiceId: selectedVoiceId,
-              },
-            },
+            // Voice override removed - was causing disconnection issues
             dynamicVariables: {
               persona_name: persona.name,
               persona_title: persona.title,
