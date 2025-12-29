@@ -161,51 +161,37 @@ export function getAccountStatusSummary(): Record<string, { available: boolean; 
 
 // -------------------- Voice Configuration --------------------
 
-// Voice IDs from ElevenLabs Dashboard - Your Custom Voices
+// Voice IDs from NEW ElevenLabs Account (backup account)
 export const ELEVENLABS_VOICES = {
   // ==================== MALE VOICES ====================
-  JAMES: {
-    id: 'qxTFXDYbGcR8GaHSjczg',
-    name: 'James',
-    description: 'Professional male voice',
-    personality: 'professional',
-    gender: 'male',
-  },
   ERIC: {
-    id: 'cjVigY5qzO86Huf0OWal',
+    id: 'cjVigY5qzO86Huf0OWal', // ElevenLabs library voice (universal)
     name: 'Eric',
     description: 'Smooth, trustworthy male voice',
     personality: 'skeptical',
     gender: 'male',
   },
+  STOKES: {
+    id: 'kHhWB9Fw3aF6ly7JvltC',
+    name: 'Stokes',
+    description: 'Professional male voice',
+    personality: 'professional',
+    gender: 'male',
+  },
 
   // ==================== FEMALE VOICES ====================
-  HELEN: {
-    id: 'ImnfuV8oxhB7ya99oJfc',
-    name: 'Helen',
+  JESSICA: {
+    id: 'g6xIsTj2HwM6VR4iXFCw',
+    name: 'Jessica',
     description: 'Professional female voice',
     personality: 'professional',
     gender: 'female',
   },
-  CINNAMON: {
-    id: 'kNie5n4lYl7TrvqBZ4iG',
-    name: 'Cinnamon',
+  HOPE: {
+    id: 'OYTbf65OHHFELVut7v2H',
+    name: 'Hope',
     description: 'Warm friendly female voice',
     personality: 'friendly',
-    gender: 'female',
-  },
-  EMMA: {
-    id: '56bWURjYFHyYyVf490Dp',
-    name: 'Emma',
-    description: 'Direct female voice',
-    personality: 'busy',
-    gender: 'female',
-  },
-  MS_WALKER: {
-    id: 'DLsHlh26Ugcm6ELvS0qi',
-    name: 'Ms. Walker',
-    description: 'Authoritative female voice',
-    personality: 'skeptical',
     gender: 'female',
   },
 } as const;
