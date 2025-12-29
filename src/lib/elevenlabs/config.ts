@@ -1,7 +1,163 @@
 // ============================================
 // SPARROW AI - ElevenLabs Configuration
 // Voice AI for Conversational Agents
+// Multi-Account Failover Support
 // ============================================
+
+// -------------------- Multi-Account Configuration --------------------
+
+export interface ElevenLabsAccount {
+  name: string;
+  apiKey: string;
+  agentId: string;
+  priority: number;
+  isActive: boolean;
+  lastError?: string;
+  lastErrorTime?: number;
+  errorCount: number;
+}
+
+// Account status tracking (in-memory for this session)
+const accountStatus: Map<string, { errorCount: number; lastErrorTime: number }> = new Map();
+
+// Error cooldown period (5 minutes)
+const ERROR_COOLDOWN_MS = 5 * 60 * 1000;
+// Max errors before account is temporarily disabled
+const MAX_ERROR_COUNT = 3;
+
+/**
+ * Get all configured ElevenLabs accounts
+ * Supports multiple accounts for failover when credits run out
+ */
+export function getElevenLabsAccounts(): ElevenLabsAccount[] {
+  const accounts: ElevenLabsAccount[] = [];
+
+  // Primary account
+  if (process.env.ELEVENLABS_API_KEY && process.env.NEXT_PUBLIC_ELEVENLABS_AGENT_ID) {
+    accounts.push({
+      name: 'primary',
+      apiKey: process.env.ELEVENLABS_API_KEY,
+      agentId: process.env.NEXT_PUBLIC_ELEVENLABS_AGENT_ID,
+      priority: 1,
+      isActive: true,
+      errorCount: accountStatus.get('primary')?.errorCount || 0,
+    });
+  }
+
+  // Backup account
+  if (process.env.ELEVENLABS_API_KEY_BACKUP && process.env.ELEVENLABS_AGENT_ID_BACKUP) {
+    accounts.push({
+      name: 'backup',
+      apiKey: process.env.ELEVENLABS_API_KEY_BACKUP,
+      agentId: process.env.ELEVENLABS_AGENT_ID_BACKUP,
+      priority: 2,
+      isActive: true,
+      errorCount: accountStatus.get('backup')?.errorCount || 0,
+    });
+  }
+
+  // Tertiary account (optional)
+  if (process.env.ELEVENLABS_API_KEY_TERTIARY && process.env.ELEVENLABS_AGENT_ID_TERTIARY) {
+    accounts.push({
+      name: 'tertiary',
+      apiKey: process.env.ELEVENLABS_API_KEY_TERTIARY,
+      agentId: process.env.ELEVENLABS_AGENT_ID_TERTIARY,
+      priority: 3,
+      isActive: true,
+      errorCount: accountStatus.get('tertiary')?.errorCount || 0,
+    });
+  }
+
+  return accounts;
+}
+
+/**
+ * Get the best available account based on priority and error status
+ */
+export function getActiveAccount(): ElevenLabsAccount | null {
+  const accounts = getElevenLabsAccounts();
+  const now = Date.now();
+
+  // Filter to accounts that are active and not in cooldown
+  const availableAccounts = accounts.filter((acc) => {
+    if (!acc.isActive || !acc.apiKey || !acc.agentId) return false;
+
+    const status = accountStatus.get(acc.name);
+    if (status) {
+      // Reset error count if cooldown has passed
+      if (now - status.lastErrorTime > ERROR_COOLDOWN_MS) {
+        accountStatus.set(acc.name, { errorCount: 0, lastErrorTime: 0 });
+        return true;
+      }
+      // Skip if too many errors
+      if (status.errorCount >= MAX_ERROR_COUNT) {
+        console.log(`Account ${acc.name} in cooldown (${status.errorCount} errors)`);
+        return false;
+      }
+    }
+    return true;
+  });
+
+  // Sort by priority
+  availableAccounts.sort((a, b) => a.priority - b.priority);
+
+  if (availableAccounts.length === 0) {
+    console.error('No available ElevenLabs accounts!');
+    return null;
+  }
+
+  return availableAccounts[0];
+}
+
+/**
+ * Mark an account as having an error (for credit exhaustion, rate limits, etc.)
+ */
+export function markAccountError(accountName: string, error: string): void {
+  const current = accountStatus.get(accountName) || { errorCount: 0, lastErrorTime: 0 };
+  accountStatus.set(accountName, {
+    errorCount: current.errorCount + 1,
+    lastErrorTime: Date.now(),
+  });
+  console.warn(`ElevenLabs account ${accountName} error (${current.errorCount + 1}): ${error}`);
+}
+
+/**
+ * Reset error status for an account (call on successful request)
+ */
+export function resetAccountStatus(accountName: string): void {
+  accountStatus.set(accountName, { errorCount: 0, lastErrorTime: 0 });
+}
+
+/**
+ * Get account status summary
+ */
+export function getAccountStatusSummary(): Record<string, { available: boolean; errorCount: number }> {
+  const accounts = getElevenLabsAccounts();
+  const summary: Record<string, { available: boolean; errorCount: number }> = {};
+
+  for (const acc of accounts) {
+    const status = accountStatus.get(acc.name);
+    const now = Date.now();
+    let available = true;
+
+    if (status) {
+      if (now - status.lastErrorTime > ERROR_COOLDOWN_MS) {
+        available = true;
+      } else if (status.errorCount >= MAX_ERROR_COUNT) {
+        available = false;
+      }
+    }
+
+    summary[acc.name] = {
+      available,
+      errorCount: status?.errorCount || 0,
+    };
+  }
+
+  return summary;
+}
+
+// -------------------- Voice Configuration --------------------
 
 // Voice IDs from ElevenLabs Dashboard - Your Custom Voices
 export const ELEVENLABS_VOICES = {

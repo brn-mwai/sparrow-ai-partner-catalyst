@@ -7,7 +7,13 @@ import {
   ELEVENLABS_VOICES,
   AGENT_CONFIG,
   getVoiceForPersona,
+  getActiveAccount,
+  getElevenLabsAccounts,
+  markAccountError,
+  resetAccountStatus,
+  getAccountStatusSummary,
   type VoiceConfig,
+  type ElevenLabsAccount,
 } from './config';
 import {
   ELEVENLABS_AGENT_SYSTEM,
@@ -79,20 +85,92 @@ const ELEVENLABS_API_URL = 'https://api.elevenlabs.io/v1';
 
 // -------------------- Helper Functions --------------------
 
-function getApiKey(): string {
-  const apiKey = process.env.ELEVENLABS_API_KEY;
-  if (!apiKey) {
-    throw new ElevenLabsError('ElevenLabs API key not configured', 'CONFIG_ERROR');
+/**
+ * Get API key with failover support
+ * Will automatically try backup accounts if primary fails
+ */
+function getApiKey(accountName?: string): string {
+  if (accountName) {
+    const accounts = getElevenLabsAccounts();
+    const account = accounts.find((a) => a.name === accountName);
+    if (account?.apiKey) return account.apiKey;
   }
-  return apiKey;
+
+  const account = getActiveAccount();
+  if (!account) {
+    throw new ElevenLabsError(
+      'No ElevenLabs accounts available. All accounts may be exhausted or in cooldown.',
+      'NO_ACCOUNTS_AVAILABLE'
+    );
+  }
+  return account.apiKey;
 }
 
-function getAgentId(): string {
-  const agentId = process.env.NEXT_PUBLIC_ELEVENLABS_AGENT_ID;
-  if (!agentId) {
-    throw new ElevenLabsError('ElevenLabs Agent ID not configured', 'CONFIG_ERROR');
+/**
+ * Get Agent ID with failover support
+ */
+function getAgentId(accountName?: string): string {
+  if (accountName) {
+    const accounts = getElevenLabsAccounts();
+    const account = accounts.find((a) => a.name === accountName);
+    if (account?.agentId) return account.agentId;
   }
-  return agentId;
+
+  const account = getActiveAccount();
+  if (!account) {
+    throw new ElevenLabsError(
+      'No ElevenLabs accounts available. All accounts may be exhausted or in cooldown.',
+      'NO_ACCOUNTS_AVAILABLE'
+    );
+  }
+  return account.agentId;
+}
+
+/**
+ * Get current active account info
+ */
+export function getCurrentAccount(): ElevenLabsAccount | null {
+  return getActiveAccount();
+}
+
+/**
+ * Get status of all configured accounts
+ */
+export function getAllAccountsStatus(): Record<string, { available: boolean; errorCount: number }> {
+  return getAccountStatusSummary();
+}
+
+/**
+ * Check if credits/rate limit error and mark account
+ */
+function handleApiError(error: any, accountName: string): void {
+  const errorMessage = error?.message || String(error);
+  const statusCode = error?.statusCode;
+
+  // Common credit exhaustion / rate limit error patterns
+  const creditExhaustionPatterns = [
+    'insufficient_credits',
+    'credit',
+    'quota',
+    'rate_limit',
+    'too_many_requests',
+    '429',
+    '402',
+    'payment required',
+    'subscription',
+  ];
+
+  const isCreditsError = creditExhaustionPatterns.some(
+    (pattern) =>
+      errorMessage.toLowerCase().includes(pattern) ||
+      statusCode === 402 ||
+      statusCode === 429
+  );
+
+  if (isCreditsError) {
+    markAccountError(accountName, errorMessage);
+    console.warn(`Account ${accountName} marked for failover: ${errorMessage}`);
+  }
 }
 
 // -------------------- Conversation Management --------------------
@@ -100,28 +178,34 @@ function getAgentId(): string {
 /**
  * Get a signed URL for starting a conversation
  * This is used by the ElevenLabs React SDK
+ * Includes automatic failover to backup accounts on credit exhaustion
  */
 export async function getSignedUrl(
   config: ConversationConfig
-): Promise<ConversationSession> {
-  const apiKey = getApiKey();
-  const agentId = config.agentId || getAgentId();
+): Promise<ConversationSession & { accountUsed: string }> {
+  // Get all available accounts for failover
+  const accounts = getElevenLabsAccounts().filter((a) => a.apiKey && a.agentId);
+
+  if (accounts.length === 0) {
+    throw new ElevenLabsError(
+      'No ElevenLabs accounts configured',
+      'CONFIG_ERROR'
+    );
+  }
 
   // Select voice based on persona gender and personality
-  // Gender is now explicitly set by the AI during persona generation
   let voice: VoiceConfig;
   if (config.voiceId) {
     voice = Object.values(ELEVENLABS_VOICES).find((v) => v.id === config.voiceId) ||
       getVoiceForPersona({
         name: config.persona.name,
-        gender: config.persona.gender, // Use explicit gender from persona
+        gender: config.persona.gender,
         personality: config.persona.personality,
       });
   } else {
-    // Use persona's explicit gender for voice selection
     voice = getVoiceForPersona({
       name: config.persona.name,
-      gender: config.persona.gender, // Use explicit gender from persona
+      gender: config.persona.gender,
       personality: config.persona.personality,
     });
   }
@@ -144,61 +228,102 @@ export async function getSignedUrl(
     config.callType
   );
 
-  try {
-    // Get signed URL for the conversation
-    // The ElevenLabs React SDK will handle the conversation setup
-    const response = await fetch(
-      `${ELEVENLABS_API_URL}/convai/conversation/get-signed-url?agent_id=${agentId}`,
-      {
-        method: 'GET',
-        headers: {
-          'xi-api-key': apiKey,
-        },
+  // Try each account until one works (failover logic)
+  let lastError: Error | null = null;
+
+  for (const account of accounts) {
+    // Skip accounts in cooldown
+    const activeAccount = getActiveAccount();
+    if (activeAccount && activeAccount.name !== account.name) {
+      // Check if this account should be skipped
+      const status = getAccountStatusSummary()[account.name];
+      if (status && !status.available) {
+        console.log(`Skipping account ${account.name} (in cooldown)`);
+        continue;
       }
-    );
+    }
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new ElevenLabsError(
-        `Failed to get signed URL: ${errorText}`,
-        'API_ERROR',
-        response.status
+    const apiKey = account.apiKey;
+    const agentId = config.agentId || account.agentId;
+
+    console.log(`Trying ElevenLabs account: ${account.name} (priority: ${account.priority})`);
+
+    try {
+      const response = await fetch(
+        `${ELEVENLABS_API_URL}/convai/conversation/get-signed-url?agent_id=${agentId}`,
+        {
+          method: 'GET',
+          headers: {
+            'xi-api-key': apiKey,
+          },
+        }
       );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        const error = new ElevenLabsError(
+          `Failed to get signed URL: ${errorText}`,
+          'API_ERROR',
+          response.status
+        );
+
+        // Handle credit/rate limit errors for failover
+        handleApiError(error, account.name);
+        lastError = error;
+
+        // If it's a credits error, try next account
+        if (response.status === 402 || response.status === 429) {
+          console.warn(`Account ${account.name} credits issue, trying next...`);
+          continue;
+        }
+
+        throw error;
+      }
+
+      const data = await response.json();
+
+      if (!data.signed_url) {
+        throw new ElevenLabsError('No signed URL in response', 'API_ERROR');
+      }
+
+      // Success! Reset error status for this account
+      resetAccountStatus(account.name);
+
+      console.log('ElevenLabs signed URL response:', {
+        hasSignedUrl: !!data.signed_url,
+        signedUrlPreview: data.signed_url.substring(0, 100) + '...',
+        conversationId: data.conversation_id,
+        agentId,
+        accountUsed: account.name,
+      });
+
+      return {
+        conversationId: data.conversation_id || `conv_${Date.now()}`,
+        signedUrl: data.signed_url,
+        agentId,
+        voiceId: voice.id,
+        persona: config.persona,
+        callType: config.callType,
+        accountUsed: account.name,
+      };
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error(String(error));
+
+      // Handle the error for potential failover
+      if (error instanceof ElevenLabsError) {
+        handleApiError(error, account.name);
+      }
+
+      console.error(`Account ${account.name} failed:`, lastError.message);
+      // Continue to next account
     }
-
-    const data = await response.json();
-
-    console.log('ElevenLabs signed URL response:', {
-      hasSignedUrl: !!data.signed_url,
-      signedUrlPreview: data.signed_url ? data.signed_url.substring(0, 100) + '...' : null,
-      conversationId: data.conversation_id,
-      agentId,
-    });
-
-    if (!data.signed_url) {
-      throw new ElevenLabsError('No signed URL in response', 'API_ERROR');
-    }
-
-    // Store persona context for the client-side SDK to use
-    // The React SDK's useConversation will handle the actual conversation
-    return {
-      conversationId: data.conversation_id || `conv_${Date.now()}`,
-      signedUrl: data.signed_url,
-      agentId,
-      voiceId: voice.id,
-      persona: config.persona,
-      callType: config.callType,
-    };
-  } catch (error) {
-    if (error instanceof ElevenLabsError) {
-      throw error;
-    }
-
-    throw new ElevenLabsError(
-      `Failed to create conversation: ${error instanceof Error ? error.message : 'Unknown error'}`,
-      'REQUEST_ERROR'
-    );
   }
+
+  // All accounts failed
+  throw new ElevenLabsError(
+    `All ElevenLabs accounts exhausted. Last error: ${lastError?.message || 'Unknown'}`,
+    'ALL_ACCOUNTS_EXHAUSTED'
+  );
 }
 
 /**
@@ -458,4 +583,11 @@ export {
   ELEVENLABS_VOICES,
   AGENT_CONFIG,
   getVoiceForPersona,
+  // Multi-account failover exports
+  getElevenLabsAccounts,
+  getActiveAccount,
+  markAccountError,
+  resetAccountStatus,
+  getAccountStatusSummary,
+  type ElevenLabsAccount,
 };
