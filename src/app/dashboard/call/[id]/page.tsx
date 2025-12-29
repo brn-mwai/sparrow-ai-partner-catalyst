@@ -284,19 +284,12 @@ export default function CallPage() {
           console.log('🔊 Voice ID:', elevenlabs.voiceId);
           console.log('📝 Prompt preview:', prompt.substring(0, 200) + '...');
 
-          // Start the session with dynamic variables and voice override
-          // These fill in the {{variable}} placeholders in the ElevenLabs agent
-          console.log('🔧 Starting with dynamic variables and voice override...');
-          console.log('🔊 Using voice ID:', elevenlabs.voiceId);
+          // Start the session with dynamic variables
+          // Voice override DISABLED for now - using agent's default voice
+          console.log('🔧 Starting with dynamic variables (no voice override)...');
 
           await conversation.startSession({
             signedUrl: callData.elevenlabs.signedUrl,
-            // Override voice based on persona gender (using new account voice IDs)
-            overrides: {
-              tts: {
-                voiceId: elevenlabs.voiceId,
-              },
-            },
             dynamicVariables: {
               persona_name: persona.name,
               persona_title: persona.title,
