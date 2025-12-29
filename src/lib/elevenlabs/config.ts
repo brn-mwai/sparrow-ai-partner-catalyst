@@ -253,5 +253,5 @@ export function getVoiceById(voiceId: string): VoiceConfig | undefined {
 }
 
 export function getDefaultVoice(): VoiceConfig {
-  return ELEVENLABS_VOICES.JAMES;
+  return ELEVENLABS_VOICES.ERIC;
 }
