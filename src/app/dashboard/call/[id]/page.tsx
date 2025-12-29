@@ -5,6 +5,18 @@ import { useParams, useRouter } from 'next/navigation';
 import { useConversation } from '@elevenlabs/react';
 import type { PersonaConfig, TranscriptMessage } from '@/types/database';
 
+// ============================================
+// CREDIT MANAGEMENT - Demo Mode Configuration
+// ============================================
+const DEMO_MODE = {
+  // Maximum call duration in seconds (2 minutes to save credits)
+  MAX_DURATION: 120,
+  // Show warning at 30 seconds remaining
+  WARNING_AT: 30,
+  // Auto-end call when time runs out
+  AUTO_END: true,
+};
+
 interface CallData {
   callId: string;
   persona: PersonaConfig;
@@ -121,6 +133,7 @@ export default function CallPage() {
   const [micPermission, setMicPermission] = useState<'granted' | 'denied' | 'prompt' | 'checking'>('checking');
   const [sessionStarted, setSessionStarted] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<string>('initializing');
+  const [timeWarning, setTimeWarning] = useState<string | null>(null);
 
   const startTimeRef = useRef<number>(Date.now());
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -133,9 +146,23 @@ export default function CallPage() {
       setConnectionStatus('connected');
       setCallStatus('active');
       startTimeRef.current = Date.now();
-      // Start timer
+      // Start timer with credit management
       timerRef.current = setInterval(() => {
-        setCallDuration(Math.floor((Date.now() - startTimeRef.current) / 1000));
+        const elapsed = Math.floor((Date.now() - startTimeRef.current) / 1000);
+        setCallDuration(elapsed);
+
+        // Credit management: Check time remaining
+        const remaining = DEMO_MODE.MAX_DURATION - elapsed;
+
+        if (remaining <= 0 && DEMO_MODE.AUTO_END) {
+          // Time's up - auto-end call
+          setTimeWarning('⏱️ Time limit reached! Ending call to save credits...');
+        } else if (remaining <= DEMO_MODE.WARNING_AT && remaining > 0) {
+          // Show warning
+          setTimeWarning(`⚠️ ${remaining}s remaining - wrap up your call!`);
+        } else {
+          setTimeWarning(null);
+        }
       }, 1000);
     },
     onDisconnect: () => {

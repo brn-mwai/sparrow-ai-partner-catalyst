@@ -28,31 +28,33 @@ const MAX_ERROR_COUNT = 3;
 /**
  * Get all configured ElevenLabs accounts
  * Supports multiple accounts for failover when credits run out
+ *
+ * NOTE: Backup account is now PRIMARY (priority 1) to use new credits
  */
 export function getElevenLabsAccounts(): ElevenLabsAccount[] {
   const accounts: ElevenLabsAccount[] = [];
 
-  // Primary account
-  if (process.env.ELEVENLABS_API_KEY && process.env.NEXT_PUBLIC_ELEVENLABS_AGENT_ID) {
-    accounts.push({
-      name: 'primary',
-      apiKey: process.env.ELEVENLABS_API_KEY,
-      agentId: process.env.NEXT_PUBLIC_ELEVENLABS_AGENT_ID,
-      priority: 1,
-      isActive: true,
-      errorCount: accountStatus.get('primary')?.errorCount || 0,
-    });
-  }
-
-  // Backup account
+  // NEW ACCOUNT (was backup, now primary) - USE THIS FIRST
   if (process.env.ELEVENLABS_API_KEY_BACKUP && process.env.ELEVENLABS_AGENT_ID_BACKUP) {
     accounts.push({
       name: 'backup',
       apiKey: process.env.ELEVENLABS_API_KEY_BACKUP,
       agentId: process.env.ELEVENLABS_AGENT_ID_BACKUP,
-      priority: 2,
+      priority: 1, // Now priority 1 (primary)
       isActive: true,
       errorCount: accountStatus.get('backup')?.errorCount || 0,
+    });
+  }
+
+  // OLD ACCOUNT (was primary, now fallback) - only if new runs out
+  if (process.env.ELEVENLABS_API_KEY && process.env.NEXT_PUBLIC_ELEVENLABS_AGENT_ID) {
+    accounts.push({
+      name: 'primary',
+      apiKey: process.env.ELEVENLABS_API_KEY,
+      agentId: process.env.NEXT_PUBLIC_ELEVENLABS_AGENT_ID,
+      priority: 2, // Now priority 2 (fallback)
+      isActive: false, // Disabled - old account has no credits
+      errorCount: accountStatus.get('primary')?.errorCount || 0,
     });
   }
 
