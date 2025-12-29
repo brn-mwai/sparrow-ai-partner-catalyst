@@ -162,15 +162,9 @@ export function getAccountStatusSummary(): Record<string, { available: boolean; 
 // -------------------- Voice Configuration --------------------
 
 // Voice IDs from NEW ElevenLabs Account (backup account)
+// These IDs are confirmed working on the new account
 export const ELEVENLABS_VOICES = {
   // ==================== MALE VOICES ====================
-  ERIC: {
-    id: 'cjVigY5qzO86Huf0OWal', // ElevenLabs library voice (universal)
-    name: 'Eric',
-    description: 'Smooth, trustworthy male voice',
-    personality: 'skeptical',
-    gender: 'male',
-  },
   STOKES: {
     id: 'kHhWB9Fw3aF6ly7JvltC',
     name: 'Stokes',
@@ -195,6 +189,10 @@ export const ELEVENLABS_VOICES = {
     gender: 'female',
   },
 } as const;
+
+// Default voices by gender (for quick lookup)
+export const DEFAULT_MALE_VOICE_ID = 'kHhWB9Fw3aF6ly7JvltC'; // Stokes
+export const DEFAULT_FEMALE_VOICE_ID = 'g6xIsTj2HwM6VR4iXFCw'; // Jessica
 
 export type VoiceId = keyof typeof ELEVENLABS_VOICES;
 export type VoiceConfig = (typeof ELEVENLABS_VOICES)[VoiceId];
@@ -253,5 +251,15 @@ export function getVoiceById(voiceId: string): VoiceConfig | undefined {
 }
 
 export function getDefaultVoice(): VoiceConfig {
-  return ELEVENLABS_VOICES.ERIC;
+  return ELEVENLABS_VOICES.STOKES;
+}
+
+/**
+ * Get voice ID directly by gender (simplest approach)
+ */
+export function getVoiceIdByGender(gender?: string): string {
+  if (gender?.toLowerCase() === 'female') {
+    return DEFAULT_FEMALE_VOICE_ID; // Jessica
+  }
+  return DEFAULT_MALE_VOICE_ID; // Stokes
 }

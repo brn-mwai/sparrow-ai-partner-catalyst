@@ -5,6 +5,12 @@ import { useParams, useRouter } from 'next/navigation';
 import { useConversation } from '@elevenlabs/react';
 import type { PersonaConfig, TranscriptMessage } from '@/types/database';
 
+// Voice IDs from new ElevenLabs account (confirmed working)
+const VOICE_IDS = {
+  male: 'kHhWB9Fw3aF6ly7JvltC',   // Stokes
+  female: 'g6xIsTj2HwM6VR4iXFCw', // Jessica
+};
+
 // ============================================
 // CREDIT MANAGEMENT - Demo Mode Configuration
 // ============================================
@@ -284,12 +290,22 @@ export default function CallPage() {
           console.log('🔊 Voice ID:', elevenlabs.voiceId);
           console.log('📝 Prompt preview:', prompt.substring(0, 200) + '...');
 
-          // Start the session with dynamic variables
-          // Voice override DISABLED for now - using agent's default voice
-          console.log('🔧 Starting with dynamic variables (no voice override)...');
+          // Select voice based on persona gender
+          const selectedVoiceId = persona.gender?.toLowerCase() === 'female'
+            ? VOICE_IDS.female  // Jessica for female prospects
+            : VOICE_IDS.male;   // Stokes for male prospects
+
+          console.log('🔧 Starting with dynamic variables and voice override...');
+          console.log('👤 Persona gender:', persona.gender);
+          console.log('🔊 Selected voice ID:', selectedVoiceId);
 
           await conversation.startSession({
             signedUrl: callData.elevenlabs.signedUrl,
+            overrides: {
+              tts: {
+                voiceId: selectedVoiceId,
+              },
+            },
             dynamicVariables: {
               persona_name: persona.name,
               persona_title: persona.title,
