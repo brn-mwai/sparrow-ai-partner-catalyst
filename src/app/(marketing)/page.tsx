@@ -11,6 +11,7 @@ import {
   PricingSection,
   CTASection,
   LandingFooter,
+  LandingCoach,
 } from '@/components/landing';
 import { BetaBanner } from '@/components/shared/beta-banner';
 
@@ -41,6 +42,7 @@ export default function LandingPage() {
       </main>
 
       <LandingFooter />
+      <LandingCoach />
     </>
   );
 }

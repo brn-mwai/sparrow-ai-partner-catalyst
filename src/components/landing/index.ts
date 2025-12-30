@@ -10,6 +10,7 @@ export { PricingSection } from './pricing-section';
 export { PricingCard } from './pricing-card';
 export { CTASection } from './cta-section';
 export { LandingFooter } from './landing-footer';
+export { LandingCoach } from './landing-coach';
 
 // Re-export types
 export type { PricingPlan } from './pricing-card';
