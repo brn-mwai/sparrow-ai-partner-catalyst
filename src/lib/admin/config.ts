@@ -6,6 +6,7 @@
 // Add your email here to gain admin access
 export const ADMIN_EMAILS = [
   'brianmwai2@gmail.com',
+  'brian@hausorlabs.tech',
   // Add more admin emails as needed
 ];
 

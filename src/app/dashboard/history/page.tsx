@@ -249,8 +249,8 @@ export default function HistoryPage() {
         </div>
       </div>
 
-      {/* Call List */}
-      <div className="history-list">
+      {/* Call History Table */}
+      <div className="history-table-container">
         {isLoading ? (
           <div className="history-loading">
             <i className="ph ph-spinner animate-spin"></i>
@@ -267,76 +267,99 @@ export default function HistoryPage() {
             </Link>
           </div>
         ) : (
-          filteredCalls.map((call) => {
-            const typeInfo = callTypeLabels[call.type];
-            const outcomeInfo = call.outcome ? outcomeLabels[call.outcome] : null;
+          <table className="history-table">
+            <thead>
+              <tr>
+                <th>Type</th>
+                <th>Prospect</th>
+                <th>Date</th>
+                <th>Duration</th>
+                <th>Outcome</th>
+                <th>Score</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredCalls.map((call) => {
+                const typeInfo = callTypeLabels[call.type];
+                const outcomeInfo = call.outcome ? outcomeLabels[call.outcome] : null;
 
-            return (
-              <Link
-                key={call.id}
-                href={`/dashboard/call/${call.id}/debrief`}
-                className="call-card"
-              >
-                <div className="call-card-left">
-                  <div className="call-type-badge">
-                    <i className={`ph ${typeInfo.icon}`}></i>
-                    {typeInfo.label}
-                  </div>
-                  <div className="call-prospect">
-                    <div className="prospect-avatar">
-                      {call.persona_name.split(' ').map(n => n[0]).join('')}
-                    </div>
-                    <div className="prospect-info">
-                      <span className="prospect-name">{call.persona_name}</span>
-                      <span className="prospect-title">{call.persona_title}</span>
-                      <span className="prospect-company">
-                        <i className="ph ph-buildings"></i>
-                        {call.persona_company}
+                return (
+                  <tr key={call.id} onClick={() => window.location.href = `/dashboard/call/${call.id}/debrief`}>
+                    <td>
+                      <div className="call-type-badge">
+                        <i className={`ph ${typeInfo.icon}`}></i>
+                        {typeInfo.label}
+                      </div>
+                    </td>
+                    <td>
+                      <div className="call-prospect">
+                        <div className="prospect-avatar">
+                          {call.persona_name.split(' ').map(n => n[0]).join('')}
+                        </div>
+                        <div className="prospect-info">
+                          <span className="prospect-name">{call.persona_name}</span>
+                          <span className="prospect-title">{call.persona_title}</span>
+                          <span className="prospect-company">
+                            <i className="ph ph-buildings"></i>
+                            {call.persona_company}
+                          </span>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <span className="call-date">
+                        <i className="ph ph-calendar"></i>
+                        {formatDate(call.created_at)}
                       </span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="call-card-center">
-                  <div className="call-meta">
-                    <span className="call-date">
-                      <i className="ph ph-calendar"></i>
-                      {formatDate(call.created_at)}
-                    </span>
-                    <span className="call-duration">
-                      <i className="ph ph-timer"></i>
-                      {formatDuration(call.duration_seconds)}
-                    </span>
-                  </div>
-                  {outcomeInfo && (
-                    <span
-                      className="call-outcome"
-                      style={{ color: outcomeInfo.color }}
-                    >
-                      {outcomeInfo.label}
-                    </span>
-                  )}
-                </div>
-
-                <div className="call-card-right">
-                  {call.overall_score !== null ? (
-                    <div
-                      className="call-score"
-                      style={{ color: getScoreColor(call.overall_score) }}
-                    >
-                      <span className="score-value">{call.overall_score.toFixed(1)}</span>
-                      <span className="score-label">/10</span>
-                    </div>
-                  ) : (
-                    <span className="call-status">
-                      {call.status === 'abandoned' ? 'Abandoned' : 'In Progress'}
-                    </span>
-                  )}
-                  <i className="ph ph-caret-right"></i>
-                </div>
-              </Link>
-            );
-          })
+                    </td>
+                    <td>
+                      <span className="call-duration">
+                        <i className="ph ph-timer"></i>
+                        {formatDuration(call.duration_seconds)}
+                      </span>
+                    </td>
+                    <td>
+                      {outcomeInfo ? (
+                        <span
+                          className="call-outcome-badge"
+                          style={{
+                            color: outcomeInfo.color,
+                            backgroundColor: `${outcomeInfo.color}15`,
+                            border: `1px solid ${outcomeInfo.color}30`
+                          }}
+                        >
+                          {outcomeInfo.label}
+                        </span>
+                      ) : (
+                        <span className="call-outcome-empty">--</span>
+                      )}
+                    </td>
+                    <td>
+                      {call.overall_score !== null ? (
+                        <div
+                          className="call-score-badge"
+                          style={{ color: getScoreColor(call.overall_score) }}
+                        >
+                          <span className="score-value">{call.overall_score.toFixed(1)}</span>
+                          <span className="score-label">/10</span>
+                        </div>
+                      ) : (
+                        <span className="call-status-badge">
+                          {call.status === 'abandoned' ? 'Abandoned' : 'In Progress'}
+                        </span>
+                      )}
+                    </td>
+                    <td>
+                      <Link href={`/dashboard/call/${call.id}/debrief`} className="view-details-btn">
+                        <i className="ph ph-arrow-right"></i>
+                      </Link>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         )}
       </div>
     </div>
