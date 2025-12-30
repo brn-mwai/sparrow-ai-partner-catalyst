@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { useUser } from '@clerk/nextjs';
 import { generateUserProgressReport, type UserReportData } from '@/lib/reports/user-report-generator';
 import type { CallType, CallOutcome, CallStatus } from '@/types/database';
-import './history.css';
 
 interface CallRecord {
   id: string;
@@ -66,7 +65,6 @@ export default function HistoryPage() {
 
     setIsGenerating(true);
     try {
-      // Calculate stats from calls
       const completedCalls = calls.filter(c => c.status === 'completed');
       const totalDuration = completedCalls.reduce((sum, c) => sum + (c.duration_seconds || 0), 0);
       const avgScore = completedCalls.filter(c => c.overall_score).length > 0
@@ -175,32 +173,18 @@ export default function HistoryPage() {
   };
 
   return (
-    <div className="dashboard-page history-page">
+    <div className="dashboard-page">
       {/* Header */}
-      <div className="history-header">
-        <div className="history-header-left">
-          <h1 className="history-title">Call History</h1>
-          <p className="history-subtitle">Review your past practice sessions</p>
+      <div className="dashboard-page-header">
+        <div>
+          <h1 className="dashboard-page-title">Call History</h1>
+          <p className="dashboard-page-subtitle">Review your past practice sessions</p>
         </div>
-        <div className="history-header-right">
+        <div style={{ display: 'flex', gap: '12px' }}>
           <button
-            className="export-btn"
+            className="btn btn-secondary"
             onClick={handleExportHistory}
             disabled={isGenerating || calls.length === 0}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              padding: '8px 14px',
-              fontSize: '0.8125rem',
-              fontWeight: 500,
-              color: 'var(--gray-700)',
-              background: 'var(--white)',
-              border: '1px solid var(--gray-200)',
-              borderRadius: '8px',
-              cursor: calls.length === 0 ? 'not-allowed' : 'pointer',
-              opacity: calls.length === 0 ? 0.5 : 1,
-            }}
           >
             {isGenerating ? (
               <>
@@ -291,7 +275,7 @@ export default function HistoryPage() {
               <Link
                 key={call.id}
                 href={`/dashboard/call/${call.id}/debrief`}
-                className="history-call-card"
+                className="call-card"
               >
                 <div className="call-card-left">
                   <div className="call-type-badge">
@@ -327,7 +311,7 @@ export default function HistoryPage() {
                   {outcomeInfo && (
                     <span
                       className="call-outcome"
-                      style={{ color: outcomeInfo.color, backgroundColor: `${outcomeInfo.color}15` }}
+                      style={{ color: outcomeInfo.color }}
                     >
                       {outcomeInfo.label}
                     </span>
