@@ -55,6 +55,15 @@ export async function GET() {
 // Complete onboarding
 export async function POST(req: NextRequest) {
   try {
+    // Check environment variables
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      console.error('Missing Supabase environment variables');
+      return NextResponse.json(
+        { error: 'Server configuration error', details: 'Missing database configuration' },
+        { status: 500 }
+      );
+    }
+
     const { userId } = await auth();
     if (!userId) {
       return NextResponse.json(
@@ -87,11 +96,16 @@ export async function POST(req: NextRequest) {
 
     // First, check if user exists
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: existingUser } = await (supabase as any)
+    const { data: existingUser, error: selectError } = await (supabase as any)
       .from('users')
       .select('id')
       .eq('clerk_id', userId)
       .single();
+
+    if (selectError && selectError.code !== 'PGRST116') {
+      // PGRST116 = no rows returned, which is fine
+      console.error('Database select error:', selectError);
+    }
 
     let user;
 
