@@ -47,3 +47,4 @@ coverage/
 *.local
 
 .vercel
+.claude

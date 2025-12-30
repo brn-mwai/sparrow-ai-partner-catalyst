@@ -180,8 +180,8 @@ export default function PrivacyPolicyPage() {
             If you have questions about this Privacy Policy or our data practices, please contact us at:
           </p>
           <ul>
-            <li>Email: privacy@sparrow-ai.com</li>
-            <li>Website: <Link href="/">sparrow-ai.com</Link></li>
+            <li>Email: privacy@sprrw.app</li>
+            <li>Website: <Link href="/">sprrw.app</Link></li>
           </ul>
         </section>
       </main>

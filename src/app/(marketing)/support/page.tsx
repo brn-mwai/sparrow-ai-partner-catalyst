@@ -202,8 +202,8 @@ export default function SupportPage() {
               </div>
               <h3>Email Support</h3>
               <p>Get help via email</p>
-              <a href="mailto:support@sparrow-ai.com" className={styles.contactLink}>
-                support@sparrow-ai.com
+              <a href="mailto:support@sprrw.app" className={styles.contactLink}>
+                support@sprrw.app
               </a>
             </div>
 

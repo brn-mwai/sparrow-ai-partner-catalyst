@@ -32,7 +32,7 @@ export default function TermsOfServicePage() {
           </p>
           <p>
             These Terms apply to all visitors, users, and others who access or use the Service, including
-            the website at sparrow-ai.com and any associated applications.
+            the website at sprrw.app and any associated applications.
           </p>
         </section>
 
@@ -255,8 +255,8 @@ export default function TermsOfServicePage() {
           <h2>18. Contact Us</h2>
           <p>If you have questions about these Terms, please contact us at:</p>
           <ul>
-            <li>Email: legal@sparrow-ai.com</li>
-            <li>Website: <Link href="/">sparrow-ai.com</Link></li>
+            <li>Email: legal@sprrw.app</li>
+            <li>Website: <Link href="/">sprrw.app</Link></li>
           </ul>
         </section>
       </main>

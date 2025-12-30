@@ -32,7 +32,7 @@ export function LandingFooter() {
             Support
           </Link>
           <a
-            href="https://github.com"
+            href="https://github.com/brn-mwai/sparrow-ai-partner-catalyst"
             target="_blank"
             rel="noopener noreferrer"
             className={styles.footerLink}

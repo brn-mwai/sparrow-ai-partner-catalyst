@@ -351,7 +351,7 @@ For Sparrow AI's Sage AI assistant:
 |------------|--------------|------------------|
 | Idle/Ready | `idle` | Default state, waiting for input |
 | User typing | `listening` | When user is composing a message |
-| Processing | `thinking` | While Claude API is generating response |
+| Processing | `thinking` | While AI is generating response |
 | Responding | `speaking` | While streaming/displaying response |
 | Inactive | `asleep` | Chat minimized or inactive for extended period |
 
