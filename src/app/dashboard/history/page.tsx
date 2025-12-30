@@ -1,8 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import { useUser } from '@clerk/nextjs';
+import { generateUserProgressReport, type UserReportData } from '@/lib/reports/user-report-generator';
 import type { CallType, CallOutcome, CallStatus } from '@/types/database';
+import './history.css';
 
 interface CallRecord {
   id: string;
@@ -32,8 +35,10 @@ const outcomeLabels: Record<CallOutcome, { label: string; color: string }> = {
 };
 
 export default function HistoryPage() {
+  const { user } = useUser();
   const [calls, setCalls] = useState<CallRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isGenerating, setIsGenerating] = useState(false);
   const [filter, setFilter] = useState<'all' | CallType>('all');
   const [sortBy, setSortBy] = useState<'date' | 'score'>('date');
 
@@ -55,6 +60,77 @@ export default function HistoryPage() {
       setIsLoading(false);
     }
   };
+
+  const handleExportHistory = useCallback(async () => {
+    if (!user || calls.length === 0) return;
+
+    setIsGenerating(true);
+    try {
+      // Calculate stats from calls
+      const completedCalls = calls.filter(c => c.status === 'completed');
+      const totalDuration = completedCalls.reduce((sum, c) => sum + (c.duration_seconds || 0), 0);
+      const avgScore = completedCalls.filter(c => c.overall_score).length > 0
+        ? completedCalls.filter(c => c.overall_score).reduce((sum, c) => sum + (c.overall_score || 0), 0) / completedCalls.filter(c => c.overall_score).length
+        : null;
+
+      const outcomes = {
+        meeting_booked: calls.filter(c => c.outcome === 'meeting_booked').length,
+        callback: calls.filter(c => c.outcome === 'callback').length,
+        rejected: calls.filter(c => c.outcome === 'rejected').length,
+        no_decision: calls.filter(c => c.outcome === 'no_decision').length,
+      };
+
+      const callsByType = [
+        { type: 'Cold Call', count: calls.filter(c => c.type === 'cold_call').length },
+        { type: 'Discovery', count: calls.filter(c => c.type === 'discovery').length },
+        { type: 'Objection Gauntlet', count: calls.filter(c => c.type === 'objection_gauntlet').length },
+      ].filter(c => c.count > 0);
+
+      const reportData: Omit<UserReportData, 'chartImages'> = {
+        userName: user.fullName || user.primaryEmailAddress?.emailAddress || 'User',
+        userEmail: user.primaryEmailAddress?.emailAddress || '',
+        generatedAt: new Date(),
+        timeRange: 'All Calls',
+        stats: {
+          totalCalls: calls.length,
+          totalDuration,
+          avgScore,
+          currentStreak: 0,
+          longestStreak: 0,
+        },
+        skillScores: {
+          opening: null,
+          discovery: null,
+          objection_handling: null,
+          call_control: null,
+          closing: null,
+        },
+        outcomes,
+        callsByType,
+        scoreHistory: completedCalls
+          .filter(c => c.overall_score)
+          .slice(0, 20)
+          .map(c => ({
+            date: c.created_at,
+            score: c.overall_score || 0,
+          })),
+        recentCalls: calls.slice(0, 20).map(c => ({
+          type: c.type,
+          personaName: c.persona_name,
+          score: c.overall_score,
+          duration: c.duration_seconds || 0,
+          date: c.created_at,
+          outcome: c.outcome,
+        })),
+      };
+
+      await generateUserProgressReport(reportData);
+    } catch (error) {
+      console.error('Failed to generate report:', error);
+    } finally {
+      setIsGenerating(false);
+    }
+  }, [user, calls]);
 
   const formatDuration = (seconds: number | null) => {
     if (!seconds) return '--:--';
@@ -99,17 +175,50 @@ export default function HistoryPage() {
   };
 
   return (
-    <div className="dashboard-page">
+    <div className="dashboard-page history-page">
       {/* Header */}
-      <div className="dashboard-page-header">
-        <div>
-          <h1 className="dashboard-page-title">Call History</h1>
-          <p className="dashboard-page-subtitle">Review your past practice sessions</p>
+      <div className="history-header">
+        <div className="history-header-left">
+          <h1 className="history-title">Call History</h1>
+          <p className="history-subtitle">Review your past practice sessions</p>
         </div>
-        <Link href="/dashboard/practice" className="btn btn-primary">
-          <i className="ph ph-plus"></i>
-          New Practice
-        </Link>
+        <div className="history-header-right">
+          <button
+            className="export-btn"
+            onClick={handleExportHistory}
+            disabled={isGenerating || calls.length === 0}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '8px 14px',
+              fontSize: '0.8125rem',
+              fontWeight: 500,
+              color: 'var(--gray-700)',
+              background: 'var(--white)',
+              border: '1px solid var(--gray-200)',
+              borderRadius: '8px',
+              cursor: calls.length === 0 ? 'not-allowed' : 'pointer',
+              opacity: calls.length === 0 ? 0.5 : 1,
+            }}
+          >
+            {isGenerating ? (
+              <>
+                <i className="ph ph-spinner animate-spin"></i>
+                Generating...
+              </>
+            ) : (
+              <>
+                <i className="ph ph-file-pdf"></i>
+                Export PDF
+              </>
+            )}
+          </button>
+          <Link href="/dashboard/practice" className="btn btn-primary">
+            <i className="ph ph-plus"></i>
+            New Practice
+          </Link>
+        </div>
       </div>
 
       {/* Quick Stats */}
@@ -124,7 +233,7 @@ export default function HistoryPage() {
         </div>
         <div className="history-stat">
           <span className="history-stat-value" style={{ color: getScoreColor(stats.avgScore) }}>
-            {stats.avgScore.toFixed(1)}
+            {stats.avgScore > 0 ? stats.avgScore.toFixed(1) : '--'}
           </span>
           <span className="history-stat-label">Avg Score</span>
         </div>
@@ -218,7 +327,7 @@ export default function HistoryPage() {
                   {outcomeInfo && (
                     <span
                       className="call-outcome"
-                      style={{ color: outcomeInfo.color }}
+                      style={{ color: outcomeInfo.color, backgroundColor: `${outcomeInfo.color}15` }}
                     >
                       {outcomeInfo.label}
                     </span>
