@@ -132,7 +132,7 @@ export async function POST(req: NextRequest) {
       if (updateError) {
         console.error('Failed to update user:', updateError);
         return NextResponse.json(
-          { error: 'Failed to complete onboarding' },
+          { error: 'Failed to complete onboarding', details: updateError.message, code: updateError.code },
           { status: 500 }
         );
       }
@@ -165,7 +165,7 @@ export async function POST(req: NextRequest) {
       if (insertError) {
         console.error('Failed to create user:', insertError);
         return NextResponse.json(
-          { error: 'Failed to complete onboarding' },
+          { error: 'Failed to complete onboarding', details: insertError.message, code: insertError.code },
           { status: 500 }
         );
       }
@@ -196,7 +196,7 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error('Complete onboarding error:', error);
     return NextResponse.json(
-      { error: 'Failed to complete onboarding' },
+      { error: 'Failed to complete onboarding', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
   }
