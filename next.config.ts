@@ -51,7 +51,7 @@ const nextConfig: NextConfig = {
               "connect-src 'self' https://api.elevenlabs.io wss://api.elevenlabs.io https://*.clerk.accounts.dev https://*.clerk.com https://clerk.sprrw.app https://*.sprrw.app https://challenges.cloudflare.com https://*.hcaptcha.com https://*.supabase.co wss://*.supabase.co https://api.groq.com https://generativelanguage.googleapis.com https://unpkg.com https://cdn.jsdelivr.net ws://127.0.0.1:* ws://localhost:*",
               "media-src 'self' blob: https://api.elevenlabs.io",
               "worker-src 'self' blob:",
-              "frame-src 'self' https://*.clerk.accounts.dev https://*.clerk.com https://clerk.sprrw.app https://*.sprrw.app https://challenges.cloudflare.com https://*.hcaptcha.com",
+              "frame-src 'self' https://*.clerk.accounts.dev https://*.clerk.com https://clerk.sprrw.app https://*.sprrw.app https://challenges.cloudflare.com https://*.hcaptcha.com https://vercel.live",
             ].join('; '),
           },
         ],
