@@ -43,7 +43,6 @@
 | [Google Cloud Integration](docs/GOOGLE_CLOUD_INTEGRATION.pdf) | Gemini 2.0 Flash usage details |
 | [Business Case](docs/BUSINESS_CASE.pdf) | Market analysis, TAM/SAM/SOM, ROI calculator |
 | [Development Timeline](docs/DEVELOPMENT_TIMELINE.pdf) | 8-day build log with commit history |
-| [Demo Video Script](docs/DEMO_VIDEO_SCRIPT.pdf) | 3-minute video storyboard |
 | [Technical Implementation](docs/TECHNICAL_IMPLEMENTATION.pdf) | Detailed technical specifications |
 | [Impact Statement](docs/IMPACT_STATEMENT.pdf) | Business and social impact analysis |
 | [Project Summary](docs/PROJECT_SUMMARY.pdf) | Executive overview |
@@ -197,8 +196,8 @@ Sparrow is an AI sparring partner that provides:
 
 ```bash
 # Clone repository
-git clone https://github.com/brn-mwai/sparrow-ai-partner-catalyst.git
-cd sparrow-ai-partner-catalyst
+git clone https://github.com/brn-mwai/sparrow.git
+cd sparrow
 
 # Install dependencies
 pnpm install
