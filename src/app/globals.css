@@ -219,6 +219,118 @@ select {
 }
 
 /* ============================================
+   BETA BANNER
+   ============================================ */
+
+/* Beta Banner - Stacked above navbar/sidebar */
+.beta-banner {
+  background: linear-gradient(135deg, #5b21b6 0%, #7c3aed 100%);
+  color: white;
+  padding: 0.625rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  height: 40px;
+}
+
+.beta-banner-dashboard {
+  /* Same positioning for dashboard */
+}
+
+.beta-banner-content {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.beta-badge {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  padding: 0.1875rem 0.5rem;
+  border-radius: 4px;
+  letter-spacing: 0.05em;
+}
+
+.beta-text {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.beta-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: white;
+  text-decoration: none;
+  padding: 0.25rem 0.5rem;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  transition: all 0.15s ease;
+}
+
+.beta-link:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.beta-link i {
+  font-size: 0.875rem;
+}
+
+.beta-close {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  padding: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s ease;
+}
+
+.beta-close:hover {
+  color: white;
+}
+
+.beta-close i {
+  font-size: 1rem;
+}
+
+@media (max-width: 768px) {
+  .beta-banner {
+    padding: 0.5rem 2.5rem 0.5rem 1rem;
+  }
+
+  .beta-banner-content {
+    gap: 0.5rem;
+  }
+
+  .beta-text {
+    font-size: 0.8125rem;
+  }
+
+  .beta-link {
+    font-size: 0.8125rem;
+  }
+}
+
+/* ============================================
    GLOBAL BUTTON STYLES
    ============================================ */
 
@@ -639,7 +751,8 @@ select {
 
 .dashboard-layout {
   display: flex;
-  min-height: 100vh;
+  min-height: calc(100vh - 40px); /* Account for beta banner */
+  margin-top: 40px; /* Push down for beta banner */
   background: var(--gray-50);
 }
 
@@ -651,9 +764,9 @@ select {
   display: flex;
   flex-direction: column;
   position: fixed;
-  top: 0;
+  top: 40px; /* Account for beta banner */
   left: 0;
-  height: 100vh;
+  height: calc(100vh - 40px); /* Account for beta banner */
   z-index: 50;
   transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -885,7 +998,7 @@ select {
 .dashboard-content {
   flex: 1;
   margin-left: 256px;
-  min-height: 100vh;
+  min-height: calc(100vh - 40px); /* Account for beta banner */
   width: calc(100% - 256px);
   transition: margin-left 0.2s cubic-bezier(0.4, 0, 0.2, 1), width 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -893,6 +1006,86 @@ select {
 .dashboard-content.sidebar-collapsed {
   margin-left: 68px;
   width: calc(100% - 68px);
+}
+
+/* ============================================
+   SIDEBAR COLLAPSED - VIEWPORT ADAPTATIONS
+   Ensure all page content properly expands when sidebar is collapsed
+   ============================================ */
+
+/* When sidebar is collapsed, allow grids to expand and use more space */
+.dashboard-content.sidebar-collapsed .stats-grid {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.dashboard-content.sidebar-collapsed .practice-types-grid {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.dashboard-content.sidebar-collapsed .history-stats {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.dashboard-content.sidebar-collapsed .progress-overview {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.dashboard-content.sidebar-collapsed .progress-charts-row {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+/* Debrief page - allow more width when sidebar collapsed */
+.dashboard-content.sidebar-collapsed .debrief-page {
+  max-width: 1000px;
+}
+
+/* History table - ensure it uses available width */
+.dashboard-content.sidebar-collapsed .history-table-container {
+  width: 100%;
+}
+
+/* Brief view - expand layout when more space available */
+.dashboard-content.sidebar-collapsed .brief-view-layout {
+  grid-template-columns: 1fr 420px;
+}
+
+/* Ensure all dashboard cards stretch properly */
+.dashboard-content.sidebar-collapsed .dashboard-card {
+  width: 100%;
+}
+
+/* Medium viewport with collapsed sidebar */
+@media (min-width: 1024px) and (max-width: 1400px) {
+  .dashboard-content.sidebar-collapsed .stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .dashboard-content.sidebar-collapsed .practice-types-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .dashboard-content.sidebar-collapsed .progress-charts-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Smaller medium viewport with collapsed sidebar */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .dashboard-content.sidebar-collapsed .stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .dashboard-content.sidebar-collapsed .practice-types-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .dashboard-content.sidebar-collapsed .history-stats {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .dashboard-content.sidebar-collapsed .progress-overview {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
 .dashboard-page {
@@ -2087,19 +2280,87 @@ select {
   color: var(--gray-400) !important;
 }
 
-/* Responsive Dashboard */
-@media (max-width: 1024px) {
+/* ============================================
+   RESPONSIVE DASHBOARD - WITH SIDEBAR AWARENESS
+   Accounts for 256px sidebar reducing available width
+   ============================================ */
+
+/* Large viewport with expanded sidebar (effective width: viewport - 256px) */
+@media (min-width: 1400px) {
+  .stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .practice-types-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .history-stats,
+  .progress-overview {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .progress-charts-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Medium-large viewport with expanded sidebar */
+@media (min-width: 1200px) and (max-width: 1400px) {
+  .stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .practice-types-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .history-stats,
+  .progress-overview {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Medium viewport with expanded sidebar (content ~700-944px) */
+@media (min-width: 1024px) and (max-width: 1200px) {
+  .stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .practice-types-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .history-stats,
+  .progress-overview {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Smaller viewport with expanded sidebar (content ~500-700px) */
+@media (min-width: 768px) and (max-width: 1024px) {
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 
   .practice-types-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .history-stats,
+  .progress-overview {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .progress-charts-row {
     grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 768px) {
   .sidebar {
+    top: 40px; /* Account for beta banner */
+    height: calc(100vh - 40px);
     transform: translateX(-100%);
     transition: transform 0.3s ease;
   }
@@ -5996,7 +6257,7 @@ select {
 .mobile-header {
   display: none;
   position: fixed;
-  top: 0;
+  top: 40px; /* Account for beta banner */
   left: 0;
   right: 0;
   height: 56px;
@@ -6098,10 +6359,11 @@ select {
   /* Sidebar becomes a slide-out panel */
   .sidebar {
     position: fixed;
-    top: 0;
+    top: 40px; /* Account for beta banner */
     left: 0;
     bottom: 0;
     width: 280px;
+    height: calc(100vh - 40px); /* Account for beta banner */
     transform: translateX(-100%);
     transition: transform 0.3s ease;
     z-index: 50;
@@ -6162,7 +6424,7 @@ select {
   .dashboard-content {
     margin-left: 0;
     width: 100%;
-    padding-top: 56px;
+    padding-top: 56px; /* Mobile header height */
   }
 
   .dashboard-content.sidebar-collapsed {
@@ -7809,6 +8071,44 @@ select {
   font-size: 0.9375rem;
   color: var(--gray-500);
   margin-bottom: 1.5rem;
+}
+
+/* Empty state button fix */
+.history-empty .btn,
+.progress-empty .btn,
+.prospects-empty .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.5rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.history-empty .btn-primary,
+.progress-empty .btn-primary,
+.prospects-empty .btn-primary {
+  background: var(--primary-500);
+  color: white;
+  border: none;
+}
+
+.history-empty .btn-primary:hover,
+.progress-empty .btn-primary:hover,
+.prospects-empty .btn-primary:hover {
+  background: var(--primary-600);
+  transform: translateY(-1px);
+}
+
+.history-empty .btn i,
+.progress-empty .btn i,
+.prospects-empty .btn i {
+  font-size: 1.125rem;
 }
 
 .history-call-card,

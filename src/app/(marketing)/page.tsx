@@ -12,6 +12,7 @@ import {
   CTASection,
   LandingFooter,
 } from '@/components/landing';
+import { BetaBanner } from '@/components/shared/beta-banner';
 
 export default function LandingPage() {
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
@@ -26,6 +27,7 @@ export default function LandingPage() {
 
   return (
     <>
+      <BetaBanner variant="landing" />
       <LandingHeader onMobileMenuClick={handleMobileNavToggle} />
       <MobileNav isOpen={isMobileNavOpen} onClose={handleMobileNavClose} />
 

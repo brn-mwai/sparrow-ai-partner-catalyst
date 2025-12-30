@@ -22,8 +22,13 @@ export async function GET() {
       .eq('clerk_id', userId)
       .single();
 
+    // If user doesn't exist in database yet, return empty prospects
+    // This handles new users who haven't been synced via webhook yet
     if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+      return NextResponse.json({
+        success: true,
+        prospects: [],
+      });
     }
 
     // Fetch prospects (both defaults and user-created)

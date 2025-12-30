@@ -167,7 +167,31 @@ export default function DebriefPage() {
   }
 
   const { scores, feedback, transcript, persona } = result;
-  const outcomeInfo = outcomeLabels[scores.outcome];
+
+  // Handle missing scores data
+  if (!scores || !scores.categories) {
+    return (
+      <div className="dashboard-page">
+        <div className="debrief-error">
+          <i className="ph ph-warning-circle"></i>
+          <h2>Call analysis not available</h2>
+          <p>This call has not been scored yet or the scoring data is incomplete.</p>
+          <div className="debrief-actions" style={{ marginTop: '1.5rem' }}>
+            <Link href="/dashboard/history" className="btn btn-secondary">
+              <i className="ph ph-clock-counter-clockwise"></i>
+              View History
+            </Link>
+            <Link href="/dashboard" className="btn btn-primary">
+              <i className="ph ph-house"></i>
+              Back to Dashboard
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const outcomeInfo = scores.outcome ? outcomeLabels[scores.outcome] : outcomeLabels.no_decision;
 
   return (
     <div className={`debrief-page-wrapper ${isCoachOpen ? 'coach-open' : ''}`}>

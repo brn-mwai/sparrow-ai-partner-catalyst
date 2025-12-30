@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { Sidebar, SidebarProvider, useSidebar, CoachSparrow } from '@/components/dashboard';
+import { BetaBanner } from '@/components/shared/beta-banner';
 
 function MobileHeader() {
   const { toggleMobile } = useSidebar();
@@ -61,6 +62,7 @@ export default function DashboardLayout({
 }) {
   return (
     <SidebarProvider>
+      <BetaBanner variant="dashboard" />
       <div className="dashboard-layout">
         <MobileHeader />
         <MobileOverlay />
