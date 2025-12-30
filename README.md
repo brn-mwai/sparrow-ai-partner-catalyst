@@ -1,41 +1,77 @@
 # Sparrow AI
 
-**AI-Powered Sales Training Platform** - Practice sales calls with realistic AI prospects that push back like real buyers.
+<p align="center">
+  <img src="public/Logo/sparrow-logo.png" alt="Sparrow AI" width="200">
+</p>
 
-[![Live Demo](https://img.shields.io/badge/Live-sprrw.app-blue)](https://sprrw.app)
-[![Next.js](https://img.shields.io/badge/Next.js-15-black)](https://nextjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue)](https://www.typescriptlang.org/)
-[![ElevenLabs](https://img.shields.io/badge/Voice-ElevenLabs-purple)](https://elevenlabs.io/)
-[![Gemini](https://img.shields.io/badge/AI-Gemini%202.0-orange)](https://ai.google.dev/)
-[![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
+<p align="center">
+  <strong>AI-Powered Sales Training Platform</strong><br>
+  Practice sales calls with realistic AI prospects that push back like real buyers.
+</p>
+
+<p align="center">
+  <a href="https://sprrw.app">
+    <img src="https://img.shields.io/badge/Live%20Demo-sprrw.app-7c5ce8?style=for-the-badge" alt="Live Demo">
+  </a>
+  <a href="https://ai-partner-catalyst.devpost.com/">
+    <img src="https://img.shields.io/badge/Hackathon-AI%20Partner%20Catalyst-4285F4?style=for-the-badge" alt="Hackathon">
+  </a>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Next.js-15-black" alt="Next.js">
+  <img src="https://img.shields.io/badge/TypeScript-5.7-blue" alt="TypeScript">
+  <img src="https://img.shields.io/badge/ElevenLabs-Conversational%20AI-0066FF" alt="ElevenLabs">
+  <img src="https://img.shields.io/badge/Google-Gemini%202.0-EA4335" alt="Gemini">
+  <img src="https://img.shields.io/badge/License-MIT-green" alt="License">
+</p>
 
 ---
 
-## Overview
+## AI Partner Catalyst Hackathon Submission
 
-Sparrow is a voice-first sales training platform that lets users practice cold calls, discovery conversations, and objection handling with AI prospects powered by ElevenLabs Conversational AI and Google Gemini.
+**Competition:** AI Partner Catalyst: Accelerate Innovation by Google Cloud
+**Partner Track:** ElevenLabs Challenge - Voice-driven Conversational AI
+**Prize Pool:** $75,000
 
 > **"Never wing a call again"**
 
-### The Problem
+---
+
+## Documentation
+
+| Document | Description |
+|----------|-------------|
+| [System Architecture](docs/SYSTEM_ARCHITECTURE.pdf) | Technical infrastructure and data flow diagrams |
+| [ElevenLabs Integration](docs/ELEVENLABS_INTEGRATION.pdf) | Deep-dive into voice AI implementation |
+| [Google Cloud Integration](docs/GOOGLE_CLOUD_INTEGRATION.pdf) | Gemini 2.0 Flash usage details |
+| [Business Case](docs/BUSINESS_CASE.pdf) | Market analysis, TAM/SAM/SOM, ROI calculator |
+| [Development Timeline](docs/DEVELOPMENT_TIMELINE.pdf) | 8-day build log with commit history |
+| [Demo Video Script](docs/DEMO_VIDEO_SCRIPT.pdf) | 3-minute video storyboard |
+| [Technical Implementation](docs/TECHNICAL_IMPLEMENTATION.pdf) | Detailed technical specifications |
+| [Impact Statement](docs/IMPACT_STATEMENT.pdf) | Business and social impact analysis |
+| [Project Summary](docs/PROJECT_SUMMARY.pdf) | Executive overview |
+
+---
+
+## The Problem
 
 Sales teams lose millions training reps on real prospects:
 
 | Pain Point | Impact |
 |------------|--------|
 | Average SDR ramp time | 3-6 months |
-| Reps missing quota | 67% |
+| Reps missing quota | **67%** |
 | Manager time on roleplay | 15-20% |
 | Where practice happens | On real prospects = lost deals |
 
-### The Solution
+## The Solution
 
-An AI sparring partner that:
-- Is available 24/7 (managers aren't)
+Sparrow is an AI sparring partner that:
+- Is available **24/7** (managers aren't)
 - Never gets tired of roleplaying (managers do)
-- Provides consistent, objective feedback (managers are biased)
-- Creates a safe space to fail (real calls aren't)
-- Adapts difficulty based on skill level
+- Provides **consistent, objective feedback** (managers are biased)
+- Creates a **safe space to fail** (real calls aren't)
 
 ---
 
@@ -46,151 +82,153 @@ An AI sparring partner that:
 | Mode | Goal | Skills Practiced |
 |------|------|------------------|
 | **Cold Call Simulator** | Book a meeting | Openers, gatekeepers, value props |
-| **Discovery Call Simulator** | Uncover pain | Open questions, active listening, qualification |
-| **Objection Gauntlet** | Handle pushback | Price objections, timing, competitors |
+| **Discovery Call Simulator** | Uncover pain | Open questions, active listening |
+| **Objection Gauntlet** | Handle pushback | Price, timing, competitor objections |
 
 ### Realistic AI Prospects
 
 Each AI prospect has:
-- **Backstory**: Company, role, tenure, recent challenges
-- **Hidden Pain Points**: Only revealed if you ask the right questions
-- **Personality Type**: Skeptical, busy, friendly, technical
-- **Specific Objections**: Tailored to their role and industry
-- **Adaptive Behavior**: Gets harder or easier based on performance
+- **Unique Backstory** - Company, role, tenure, challenges
+- **Hidden Pain Points** - Revealed through good discovery
+- **Personality Type** - Skeptical, busy, friendly, technical
+- **Specific Objections** - Tailored to role and industry
 
 ### Real-Time Scoring
 
-- **Live feedback** during calls powered by Groq (~200ms)
-- **Deep analysis** after calls powered by Gemini
-- **Timestamped moments** highlighting strengths and improvements
-- **Progress tracking** across all practice sessions
+- **5 skill dimensions** - Opening, Discovery, Objection Handling, Call Control, Closing
+- **Timestamped feedback** - Know exactly what to improve
+- **Progress tracking** - See improvement over time
 
 ### Coach Sparrow
 
-AI coaching assistant that:
-- Answers questions about your call
-- Suggests alternative responses
-- Explains scoring rationale
-- Provides personalized improvement tips
+AI coaching assistant powered by Gemini that provides personalized guidance.
 
 ---
 
 ## Tech Stack
 
-### Core Framework
+### Core
 
-| Technology | Purpose |
-|------------|---------|
-| **Next.js 15** | React framework with App Router |
-| **React 19** | UI library |
-| **TypeScript** | Type safety |
-| **Tailwind CSS** | Styling |
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| Next.js | 15 | React framework with App Router |
+| React | 19 | UI library |
+| TypeScript | 5.7 | Type safety |
+| Tailwind CSS | 4 | Styling |
 
-### AI & Voice
+### AI & Voice (Partner Integrations)
 
-| Provider | Model/Product | Purpose |
-|----------|---------------|---------|
+| Provider | Product | Purpose |
+|----------|---------|---------|
 | **ElevenLabs** | Conversational AI | Real-time voice conversations |
-| **Google AI** | Gemini 2.0 Flash | Persona generation, deep analysis |
+| **Google Cloud** | Gemini 2.0 Flash | Persona generation, deep analysis |
 | **Groq** | Llama 3.3 70B | Real-time scoring (~200ms) |
 
-### Backend Services
+### Backend
 
 | Service | Purpose |
 |---------|---------|
-| **Supabase** | PostgreSQL database, Realtime |
-| **Clerk** | Authentication |
-| **Vercel** | Hosting |
+| Supabase | PostgreSQL database, Realtime |
+| Clerk | Authentication |
+| Vercel | Hosting, Edge Functions |
 
 ---
 
-## Architecture
-
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                              USER INTERFACE                                  │
-│                         Next.js 15 + React 19                               │
-└─────────────────────────────────────────────────────────────────────────────┘
-                                      │
-                                      ▼
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                              API LAYER                                       │
-│                    Next.js API Routes (Serverless)                          │
-└─────────────────────────────────────────────────────────────────────────────┘
-                                      │
-          ┌───────────────────────────┼───────────────────────────┐
-          ▼                           ▼                           ▼
-┌──────────────────────┐  ┌──────────────────────┐  ┌──────────────────────┐
-│      SUPABASE        │  │     AI SERVICES      │  │    VOICE SERVICE     │
-│                      │  │                      │  │                      │
-│  • PostgreSQL        │  │  • Gemini 2.0 Flash  │  │  • ElevenLabs        │
-│  • Realtime          │  │  • Groq (Fast)       │  │  • Conversational AI │
-│  • Storage           │  │                      │  │  • Text-to-Speech    │
-└──────────────────────┘  └──────────────────────┘  └──────────────────────┘
-```
-
-### Data Flow
-
-```
-User speaks → ElevenLabs STT → AI Persona responds → ElevenLabs TTS → User hears
-                                      │
-                                      ▼
-                    Groq scores in real-time (~200ms)
-                                      │
-                                      ▼
-              After call: Gemini provides deep analysis
-```
-
----
-
-## Getting Started
+## Quick Start
 
 ### Prerequisites
 
-- Node.js 18+
-- pnpm (recommended) or npm
-- API keys for required services
+- **Node.js 18+**
+- **pnpm** (recommended) or npm
+- API keys (see below)
 
-### Installation
+### 1. Clone & Install
 
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/sparrow-ai.git
-cd sparrow-ai
+git clone https://github.com/brn-mwai/sparrow-ai-partner-catalyst.git
+cd sparrow-ai-partner-catalyst
 
-# Install dependencies
 pnpm install
+```
 
-# Copy environment variables
+### 2. Environment Variables
+
+```bash
 cp .env.example .env.local
+```
 
-# Fill in your API keys in .env.local
+Fill in your `.env.local`:
 
-# Run development server
+```env
+# App
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+
+# Clerk Authentication
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
+CLERK_SECRET_KEY=sk_test_...
+
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
+SUPABASE_SERVICE_ROLE_KEY=eyJ...
+
+# ElevenLabs (Primary Partner)
+ELEVENLABS_API_KEY=sk_...
+NEXT_PUBLIC_ELEVENLABS_AGENT_ID=...
+
+# Google Cloud / Gemini (Required)
+GOOGLE_GENERATIVE_AI_API_KEY=...
+
+# Groq (Fast Inference)
+GROQ_API_KEY=gsk_...
+```
+
+### 3. Database Setup
+
+Run in Supabase SQL Editor:
+
+```sql
+-- See supabase/schema.sql for complete schema
+```
+
+### 4. Run Development Server
+
+```bash
 pnpm dev
 ```
 
-### Environment Variables
+Open [http://localhost:3000](http://localhost:3000)
 
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Yes | Clerk public key |
-| `CLERK_SECRET_KEY` | Yes | Clerk secret key |
-| `NEXT_PUBLIC_SUPABASE_URL` | Yes | Supabase project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes | Supabase anon key |
-| `SUPABASE_SERVICE_ROLE_KEY` | Yes | Supabase service role key |
-| `ELEVENLABS_API_KEY` | Yes | ElevenLabs API key |
-| `NEXT_PUBLIC_ELEVENLABS_AGENT_ID` | Yes | ElevenLabs Conversational AI agent |
-| `GOOGLE_GENERATIVE_AI_API_KEY` | Yes | Google AI (Gemini) API key |
-| `GROQ_API_KEY` | Yes | Groq API key |
+---
 
-### Database Setup
+## API Keys Setup
 
-Run the schema in your Supabase SQL editor:
+### ElevenLabs (Required)
 
-```sql
--- See supabase/schema.sql for full schema
-```
+1. Go to [elevenlabs.io](https://elevenlabs.io)
+2. Create account and get API key
+3. Create a Conversational AI agent at [elevenlabs.io/app/conversational-ai](https://elevenlabs.io/app/conversational-ai)
+4. Copy the Agent ID
+
+### Google Cloud / Gemini (Required)
+
+1. Go to [ai.google.dev](https://ai.google.dev)
+2. Create API key for Gemini
+
+### Supabase (Required)
+
+1. Create project at [supabase.com](https://supabase.com)
+2. Get URL and keys from Settings > API
+3. Run schema from `supabase/schema.sql`
+
+### Clerk (Required)
+
+1. Create app at [clerk.com](https://clerk.com)
+2. Get publishable and secret keys
+
+### Groq (Required)
+
+1. Get API key at [console.groq.com](https://console.groq.com)
 
 ---
 
@@ -200,124 +238,129 @@ Run the schema in your Supabase SQL editor:
 sparrow-ai/
 ├── src/
 │   ├── app/                    # Next.js App Router
-│   │   ├── (auth)/            # Authentication pages
-│   │   ├── (marketing)/       # Landing pages
-│   │   ├── dashboard/         # Protected dashboard
-│   │   └── api/               # API routes
-│   ├── components/            # React components
-│   │   ├── ui/               # shadcn/ui components
+│   │   ├── (auth)/            # Sign in/up pages
+│   │   ├── (marketing)/       # Landing page
+│   │   ├── dashboard/         # Protected app
+│   │   │   ├── call/[id]/    # Practice call UI
+│   │   │   ├── history/      # Call history
+│   │   │   ├── progress/     # Progress tracking
+│   │   │   └── prospects/    # AI prospects
+│   │   └── api/              # API routes
+│   │       ├── calls/        # Call management
+│   │       ├── personas/     # Persona generation
+│   │       └── user/         # User data
+│   ├── components/
+│   │   ├── dashboard/        # Dashboard components
 │   │   ├── landing/          # Marketing components
-│   │   └── dashboard/        # Dashboard components
-│   ├── lib/                   # Utilities
-│   │   ├── ai/               # AI client (Gemini + Groq)
-│   │   ├── supabase/         # Database client
-│   │   └── utils/            # Helper functions
-│   └── types/                 # TypeScript types
-├── public/                    # Static assets
-├── supabase/                  # Database schema
-└── extension/                 # Chrome extension (bonus)
+│   │   └── shared/           # Shared components
+│   ├── lib/
+│   │   ├── ai/              # Gemini + Groq clients
+│   │   ├── elevenlabs/      # Voice AI client
+│   │   └── supabase/        # Database client
+│   └── types/               # TypeScript types
+├── public/                  # Static assets
+├── docs/                    # PDF documentation
+└── supabase/               # Database schema
 ```
 
 ---
 
-## API Reference
+## Architecture
 
-### Endpoints
+```
+┌─────────────────────────────────────────────────────────────┐
+│                         USER                                 │
+│                    (Sales Rep)                               │
+└─────────────────────────────────────────────────────────────┘
+                            │
+                            ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    SPARROW FRONTEND                          │
+│              Next.js 15 + React 19 + Tailwind               │
+└─────────────────────────────────────────────────────────────┘
+                            │
+            ┌───────────────┼───────────────┐
+            ▼               ▼               ▼
+    ┌──────────────┐ ┌──────────────┐ ┌──────────────┐
+    │  ELEVENLABS  │ │    GEMINI    │ │     GROQ     │
+    │              │ │              │ │              │
+    │ Voice AI     │ │ Personas     │ │ Fast Score   │
+    │ WebSocket    │ │ Analysis     │ │ ~200ms       │
+    └──────────────┘ └──────────────┘ └──────────────┘
+                            │
+                            ▼
+              ┌──────────────────────────┐
+              │        SUPABASE          │
+              │  PostgreSQL + Realtime   │
+              └──────────────────────────┘
+```
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `POST` | `/api/calls/start` | Initialize new practice call |
-| `POST` | `/api/calls/[id]/end` | End call and trigger scoring |
-| `GET` | `/api/calls/[id]/score` | Get call scorecard |
-| `GET` | `/api/calls/[id]/feedback` | Get detailed feedback |
-| `POST` | `/api/personas/generate` | Generate AI persona |
-| `GET` | `/api/user/progress` | Get user progress stats |
+### Call Flow
 
----
-
-## Hackathon
-
-**Competition:** AI Partner Catalyst: Accelerate Innovation
-**Prize Pool:** $75,000
-**Primary Track:** ElevenLabs Challenge - Voice-driven conversational AI ($12,500)
-
-### Why Sparrow Wins
-
-1. **Voice is the Product** - Not a bolt-on feature, voice IS the core experience
-2. **Real Problem** - $15B sales training market, 67% of reps miss quota
-3. **Deep Integration** - Full ElevenLabs Conversational AI with Gemini personas
-4. **Production Ready** - Real auth, real database, real deployment
-
----
-
-## Screenshots
-
-### Dashboard
-*Command center with stats, quick start, and recent calls*
-
-### Practice Call
-*Voice conversation with AI prospect, live transcript, real-time scoring*
-
-### Debrief
-*Detailed scorecard with timestamped feedback and Coach Sparrow*
+1. User selects practice mode → **Gemini** generates unique persona
+2. Call starts → **ElevenLabs** handles real-time voice conversation
+3. During call → **Groq** provides live coaching hints
+4. Call ends → **Gemini** analyzes transcript and scores performance
+5. Results saved → **Supabase** stores for progress tracking
 
 ---
 
-## Roadmap
-
-- [x] Core voice conversation with ElevenLabs
-- [x] Real-time scoring with Groq
-- [x] Deep analysis with Gemini
-- [x] User authentication with Clerk
-- [x] Progress tracking
-- [ ] Custom persona creator
-- [ ] Team management
-- [ ] Calendar integration
-- [ ] Mobile app
-
----
-
-## Contributing
-
-Contributions are welcome! Please read our contributing guidelines before submitting PRs.
+## Scripts
 
 ```bash
-# Run linting
-pnpm lint
+# Development
+pnpm dev              # Start dev server
+pnpm build            # Production build
+pnpm start            # Start production server
 
-# Run type checking
-pnpm typecheck
+# Quality
+pnpm lint             # Run ESLint
+pnpm typecheck        # TypeScript check
 
-# Run tests
-pnpm test
+# Database
+pnpm db:generate      # Generate Supabase types
 ```
+
+---
+
+## Deployment
+
+### Vercel (Recommended)
+
+1. Push to GitHub
+2. Import to [vercel.com](https://vercel.com)
+3. Add environment variables
+4. Deploy
+
+### Environment Variables for Production
+
+All variables from `.env.example` are required in production.
 
 ---
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT License - see [LICENSE](LICENSE) file.
 
 ---
 
-## Acknowledgments
+## Team
 
-- [ElevenLabs](https://elevenlabs.io) - Voice AI
-- [Google AI](https://ai.google.dev) - Gemini
-- [Groq](https://groq.com) - Fast inference
-- [Supabase](https://supabase.com) - Database
-- [Clerk](https://clerk.com) - Authentication
-- [Vercel](https://vercel.com) - Hosting
+**Developer:** Sparrow AI Team
+**Built for:** AI Partner Catalyst Hackathon by Google Cloud
+**Timeline:** 8 days (December 22-30, 2025)
 
 ---
 
-## Contact
+## Links
 
-**Author:** Brian Mwai
-
-- Website: [brianmwai.com](https://brianmwai.com)
-- Email: support@brianmwai.com
+- **Live Demo:** [sprrw.app](https://sprrw.app)
+- **Hackathon:** [AI Partner Catalyst](https://ai-partner-catalyst.devpost.com/)
+- **Repository:** [github.com/brn-mwai/sparrow-ai-partner-catalyst](https://github.com/brn-mwai/sparrow-ai-partner-catalyst)
 
 ---
 
-*Never wing a call again.*
+<p align="center">
+  <strong>Sparrow AI</strong><br>
+  <em>Never wing a call again.</em>
+</p>

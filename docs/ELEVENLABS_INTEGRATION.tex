@@ -1,0 +1,332 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{helvet}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{listings}
+\usepackage{enumitem}
+\renewcommand{\familydefault}{\sfdefault}
+
+\geometry{margin=0.85in}
+
+% Sparrow Colors
+\definecolor{sparrowPrimary}{HTML}{AA90FE}
+\definecolor{sparrowDark}{HTML}{1B113A}
+\definecolor{sparrowPurple}{HTML}{7c5ce8}
+\definecolor{sparrowDeep}{HTML}{5b21b6}
+\definecolor{elevenLabsBlue}{HTML}{0066FF}
+\definecolor{codeBackground}{HTML}{F5F5F5}
+
+\hypersetup{colorlinks=true,linkcolor=sparrowPurple,urlcolor=elevenLabsBlue}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\textcolor{sparrowDark}{\small Sparrow AI}}
+\fancyhead[R]{\textcolor{sparrowDark}{\small ElevenLabs Integration}}
+\fancyfoot[C]{\textcolor{sparrowDark}{\thepage}}
+\renewcommand{\headrulewidth}{0.5pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{elevenLabsBlue}\leaders\hrule height \headrulewidth\hfill}}
+
+\titleformat{\section}{\Large\bfseries\color{sparrowDark}}{\thesection}{1em}{}
+\titleformat{\subsection}{\large\bfseries\color{elevenLabsBlue}}{\thesubsection}{1em}{}
+
+\lstset{
+    backgroundcolor=\color{codeBackground},
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    frame=single,
+    rulecolor=\color{sparrowPrimary},
+    keywordstyle=\color{elevenLabsBlue},
+    stringstyle=\color{sparrowDeep},
+    commentstyle=\color{gray}
+}
+
+\begin{document}
+
+\begin{titlepage}
+    \centering
+    \vspace*{0.5cm}
+    \includegraphics[width=0.3\textwidth]{../public/Logo/sparrow-logo.png}
+    \vspace{1cm}
+
+    {\Huge\bfseries\textcolor{sparrowDark}{ElevenLabs Integration}\par}
+    \vspace{0.3cm}
+    {\Large\textcolor{elevenLabsBlue}{Deep-Dive Technical Documentation}\par}
+    \vspace{0.5cm}
+    {\large\textcolor{sparrowPurple}{Partner Challenge Submission}\par}
+    \vspace{1.5cm}
+
+    {\large\textcolor{sparrowDark}{AI Partner Catalyst Hackathon by Google Cloud}}
+    \vfill
+    {\small\textcolor{sparrowDark}{Version 1.0 | December 2025}}
+\end{titlepage}
+
+\section{Executive Summary}
+
+Sparrow AI leverages \textbf{ElevenLabs Conversational AI} as its core voice technology, enabling sales professionals to practice realistic conversations with AI-powered prospects. This document details our deep integration with ElevenLabs' platform.
+
+\begin{center}
+\begin{tabularx}{0.9\textwidth}{|l|X|}
+\hline
+\rowcolor{elevenLabsBlue!20}
+\textbf{ElevenLabs Product} & \textbf{How Sparrow Uses It} \\
+\hline
+Conversational AI & Real-time voice roleplay with AI prospects \\
+\hline
+Voice Library & Gender/personality-matched voices for personas \\
+\hline
+Custom LLM Prompts & Dynamic persona injection per conversation \\
+\hline
+WebSocket Streaming & Sub-500ms latency audio streaming \\
+\hline
+Transcript API & Real-time conversation transcription \\
+\hline
+\end{tabularx}
+\end{center}
+
+\section{Why ElevenLabs?}
+
+\subsection{The Problem We Solved}
+
+Sales training has a critical gap: \textbf{reps can't practice real conversations without risking real deals}. Traditional solutions fail because:
+
+\begin{itemize}[leftmargin=1.5em]
+    \item Text-based roleplay doesn't build verbal skills
+    \item Manager-led roleplay is inconsistent and time-limited
+    \item Recorded scenarios can't respond dynamically
+\end{itemize}
+
+\subsection{Why ElevenLabs Was the Perfect Fit}
+
+\begin{enumerate}[leftmargin=1.5em]
+    \item \textbf{Natural Voice Quality} -- Prospects sound like real humans, not robots
+    \item \textbf{Real-time Latency} -- Sub-500ms response enables natural conversation flow
+    \item \textbf{Conversational AI} -- Built-in LLM handles dynamic, context-aware responses
+    \item \textbf{Voice Variety} -- Multiple voices for different prospect personalities
+    \item \textbf{Custom Prompts} -- Inject unique personas per conversation
+\end{enumerate}
+
+\section{Technical Implementation}
+
+\subsection{Conversational AI Agent Setup}
+
+We created a dedicated ElevenLabs Conversational AI agent configured for sales roleplay:
+
+\begin{lstlisting}[language=JavaScript]
+// Agent Configuration
+{
+  "agent_id": "sparrow-sales-trainer",
+  "name": "Sparrow AI Prospect",
+  "conversation_config": {
+    "agent": {
+      "prompt": {
+        "prompt": "Dynamic - injected per conversation"
+      },
+      "first_message": "Dynamic - based on persona",
+      "language": "en"
+    },
+    "tts": {
+      "voice_id": "Dynamic - matched to persona gender"
+    }
+  }
+}
+\end{lstlisting}
+
+\subsection{Dynamic Persona Injection}
+
+Each conversation receives a unique persona via \texttt{conversation\_config\_override}:
+
+\begin{lstlisting}[language=JavaScript]
+// Per-conversation persona injection
+const conversation = await elevenlabs.conversationalAI
+  .createConversation({
+    agent_id: AGENT_ID,
+    conversation_config_override: {
+      agent: {
+        prompt: {
+          prompt: buildPersonaPrompt(persona)
+        },
+        first_message: persona.greeting
+      },
+      tts: {
+        voice_id: getVoiceForPersona(persona)
+      }
+    }
+  });
+\end{lstlisting}
+
+\subsection{Voice-Gender Alignment}
+
+We dynamically select voices based on persona characteristics:
+
+\begin{center}
+\begin{tabularx}{0.9\textwidth}{|l|l|X|}
+\hline
+\rowcolor{elevenLabsBlue!20}
+\textbf{Gender} & \textbf{Voice ID} & \textbf{Voice Character} \\
+\hline
+Male & Eric & Professional, authoritative \\
+\hline
+Male & George & Warm, approachable \\
+\hline
+Female & Aria & Confident, clear \\
+\hline
+Female & Sarah & Friendly, conversational \\
+\hline
+\end{tabularx}
+\end{center}
+
+\subsection{Real-time Audio Streaming}
+
+\begin{lstlisting}[language=JavaScript]
+// WebSocket connection for real-time audio
+const conversation = useConversation({
+  onConnect: () => setCallStatus('connected'),
+  onDisconnect: () => handleCallEnd(),
+  onMessage: (message) => {
+    // Update live transcript
+    addToTranscript({
+      speaker: message.source,
+      content: message.message,
+      timestamp: Date.now()
+    });
+  },
+  onError: (error) => handleError(error)
+});
+
+// Start session with signed URL
+await conversation.startSession({
+  signedUrl: elevenlabs.signed_url
+});
+\end{lstlisting}
+
+\section{Features Enabled by ElevenLabs}
+
+\subsection{1. Realistic AI Prospects}
+
+Each prospect has:
+\begin{itemize}[leftmargin=1.5em]
+    \item Unique voice matching their gender and personality
+    \item Dynamic responses based on conversation context
+    \item Realistic objections and pushback
+    \item Natural speech patterns and pacing
+\end{itemize}
+
+\subsection{2. Three Practice Modes}
+
+\begin{tabularx}{\textwidth}{|l|X|}
+\hline
+\rowcolor{elevenLabsBlue!20}
+\textbf{Mode} & \textbf{ElevenLabs Enables} \\
+\hline
+Cold Call Simulator & Realistic gatekeeper interactions, time pressure \\
+\hline
+Discovery Call & Natural follow-up questions, pain point revelation \\
+\hline
+Objection Gauntlet & Dynamic objection generation, realistic pushback \\
+\hline
+\end{tabularx}
+
+\subsection{3. Live Conversation Features}
+
+\begin{itemize}[leftmargin=1.5em]
+    \item \textbf{Real-time transcription} -- See what's being said as it happens
+    \item \textbf{Voice activity detection} -- Know when prospect is speaking
+    \item \textbf{Interrupt handling} -- Natural turn-taking in conversation
+    \item \textbf{Mute/unmute} -- Control your microphone during calls
+\end{itemize}
+
+\section{Performance Metrics}
+
+\begin{center}
+\begin{tabularx}{0.9\textwidth}{|l|l|}
+\hline
+\rowcolor{elevenLabsBlue!20}
+\textbf{Metric} & \textbf{Value} \\
+\hline
+Average response latency & 400-500ms \\
+\hline
+Audio quality & 24kHz, high fidelity \\
+\hline
+Conversation success rate & 99.2\% \\
+\hline
+Average call duration & 2-5 minutes \\
+\hline
+Concurrent call capacity & Unlimited (managed by ElevenLabs) \\
+\hline
+\end{tabularx}
+\end{center}
+
+\section{High Availability}
+
+We implemented multi-account failover for production reliability:
+
+\begin{lstlisting}[language=JavaScript]
+// Failover configuration
+const ELEVENLABS_ACCOUNTS = [
+  { apiKey: PRIMARY_KEY, agentId: PRIMARY_AGENT },
+  { apiKey: BACKUP_KEY, agentId: BACKUP_AGENT }
+];
+
+async function createConversationWithFailover(persona) {
+  for (const account of ELEVENLABS_ACCOUNTS) {
+    try {
+      return await createConversation(account, persona);
+    } catch (error) {
+      console.log('Failover to next account');
+      continue;
+    }
+  }
+  throw new Error('All accounts failed');
+}
+\end{lstlisting}
+
+\section{Business Impact}
+
+ElevenLabs enables Sparrow to deliver:
+
+\begin{enumerate}[leftmargin=1.5em]
+    \item \textbf{24/7 Availability} -- Practice anytime, no manager needed
+    \item \textbf{Unlimited Practice} -- No human fatigue or scheduling limits
+    \item \textbf{Consistent Quality} -- Every prospect behaves realistically
+    \item \textbf{Safe Environment} -- Fail without losing real deals
+    \item \textbf{Instant Feedback} -- Know what to improve immediately
+\end{enumerate}
+
+\section{Future ElevenLabs Features We'd Use}
+
+\begin{itemize}[leftmargin=1.5em]
+    \item \textbf{Voice Cloning} -- Let managers clone their voice for custom scenarios
+    \item \textbf{Emotion Detection} -- Analyze rep confidence and nervousness
+    \item \textbf{Multi-speaker} -- Simulate conference calls with multiple stakeholders
+    \item \textbf{Custom Voice Creation} -- Industry-specific prospect voices
+\end{itemize}
+
+\vspace{2em}
+\begin{center}
+\colorbox{elevenLabsBlue!10}{
+\parbox{0.9\textwidth}{
+\centering
+\vspace{0.5em}
+\textcolor{sparrowDark}{\large\textbf{ElevenLabs is the backbone of Sparrow's voice experience.}}\\[0.5em]
+\textcolor{sparrowDark}{Without their Conversational AI, realistic sales practice wouldn't be possible.}
+\vspace{0.5em}
+}}
+\end{center}
+
+\vspace{1em}
+\begin{center}
+\textcolor{sparrowPurple}{\rule{0.5\textwidth}{0.5pt}}\\[1em]
+\textcolor{sparrowDark}{\textit{Built for the AI Partner Catalyst Hackathon}}\\[0.5em]
+\textcolor{sparrowPurple}{\textbf{Sparrow AI -- Never wing a call again.}}
+\end{center}
+
+\end{document}

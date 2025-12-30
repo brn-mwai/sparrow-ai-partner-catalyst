@@ -1,0 +1,325 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{helvet}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{tikz}
+\renewcommand{\familydefault}{\sfdefault}
+
+\geometry{margin=0.85in}
+
+% Colors
+\definecolor{sparrowPrimary}{HTML}{AA90FE}
+\definecolor{sparrowDark}{HTML}{1B113A}
+\definecolor{sparrowPurple}{HTML}{7c5ce8}
+\definecolor{sparrowDeep}{HTML}{5b21b6}
+\definecolor{moneyGreen}{HTML}{22C55E}
+
+\hypersetup{colorlinks=true,linkcolor=sparrowPurple,urlcolor=sparrowPurple}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\textcolor{sparrowDark}{\small Sparrow AI}}
+\fancyhead[R]{\textcolor{sparrowDark}{\small Business Case}}
+\fancyfoot[C]{\textcolor{sparrowDark}{\thepage}}
+\renewcommand{\headrulewidth}{0.5pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{sparrowPrimary}\leaders\hrule height \headrulewidth\hfill}}
+
+\titleformat{\section}{\Large\bfseries\color{sparrowDark}}{\thesection}{1em}{}
+\titleformat{\subsection}{\large\bfseries\color{sparrowPurple}}{\thesubsection}{1em}{}
+
+\begin{document}
+
+\begin{titlepage}
+    \centering
+    \vspace*{0.5cm}
+    \includegraphics[width=0.3\textwidth]{../public/Logo/sparrow-logo.png}
+    \vspace{1cm}
+
+    {\Huge\bfseries\textcolor{sparrowDark}{Business Case}\par}
+    \vspace{0.3cm}
+    {\Large\textcolor{sparrowPurple}{Market Opportunity \& ROI Analysis}\par}
+    \vspace{1.5cm}
+
+    {\large\textcolor{sparrowDark}{AI Partner Catalyst Hackathon by Google Cloud}}
+    \vfill
+    {\small\textcolor{sparrowDark}{Version 1.0 | December 2025}}
+\end{titlepage}
+
+\section{The Problem}
+
+\begin{center}
+\colorbox{sparrowPrimary!10}{
+\parbox{0.9\textwidth}{
+\centering
+\vspace{0.5em}
+\textcolor{sparrowDark}{\large\textbf{67\% of sales reps miss quota.}}\\[0.3em]
+\textcolor{sparrowDark}{The \#1 reason? Lack of practice before real conversations.}
+\vspace{0.5em}
+}}
+\end{center}
+
+\vspace{1em}
+
+\begin{tabularx}{\textwidth}{|l|X|l|}
+\hline
+\rowcolor{sparrowPrimary!20}
+\textbf{Problem} & \textbf{Impact} & \textbf{Source} \\
+\hline
+Average SDR ramp time & 3-6 months of low productivity & Bridge Group \\
+\hline
+Reps missing quota & 67\% fail to hit targets & Salesforce \\
+\hline
+Manager coaching time & Only 15-20\% of time spent coaching & Gartner \\
+\hline
+Practice on real prospects & Lost deals = lost revenue & Industry \\
+\hline
+Annual rep turnover & 35\% average in SaaS & LinkedIn \\
+\hline
+\end{tabularx}
+
+\section{Market Opportunity}
+
+\subsection{TAM - Total Addressable Market}
+
+\textbf{Global Corporate Training Market: \$380 Billion (2024)}
+
+\begin{itemize}[leftmargin=1.5em]
+    \item Sales training subset: \$5.7 Billion
+    \item Growing at 9.4\% CAGR
+    \item Projected \$9.2 Billion by 2030
+\end{itemize}
+
+\subsection{SAM - Serviceable Addressable Market}
+
+\textbf{AI-Powered Sales Training: \$1.2 Billion}
+
+\begin{itemize}[leftmargin=1.5em]
+    \item Companies actively seeking AI training solutions
+    \item SaaS, Technology, Financial Services focus
+    \item North America and Europe primary markets
+\end{itemize}
+
+\subsection{SOM - Serviceable Obtainable Market}
+
+\textbf{Year 1 Target: \$12 Million}
+
+\begin{itemize}[leftmargin=1.5em]
+    \item 1,000 companies at \$12,000/year average
+    \item Focus: SMB SaaS companies (10-200 sales reps)
+    \item Initial markets: US, UK, Canada
+\end{itemize}
+
+\vspace{1em}
+
+\begin{center}
+\begin{tikzpicture}
+    \fill[sparrowPrimary!20] (0,0) circle (3cm);
+    \fill[sparrowPrimary!40] (0,0) circle (2cm);
+    \fill[sparrowPrimary] (0,0) circle (0.8cm);
+
+    \node at (0,2.5) {\small\textbf{TAM: \$5.7B}};
+    \node at (0,1.3) {\small\textbf{SAM: \$1.2B}};
+    \node at (0,0) {\tiny\textbf{\textcolor{white}{SOM}}};
+    \node at (0,-0.3) {\tiny\textbf{\textcolor{white}{\$12M}}};
+\end{tikzpicture}
+\end{center}
+
+\section{Revenue Model}
+
+\begin{tabularx}{\textwidth}{|l|l|X|l|}
+\hline
+\rowcolor{sparrowPrimary!20}
+\textbf{Plan} & \textbf{Price} & \textbf{Features} & \textbf{Target} \\
+\hline
+Starter & \$49/user/mo & 50 calls, basic scoring & Individual reps \\
+\hline
+Pro & \$99/user/mo & Unlimited calls, full analytics & Sales teams \\
+\hline
+Enterprise & Custom & SSO, API, custom personas & Large orgs \\
+\hline
+\end{tabularx}
+
+\vspace{1em}
+
+\textbf{Unit Economics (Pro Plan):}
+\begin{itemize}[leftmargin=1.5em]
+    \item Average Revenue Per User (ARPU): \$99/month
+    \item Cost per user (AI APIs): \$15/month
+    \item Gross Margin: 85\%
+    \item Target LTV:CAC ratio: 5:1
+\end{itemize}
+
+\section{ROI for Customers}
+
+\subsection{Cost of the Problem}
+
+\begin{center}
+\begin{tabularx}{0.9\textwidth}{|X|l|}
+\hline
+\rowcolor{sparrowPrimary!20}
+\textbf{Cost Factor} & \textbf{Annual Cost} \\
+\hline
+Extended ramp time (3 extra months $\times$ \$60K salary) & \$15,000/rep \\
+\hline
+Lost deals during ramp (avg 2 deals $\times$ \$25K ACV) & \$50,000/rep \\
+\hline
+Manager coaching time (5 hrs/week $\times$ \$75/hr) & \$19,500/rep \\
+\hline
+Rep turnover (35\% $\times$ \$30K replacement cost) & \$10,500/rep \\
+\hline
+\textbf{Total Annual Cost} & \textbf{\$95,000/rep} \\
+\hline
+\end{tabularx}
+\end{center}
+
+\subsection{Sparrow ROI Calculator}
+
+\textbf{For a team of 10 sales reps:}
+
+\begin{center}
+\begin{tabularx}{0.9\textwidth}{|X|r|}
+\hline
+\rowcolor{moneyGreen!20}
+\textbf{Metric} & \textbf{Value} \\
+\hline
+Annual Sparrow cost (10 users $\times$ \$99 $\times$ 12) & \$11,880 \\
+\hline
+Ramp time reduction (1 month saved $\times$ 10 reps) & \$50,000 saved \\
+\hline
+Quota attainment improvement (10\% $\times$ \$500K quota) & \$50,000 gained \\
+\hline
+Manager time saved (3 hrs/week $\times$ 52 weeks $\times$ \$75) & \$11,700 saved \\
+\hline
+\textbf{Total Annual Benefit} & \textbf{\$111,700} \\
+\hline
+\rowcolor{moneyGreen!30}
+\textbf{ROI} & \textbf{840\%} \\
+\hline
+\end{tabularx}
+\end{center}
+
+\section{Competitive Landscape}
+
+\begin{tabularx}{\textwidth}{|l|X|X|}
+\hline
+\rowcolor{sparrowPrimary!20}
+\textbf{Competitor} & \textbf{Approach} & \textbf{Sparrow Advantage} \\
+\hline
+Gong / Chorus & Call recording \& analysis (reactive) & Proactive practice before calls \\
+\hline
+Second Nature & Scripted video scenarios & Real-time voice AI conversations \\
+\hline
+Rehearsal VR & VR-based training & No hardware needed, accessible \\
+\hline
+Manager roleplay & Human-dependent & Available 24/7, consistent quality \\
+\hline
+\end{tabularx}
+
+\vspace{1em}
+
+\textbf{Sparrow's Unique Position:}
+\begin{enumerate}[leftmargin=1.5em]
+    \item \textbf{Only} solution with real-time voice AI conversations
+    \item \textbf{Only} solution generating unique prospects per session
+    \item \textbf{Only} solution combining practice + instant feedback
+\end{enumerate}
+
+\section{Go-to-Market Strategy}
+
+\subsection{Phase 1: Launch (Months 1-3)}
+\begin{itemize}[leftmargin=1.5em]
+    \item Product Hunt launch
+    \item LinkedIn content marketing
+    \item Sales community partnerships (RevGenius, Pavilion)
+    \item Free tier for individual reps
+\end{itemize}
+
+\subsection{Phase 2: Growth (Months 4-9)}
+\begin{itemize}[leftmargin=1.5em]
+    \item Team plans with manager dashboards
+    \item Integration partnerships (Salesforce, HubSpot)
+    \item Case studies from early adopters
+    \item Paid acquisition (LinkedIn, Google)
+\end{itemize}
+
+\subsection{Phase 3: Scale (Months 10-18)}
+\begin{itemize}[leftmargin=1.5em]
+    \item Enterprise sales team
+    \item API for custom integrations
+    \item Industry-specific training modules
+    \item International expansion
+\end{itemize}
+
+\section{Traction \& Validation}
+
+\begin{tabularx}{\textwidth}{|l|X|}
+\hline
+\rowcolor{sparrowPrimary!20}
+\textbf{Milestone} & \textbf{Status} \\
+\hline
+MVP Development & Complete (8 days) \\
+\hline
+Core Features & Voice AI, scoring, progress tracking \\
+\hline
+Technology Validation & ElevenLabs + Gemini integration working \\
+\hline
+Domain & sprrw.app secured \\
+\hline
+Deployment & Production on Vercel \\
+\hline
+\end{tabularx}
+
+\section{Financial Projections}
+
+\begin{tabularx}{\textwidth}{|l|r|r|r|}
+\hline
+\rowcolor{sparrowPrimary!20}
+\textbf{Metric} & \textbf{Year 1} & \textbf{Year 2} & \textbf{Year 3} \\
+\hline
+Paying Users & 1,000 & 5,000 & 20,000 \\
+\hline
+ARR & \$720K & \$4.5M & \$18M \\
+\hline
+Gross Margin & 80\% & 82\% & 85\% \\
+\hline
+\end{tabularx}
+
+\section{The Ask}
+
+\textbf{We're seeking:}
+\begin{enumerate}[leftmargin=1.5em]
+    \item Recognition in the AI Partner Catalyst Hackathon
+    \item Continued access to ElevenLabs and Google Cloud credits
+    \item Introductions to potential enterprise customers
+    \item Feedback from industry experts
+\end{enumerate}
+
+\vspace{2em}
+\begin{center}
+\colorbox{moneyGreen!10}{
+\parbox{0.9\textwidth}{
+\centering
+\vspace{0.5em}
+\textcolor{sparrowDark}{\large\textbf{Sparrow transforms how sales teams practice.}}\\[0.5em]
+\textcolor{sparrowDark}{\$5.7B market. 840\% customer ROI. Built in 8 days.}
+\vspace{0.5em}
+}}
+\end{center}
+
+\vspace{1em}
+\begin{center}
+\textcolor{sparrowPurple}{\rule{0.5\textwidth}{0.5pt}}\\[1em]
+\textcolor{sparrowPurple}{\textbf{Sparrow AI -- Never wing a call again.}}
+\end{center}
+
+\end{document}
