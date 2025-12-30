@@ -171,7 +171,7 @@ chrome.runtime.onMessageExternal.addListener(
 
     // Verify sender is our app
     const allowedOrigins = [
-      'https://sparrow-ai.brianmwai.com',
+      'https://sprrw.app',
       'http://localhost:3000',
     ];
 

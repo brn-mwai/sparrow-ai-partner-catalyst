@@ -4,7 +4,7 @@
 
 Practice sales calls with AI prospects that push back like real buyers. Get instant feedback, improve faster, never practice on real deals again.
 
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-sparrow--ai.vercel.app-blue?style=for-the-badge)](https://sparrow-ai.vercel.app)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-sprrw.app-blue?style=for-the-badge)](https://sprrw.app)
 [![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 [![ElevenLabs](https://img.shields.io/badge/Voice%20AI-ElevenLabs-purple?style=for-the-badge)](https://elevenlabs.io)
 [![Gemini](https://img.shields.io/badge/AI-Google%20Gemini-orange?style=for-the-badge)](https://ai.google.dev)

@@ -4,14 +4,18 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 
 interface SidebarContextType {
   isCollapsed: boolean;
+  isMobileOpen: boolean;
   toggleCollapse: () => void;
   setCollapsed: (collapsed: boolean) => void;
+  toggleMobile: () => void;
+  closeMobile: () => void;
 }
 
 const SidebarContext = createContext<SidebarContextType | undefined>(undefined);
 
 export function SidebarProvider({ children }: { children: ReactNode }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [previousState, setPreviousState] = useState<boolean | null>(null);
 
   // Persist collapsed state in localStorage
@@ -22,6 +26,17 @@ export function SidebarProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  // Close mobile sidebar on resize
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth > 768) {
+        setIsMobileOpen(false);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const toggleCollapse = () => {
     const newState = !isCollapsed;
     setIsCollapsed(newState);
@@ -29,11 +44,9 @@ export function SidebarProvider({ children }: { children: ReactNode }) {
   };
 
   const setCollapsed = (collapsed: boolean) => {
-    // Store previous state before forcing collapse (for restoration later)
     if (collapsed && previousState === null) {
       setPreviousState(isCollapsed);
     } else if (!collapsed && previousState !== null) {
-      // Restore previous state when un-forcing
       setIsCollapsed(previousState);
       setPreviousState(null);
       return;
@@ -41,8 +54,23 @@ export function SidebarProvider({ children }: { children: ReactNode }) {
     setIsCollapsed(collapsed);
   };
 
+  const toggleMobile = () => {
+    setIsMobileOpen(!isMobileOpen);
+  };
+
+  const closeMobile = () => {
+    setIsMobileOpen(false);
+  };
+
   return (
-    <SidebarContext.Provider value={{ isCollapsed, toggleCollapse, setCollapsed }}>
+    <SidebarContext.Provider value={{
+      isCollapsed,
+      isMobileOpen,
+      toggleCollapse,
+      setCollapsed,
+      toggleMobile,
+      closeMobile
+    }}>
       {children}
     </SidebarContext.Provider>
   );

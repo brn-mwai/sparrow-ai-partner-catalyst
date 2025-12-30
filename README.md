@@ -2,7 +2,7 @@
 
 **AI-Powered Sales Training Platform** - Practice sales calls with realistic AI prospects that push back like real buyers.
 
-[![Live Demo](https://img.shields.io/badge/Live-sparrow--ai.vercel.app-blue)](https://sparrow-ai.vercel.app)
+[![Live Demo](https://img.shields.io/badge/Live-sprrw.app-blue)](https://sprrw.app)
 [![Next.js](https://img.shields.io/badge/Next.js-15-black)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue)](https://www.typescriptlang.org/)
 [![ElevenLabs](https://img.shields.io/badge/Voice-ElevenLabs-purple)](https://elevenlabs.io/)

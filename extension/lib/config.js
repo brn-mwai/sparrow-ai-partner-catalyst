@@ -4,7 +4,7 @@
 
 // API Base URL - change for production
 export const API_BASE = typeof chrome !== 'undefined' && chrome.runtime?.id
-  ? 'https://sparrow-ai.brianmwai.com'
+  ? 'https://sprrw.app'
   : 'http://localhost:3000';
 
 // Auth page URL

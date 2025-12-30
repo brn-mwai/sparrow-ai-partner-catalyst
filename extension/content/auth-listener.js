@@ -6,7 +6,7 @@
 // Listen for auth token from the web app
 window.addEventListener('message', async (event) => {
   // Only accept messages from our app
-  if (event.origin !== 'https://sparrow-ai.brianmwai.com' &&
+  if (event.origin !== 'https://sprrw.app' &&
       event.origin !== 'http://localhost:3000') {
     return;
   }

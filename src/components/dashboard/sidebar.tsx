@@ -40,7 +40,7 @@ const services: ServiceStatus[] = [
 
 export function Sidebar() {
   const pathname = usePathname();
-  const { isCollapsed, toggleCollapse } = useSidebar();
+  const { isCollapsed, isMobileOpen, toggleCollapse, closeMobile } = useSidebar();
 
   const isActive = (href: string) => {
     if (href === '/dashboard') {
@@ -49,11 +49,17 @@ export function Sidebar() {
     return pathname.startsWith(href);
   };
 
+  const sidebarClasses = [
+    'sidebar',
+    isCollapsed ? 'collapsed' : '',
+    isMobileOpen ? 'mobile-open' : ''
+  ].filter(Boolean).join(' ');
+
   return (
-    <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
+    <aside className={sidebarClasses}>
       {/* Header */}
       <div className="sidebar-header">
-        <Link href="/dashboard" className="sidebar-logo">
+        <Link href="/dashboard" className="sidebar-logo" onClick={closeMobile}>
           {isCollapsed ? (
             <Image
               src="/Assets/sparrow-ai.png"
@@ -73,11 +79,18 @@ export function Sidebar() {
           )}
         </Link>
         <button
-          className="sidebar-collapse-btn"
+          className="sidebar-collapse-btn desktop-only"
           onClick={toggleCollapse}
           title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
           <i className={`ph ${isCollapsed ? 'ph-sidebar-simple' : 'ph-sidebar-simple'}`}></i>
+        </button>
+        <button
+          className="sidebar-close-btn mobile-only"
+          onClick={closeMobile}
+          aria-label="Close menu"
+        >
+          <i className="ph ph-x"></i>
         </button>
       </div>
 
@@ -91,6 +104,7 @@ export function Sidebar() {
               href={item.href}
               className={`sidebar-nav-item ${isActive(item.href) ? 'active' : ''}`}
               title={isCollapsed ? item.label : undefined}
+              onClick={closeMobile}
             >
               <i className={`ph ${item.icon}`}></i>
               {!isCollapsed && <span>{item.label}</span>}
@@ -111,6 +125,7 @@ export function Sidebar() {
               href={item.href}
               className={`sidebar-nav-item ${isActive(item.href) ? 'active' : ''}`}
               title={isCollapsed ? item.label : undefined}
+              onClick={closeMobile}
             >
               <i className={`ph ${item.icon}`}></i>
               {!isCollapsed && <span>{item.label}</span>}

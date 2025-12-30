@@ -13,7 +13,7 @@
   "host_permissions": [
     "https://www.linkedin.com/*",
     "https://linkedin.com/*",
-    "https://sparrow-ai.brianmwai.com/*",
+    "https://sprrw.app/*",
     "http://localhost:3000/*"
   ],
 
@@ -37,7 +37,7 @@
     },
     {
       "matches": [
-        "https://sparrow-ai.brianmwai.com/auth/extension*",
+        "https://sprrw.app/auth/extension*",
         "http://localhost:3000/auth/extension*"
       ],
       "js": ["content/auth-listener.js"],

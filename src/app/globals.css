@@ -98,7 +98,7 @@
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 
-  --letter-spacing-tight: -0.094em;
+  --letter-spacing-tight: -0.02em;
 }
 
 *,
@@ -5935,6 +5935,264 @@ select {
 
 .sidebar.collapsed .sidebar-services {
   display: none;
+}
+
+/* ============================================
+   MOBILE RESPONSIVE DASHBOARD
+   ============================================ */
+
+/* Mobile Header - Only visible on mobile */
+.mobile-header {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 56px;
+  background: var(--white);
+  border-bottom: 1px solid var(--gray-200);
+  padding: 0 1rem;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 40;
+}
+
+.mobile-menu-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--gray-600);
+  transition: all 0.2s ease;
+}
+
+.mobile-menu-btn:hover {
+  background: var(--gray-100);
+  color: var(--gray-900);
+}
+
+.mobile-menu-btn i {
+  font-size: 1.5rem;
+}
+
+.mobile-logo {
+  display: flex;
+  align-items: center;
+}
+
+.mobile-header-spacer {
+  width: 40px;
+}
+
+/* Mobile Overlay */
+.mobile-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 45;
+  backdrop-filter: blur(2px);
+}
+
+/* Sidebar Close Button (mobile only) */
+.sidebar-close-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--gray-500);
+  transition: all 0.2s ease;
+}
+
+.sidebar-close-btn:hover {
+  background: var(--gray-100);
+  color: var(--gray-900);
+}
+
+.sidebar-close-btn i {
+  font-size: 1.25rem;
+}
+
+/* Desktop/Mobile visibility helpers */
+.desktop-only {
+  display: flex;
+}
+
+.mobile-only {
+  display: none;
+}
+
+/* Mobile Styles */
+@media (max-width: 768px) {
+  /* Show mobile header */
+  .mobile-header {
+    display: flex;
+  }
+
+  /* Mobile overlay - shows when rendered (React handles conditional rendering) */
+  .mobile-overlay {
+    display: block;
+  }
+
+  /* Sidebar becomes a slide-out panel */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 280px;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    z-index: 50;
+  }
+
+  .sidebar.mobile-open {
+    transform: translateX(0);
+  }
+
+  /* Never collapse sidebar on mobile - always show full width */
+  .sidebar.collapsed {
+    width: 280px;
+  }
+
+  .sidebar.collapsed .sidebar-header {
+    padding: 1.25rem 1.5rem;
+    justify-content: space-between;
+    flex-direction: row;
+    gap: 0.5rem;
+  }
+
+  .sidebar.collapsed .sidebar-nav-section {
+    padding: 0 0.75rem;
+  }
+
+  .sidebar.collapsed .sidebar-nav-item {
+    justify-content: flex-start;
+    padding: 0.75rem 1rem;
+  }
+
+  .sidebar.collapsed .sidebar-nav-item span,
+  .sidebar.collapsed .sidebar-nav-label {
+    display: block;
+  }
+
+  .sidebar.collapsed .sidebar-services {
+    display: block;
+  }
+
+  .sidebar.collapsed .sidebar-footer {
+    padding: 1rem 1.5rem;
+  }
+
+  .sidebar.collapsed .sidebar-user-info {
+    display: flex;
+  }
+
+  /* Toggle visibility */
+  .desktop-only {
+    display: none;
+  }
+
+  .mobile-only {
+    display: flex;
+  }
+
+  /* Adjust main content */
+  .dashboard-content {
+    margin-left: 0;
+    width: 100%;
+    padding-top: 56px;
+  }
+
+  .dashboard-content.sidebar-collapsed {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  /* Dashboard page adjustments */
+  .dashboard-page {
+    padding: 1rem;
+  }
+
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .dashboard-header-actions {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  /* Stats grid */
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  /* Quick start cards */
+  .quick-start-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Recent calls */
+  .recent-calls-list {
+    gap: 0.75rem;
+  }
+
+  .call-card {
+    padding: 1rem;
+  }
+
+  .call-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  /* Coach Sparrow positioning */
+  .coach-sparrow {
+    bottom: 1rem;
+    right: 1rem;
+  }
+
+  .coach-sparrow-chat {
+    width: calc(100vw - 2rem);
+    max-width: 360px;
+    right: 0;
+    bottom: 70px;
+    max-height: 60vh;
+  }
+}
+
+/* Smaller mobile screens */
+@media (max-width: 480px) {
+  .mobile-header {
+    padding: 0 0.75rem;
+  }
+
+  .dashboard-page {
+    padding: 0.75rem;
+  }
+
+  .stat-card {
+    padding: 1rem;
+  }
+
+  .quick-start-card {
+    padding: 1.25rem;
+  }
 }
 
 /* ============================================
