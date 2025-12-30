@@ -93,83 +93,41 @@ export async function POST(req: NextRequest) {
     }
 
     const supabase = createAdminClient();
+    const email = clerkUser.emailAddresses?.[0]?.emailAddress || '';
+    const name = [clerkUser.firstName, clerkUser.lastName].filter(Boolean).join(' ') || null;
 
-    // First, check if user exists
+    // Use upsert to handle both new users and existing users
+    // This handles cases where user exists with same email but different clerk_id
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: existingUser, error: selectError } = await (supabase as any)
+    const { data: user, error: upsertError } = await (supabase as any)
       .from('users')
-      .select('id')
-      .eq('clerk_id', userId)
+      .upsert({
+        clerk_id: userId,
+        email,
+        name,
+        role,
+        industry,
+        preferences: {
+          goals: goals || [],
+          company_name: company_name || null,
+          show_tour: true,
+        },
+        onboarding_completed: true,
+        plan: 'free',
+        updated_at: new Date().toISOString(),
+      }, {
+        onConflict: 'email',
+        ignoreDuplicates: false,
+      })
+      .select()
       .single();
 
-    if (selectError && selectError.code !== 'PGRST116') {
-      // PGRST116 = no rows returned, which is fine
-      console.error('Database select error:', selectError);
-    }
-
-    let user;
-
-    if (existingUser) {
-      // Update existing user
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: updatedUser, error: updateError } = await (supabase as any)
-        .from('users')
-        .update({
-          role,
-          industry,
-          preferences: {
-            goals: goals || [],
-            company_name: company_name || null,
-            show_tour: true,
-          },
-          onboarding_completed: true,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('clerk_id', userId)
-        .select()
-        .single();
-
-      if (updateError) {
-        console.error('Failed to update user:', updateError);
-        return NextResponse.json(
-          { error: 'Failed to complete onboarding', details: updateError.message, code: updateError.code },
-          { status: 500 }
-        );
-      }
-      user = updatedUser;
-    } else {
-      // Create new user (webhook may not have fired yet)
-      const email = clerkUser.emailAddresses?.[0]?.emailAddress;
-      const name = [clerkUser.firstName, clerkUser.lastName].filter(Boolean).join(' ') || null;
-
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: newUser, error: insertError } = await (supabase as any)
-        .from('users')
-        .insert({
-          clerk_id: userId,
-          email: email || '',
-          name,
-          role,
-          industry,
-          preferences: {
-            goals: goals || [],
-            company_name: company_name || null,
-            show_tour: true,
-          },
-          onboarding_completed: true,
-          plan: 'free',
-        })
-        .select()
-        .single();
-
-      if (insertError) {
-        console.error('Failed to create user:', insertError);
-        return NextResponse.json(
-          { error: 'Failed to complete onboarding', details: insertError.message, code: insertError.code },
-          { status: 500 }
-        );
-      }
-      user = newUser;
+    if (upsertError) {
+      console.error('Failed to upsert user:', upsertError);
+      return NextResponse.json(
+        { error: 'Failed to complete onboarding', details: upsertError.message, code: upsertError.code },
+        { status: 500 }
+      );
     }
 
     // Create initial user_progress record
