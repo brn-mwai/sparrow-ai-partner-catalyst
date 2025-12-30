@@ -30,7 +30,12 @@
       "WebSearch",
       "WebFetch(domain:www.npmjs.com)",
       "WebFetch(domain:github.com)",
-      "Bash(git diff:*)"
+      "Bash(git diff:*)",
+      "Bash(pdflatex:*)",
+      "Bash(initexmf:*)",
+      "Bash(timeout 60 pdflatex:*)",
+      "Bash(nslookup:*)",
+      "Bash(curl:*)"
     ]
   }
 }

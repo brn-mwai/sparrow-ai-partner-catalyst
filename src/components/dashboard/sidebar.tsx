@@ -23,7 +23,6 @@ const mainNavItems: NavItem[] = [
 ];
 
 const secondaryNavItems: NavItem[] = [
-  { label: 'Integrations', href: '/dashboard/integrations', icon: 'ph-plugs-connected' },
   { label: 'Settings', href: '/dashboard/settings', icon: 'ph-gear' },
 ];
 
