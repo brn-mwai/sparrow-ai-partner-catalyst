@@ -27,17 +27,6 @@ const secondaryNavItems: NavItem[] = [
   { label: 'Settings', href: '/dashboard/settings', icon: 'ph-gear' },
 ];
 
-interface ServiceStatus {
-  name: string;
-  status: 'active' | 'monitoring' | 'inactive';
-  icon: string;
-}
-
-const services: ServiceStatus[] = [
-  { name: 'ElevenLabs', status: 'active', icon: 'ph-microphone' },
-  { name: 'Gemini', status: 'active', icon: 'ph-brain' },
-];
-
 export function Sidebar() {
   const pathname = usePathname();
   const { isCollapsed, isMobileOpen, toggleCollapse, closeMobile } = useSidebar();
@@ -133,30 +122,6 @@ export function Sidebar() {
           ))}
         </div>
       </nav>
-
-      {/* Services Status */}
-      {!isCollapsed && (
-        <div className="sidebar-services">
-          <span className="sidebar-services-label">Services</span>
-          <div className="sidebar-services-list">
-            {services.map((service) => (
-              <div key={service.name} className="sidebar-service-item">
-                <div className="sidebar-service-info">
-                  <i className={`ph ${service.icon}`}></i>
-                  <span>{service.name}</span>
-                </div>
-                <div className={`sidebar-service-status ${service.status}`}>
-                  <span className="sidebar-service-dot"></span>
-                  <span className="sidebar-service-text">
-                    {service.status === 'active' ? 'Active' :
-                     service.status === 'monitoring' ? 'Monitoring' : 'Inactive'}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
 
       {/* User Profile */}
       <div className="sidebar-footer">
