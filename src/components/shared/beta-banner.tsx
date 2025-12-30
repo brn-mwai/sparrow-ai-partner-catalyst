@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
 interface BetaBannerProps {
@@ -9,6 +9,20 @@ interface BetaBannerProps {
 
 export function BetaBanner({ variant = 'landing' }: BetaBannerProps) {
   const [isVisible, setIsVisible] = useState(true);
+
+  // Add/remove class on document root to adjust layout
+  useEffect(() => {
+    if (isVisible) {
+      document.documentElement.classList.add('has-beta-banner');
+    } else {
+      document.documentElement.classList.remove('has-beta-banner');
+    }
+
+    // Cleanup on unmount
+    return () => {
+      document.documentElement.classList.remove('has-beta-banner');
+    };
+  }, [isVisible]);
 
   if (!isVisible) return null;
 

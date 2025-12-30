@@ -223,6 +223,14 @@ select {
    ============================================ */
 
 /* Beta Banner - Stacked above navbar/sidebar */
+:root {
+  --banner-height: 0px;
+}
+
+:root.has-beta-banner {
+  --banner-height: 40px;
+}
+
 .beta-banner {
   background: linear-gradient(135deg, #5b21b6 0%, #7c3aed 100%);
   color: white;
@@ -751,8 +759,8 @@ select {
 
 .dashboard-layout {
   display: flex;
-  min-height: calc(100vh - 40px); /* Account for beta banner */
-  margin-top: 40px; /* Push down for beta banner */
+  min-height: calc(100vh - var(--banner-height));
+  margin-top: var(--banner-height);
   background: var(--gray-50);
 }
 
@@ -764,11 +772,11 @@ select {
   display: flex;
   flex-direction: column;
   position: fixed;
-  top: 40px; /* Account for beta banner */
+  top: var(--banner-height);
   left: 0;
-  height: calc(100vh - 40px); /* Account for beta banner */
+  height: calc(100vh - var(--banner-height));
   z-index: 50;
-  transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1), top 0.2s ease, height 0.2s ease;
 }
 
 .sidebar.collapsed {
@@ -998,7 +1006,7 @@ select {
 .dashboard-content {
   flex: 1;
   margin-left: 256px;
-  min-height: calc(100vh - 40px); /* Account for beta banner */
+  min-height: calc(100vh - var(--banner-height));
   width: calc(100% - 256px);
   transition: margin-left 0.2s cubic-bezier(0.4, 0, 0.2, 1), width 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -2359,10 +2367,10 @@ select {
 
 @media (max-width: 768px) {
   .sidebar {
-    top: 40px; /* Account for beta banner */
-    height: calc(100vh - 40px);
+    top: var(--banner-height);
+    height: calc(100vh - var(--banner-height));
     transform: translateX(-100%);
-    transition: transform 0.3s ease;
+    transition: transform 0.3s ease, top 0.2s ease, height 0.2s ease;
   }
 
   .sidebar.open {
@@ -6257,7 +6265,7 @@ select {
 .mobile-header {
   display: none;
   position: fixed;
-  top: 40px; /* Account for beta banner */
+  top: var(--banner-height);
   left: 0;
   right: 0;
   height: 56px;
@@ -6267,6 +6275,7 @@ select {
   align-items: center;
   justify-content: space-between;
   z-index: 40;
+  transition: top 0.2s ease;
 }
 
 .mobile-menu-btn {
@@ -6359,13 +6368,13 @@ select {
   /* Sidebar becomes a slide-out panel */
   .sidebar {
     position: fixed;
-    top: 40px; /* Account for beta banner */
+    top: var(--banner-height);
     left: 0;
     bottom: 0;
     width: 280px;
-    height: calc(100vh - 40px); /* Account for beta banner */
+    height: calc(100vh - var(--banner-height));
     transform: translateX(-100%);
-    transition: transform 0.3s ease;
+    transition: transform 0.3s ease, top 0.2s ease, height 0.2s ease;
     z-index: 50;
   }
 

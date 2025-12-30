@@ -109,13 +109,14 @@
 /* -------------------- Header -------------------- */
 .header {
   position: fixed;
-  top: 40px; /* Account for beta banner height */
+  top: var(--banner-height, 0px);
   left: 0;
   right: 0;
   z-index: 50;
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--gray-200);
+  transition: top 0.2s ease;
 }
 
 .headerInner {
@@ -269,9 +270,10 @@
 
 /* -------------------- Hero Section -------------------- */
 .hero {
-  padding-top: 9.5rem; /* 7rem + 2.5rem for beta banner */
+  padding-top: calc(7rem + var(--banner-height, 0px));
   padding-bottom: 1.5rem;
   background: var(--white);
+  transition: padding-top 0.2s ease;
 }
 
 .heroInner {
@@ -1686,7 +1688,7 @@
 
   /* Hero */
   .hero {
-    padding-top: 7.5rem; /* 5rem + 2.5rem for beta banner */
+    padding-top: calc(5rem + var(--banner-height, 0px));
     padding-bottom: 2.5rem;
   }
 
@@ -2068,7 +2070,7 @@
 /* Extra Small Mobile - 375px */
 @media (max-width: 375px) {
   .hero {
-    padding-top: 7rem; /* 4.5rem + 2.5rem for beta banner */
+    padding-top: calc(4.5rem + var(--banner-height, 0px));
   }
 
   .heroTitle {
