@@ -35,7 +35,8 @@
       "Bash(initexmf:*)",
       "Bash(timeout 60 pdflatex:*)",
       "Bash(nslookup:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "WebFetch(domain:v0.app)"
     ]
   }
 }

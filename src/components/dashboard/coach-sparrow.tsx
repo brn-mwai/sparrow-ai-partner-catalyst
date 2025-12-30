@@ -282,22 +282,19 @@ export function CoachSparrow() {
         </div>
       </div>
 
-      {/* Toggle Button - Orb is the button itself */}
-      <div
+      {/* Toggle Button - Pill shape with orb and text */}
+      <button
         className={`coach-sparrow-toggle ${isOpen ? 'open' : ''}`}
         onClick={() => setIsOpen(!isOpen)}
-        role="button"
-        tabIndex={0}
         aria-label={isOpen ? 'Close Coach Sparrow' : 'Open Coach Sparrow'}
-        onKeyDown={(e) => e.key === 'Enter' && setIsOpen(!isOpen)}
       >
-        <RiveOrb size={56} colorMode={9} isActive={isThinking || isOpen} />
-        {isOpen && (
-          <div className="coach-sparrow-toggle-close">
-            <i className="ph ph-x"></i>
-          </div>
-        )}
-      </div>
+        <div className="coach-sparrow-toggle-orb">
+          <RiveOrb size={44} colorMode={9} isActive={isThinking || isOpen} />
+        </div>
+        <span className="coach-sparrow-toggle-text">
+          {isOpen ? 'Close' : 'Ask Coach'}
+        </span>
+      </button>
     </div>
   );
 }
