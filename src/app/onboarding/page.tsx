@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { useUser } from '@clerk/nextjs';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -101,7 +100,6 @@ function setCookie(name: string, value: string, days: number) {
 }
 
 export default function OnboardingPage() {
-  const router = useRouter();
   const { user, isLoaded } = useUser();
   const [step, setStep] = useState<Step>('loading');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -124,7 +122,7 @@ export default function OnboardingPage() {
           if (result.onboarding_completed) {
             // Set cookie and redirect to dashboard
             setCookie('sparrow_onboarding_completed', 'true', 30);
-            router.replace('/dashboard');
+            window.location.href = '/dashboard';
             return;
           }
         }
@@ -137,7 +135,7 @@ export default function OnboardingPage() {
     };
 
     checkOnboarding();
-  }, [isLoaded, router]);
+  }, [isLoaded]);
 
   const handleRoleSelect = (roleId: string) => {
     setData(prev => ({ ...prev, role: roleId }));
@@ -172,10 +170,11 @@ export default function OnboardingPage() {
       if (response.ok) {
         // Set cookie to mark onboarding as completed
         setCookie('sparrow_onboarding_completed', 'true', 30);
-        // Redirect to dashboard with tour param
-        router.push('/dashboard?tour=true');
+        // Use hard redirect to ensure cookie is sent with request
+        window.location.href = '/dashboard?tour=true';
       } else {
-        console.error('Onboarding failed');
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Onboarding failed:', errorData);
         setIsSubmitting(false);
       }
     } catch (error) {
